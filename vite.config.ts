@@ -33,7 +33,21 @@ export default defineConfig(() => ({
     alias: {
       "@": path.resolve(__dirname, "../anomaly-eye-monitor/src"),
       "@desktop": path.resolve(__dirname, "./src"),
+      // React를 factor-desktop의 node_modules 단일 인스턴스로 강제
+      // (FE 소스가 import한 react가 anomaly-eye-monitor/node_modules에서 별도 로드되는
+      //  "Invalid hook call: two React copies" 회피)
+      react: path.resolve(__dirname, "node_modules/react"),
+      "react-dom": path.resolve(__dirname, "node_modules/react-dom"),
     },
+    // Context-기반 라이브러리는 모두 단일 인스턴스로 dedupe 필요
+    dedupe: [
+      "react",
+      "react-dom",
+      "react-router",
+      "react-router-dom",
+      "@tanstack/react-query",
+      "@tanstack/query-core",
+    ],
   },
   build: {
     rollupOptions: {
