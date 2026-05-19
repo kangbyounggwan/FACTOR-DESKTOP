@@ -4,3 +4,5 @@ export { AddressBar } from "./AddressBar";
 export { WebViewFrame } from "./WebViewFrame";
 export { AddAppUrlDialog } from "./AddAppUrlDialog";
 export { useAppUrls } from "./useAppUrls";
+export { useSelectedAppUrl } from "./useSelectedAppUrl";
+export { AppSidebar } from "./AppSidebar";

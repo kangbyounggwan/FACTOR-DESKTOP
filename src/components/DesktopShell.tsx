@@ -27,6 +27,7 @@ import {
 } from "@desktop/features/sidebar";
 import { LineMonitoringSidebar } from "@/features/monitoring/components/LineMonitoringSidebar";
 import { LineMonitoringProvider } from "@/features/monitoring/context/LineMonitoringContext";
+import { AppSidebar } from "@desktop/features/app";
 import { DesktopAuthWidget } from "./DesktopAuthWidget";
 import { DesktopTopBar } from "./DesktopTopBar";
 import { RequireAuthDialog } from "./RequireAuthDialog";
@@ -80,6 +81,7 @@ export function DesktopShell({ children }: { children: ReactNode }) {
   // 사이드바 Recents 클릭 — /chat에 있으면 단순 로드, 다른 페이지면 /chat로 navigate
   const isOnChat = location.pathname.startsWith("/chat");
   const isOnMonitoring = location.pathname.startsWith("/monitoring");
+  const isOnApp = location.pathname.startsWith("/app");
   const handleSelectRecent = useCallback(
     (id: string) => {
       if (isOnChat) {
@@ -138,9 +140,15 @@ export function DesktopShell({ children }: { children: ReactNode }) {
                   <LineMonitoringProvider>
                     <LineMonitoringSidebar embedded />
                   </LineMonitoringProvider>
+                ) : isOnApp ? (
+                  // /app(APP)에서는 어플리케이션 런처 — 등록된 URL을 favicon + name 행으로.
+                  // 선택 상태는 useSelectedAppUrl(Zustand)로 본문 webview와 공유.
+                  <AppSidebar />
                 ) : undefined
               }
-              recentsLabel={isOnMonitoring ? "Zone" : undefined}
+              recentsLabel={
+                isOnMonitoring ? "Zone" : isOnApp ? "Apps" : undefined
+              }
             />
           )}
 

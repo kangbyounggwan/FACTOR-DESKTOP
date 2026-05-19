@@ -4,13 +4,14 @@
  * DesktopShell이 outer 구조(드래그 영역, 사이드바, auth modal)를 책임.
  * 이 페이지는 main area 내부 컨텐츠(URL 그리드 / 웹뷰)만 담당.
  *
- * URL CRUD는 useAppUrls (Desktop: electron-store, Web: localStorage).
- * webview 메서드(reload, goBack, goForward)는 ref로 호출 (Electron 한계로 unknown 캐스트).
+ * 선택된 URL ID는 useSelectedAppUrl(Zustand) 글로벌 store에서 관리 —
+ * 사이드바(AppSidebar)와 본문(이 페이지)이 같은 selectedId를 공유.
  */
 
 import { useState, useRef, useCallback } from "react";
 import {
   useAppUrls,
+  useSelectedAppUrl,
   UrlGrid,
   AddressBar,
   WebViewFrame,
@@ -21,15 +22,15 @@ import type { AppUrlEntry } from "@desktop/types/electron";
 
 export default function AppPage() {
   const { urls, loading, add, remove, update } = useAppUrls();
+  const { selectedId, setSelectedId } = useSelectedAppUrl();
 
   const [addOpen, setAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AppUrlEntry | null>(null);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
   const webviewRef = useRef<HTMLElement | null>(null);
 
   const selected = urls.find((u) => u.id === selectedId) ?? null;
 
-  // webview 메서드 호출 (Electron <webview> 인스턴스에 직접 접근)
+  // webview 메서드 호출
   const reload = useCallback(() => {
     const wv = webviewRef.current as unknown as { reload?: () => void } | null;
     wv?.reload?.();
@@ -58,7 +59,16 @@ export default function AppPage() {
         setSelectedId(entry.id);
       }
     },
-    [editTarget, update, add],
+    [editTarget, update, add, setSelectedId],
+  );
+
+  // Empty 상태에서 suggestion chip 클릭 — 모달 없이 즉시 추가 + 선택
+  const handleQuickAdd = useCallback(
+    async (name: string, url: string) => {
+      const entry = await add(name, url);
+      setSelectedId(entry.id);
+    },
+    [add, setSelectedId],
   );
 
   return (
@@ -99,6 +109,7 @@ export default function AppPage() {
             setAddOpen(true);
           }}
           onRemove={(id) => void remove(id)}
+          onQuickAdd={handleQuickAdd}
         />
       )}
 
