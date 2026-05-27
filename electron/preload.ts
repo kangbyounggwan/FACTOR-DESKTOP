@@ -1,4 +1,6 @@
 import { contextBridge, ipcRenderer } from 'electron';
+// ── Section 03 — Sentry preload bridge (v7+ side-effect import, main IPC 자동 연결) ──
+import '@sentry/electron/preload';
 
 // ────────────────────────────────────────────────────────────
 // 진단용: 렌더러 측 uncaught error / unhandledrejection을

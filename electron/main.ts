@@ -7,6 +7,10 @@ import { createMainWindow } from './windows/mainWindow';
 import { registerDeepLink, installDeepLinkHandlers } from './protocol';
 import { registerSettingsIpc } from './ipc/settings';
 import { registerLinkIpc } from './ipc/link';
+import { setupSentryMain } from './sentry';
+
+// ── Section 03 — Sentry main init (가장 먼저, 다른 import 들의 throw 도 캐치) ──
+setupSentryMain();
 
 log.initialize();
 log.transports.file.level = 'info';
