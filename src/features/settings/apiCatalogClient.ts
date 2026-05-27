@@ -164,12 +164,59 @@ async function call<T>(
   }
 
   if (!res.ok) {
-    const text = await res.text();
-    throw new Error(
-      `${init.method ?? "GET"} ${path} failed (${res.status}): ${text.slice(0, 200)}`,
-    );
+    // ── Section 09 — detail extract (FastAPI HTTPException + Pydantic ValidationError) ──
+    const detail = await extractErrorDetail(res);
+    const err = new Error(
+      `${init.method ?? "GET"} ${path} failed (${res.status}): ${detail}`,
+    ) as Error & { status?: number; detail?: string };
+    err.status = res.status;
+    err.detail = detail;
+    throw err;
   }
   return (await res.json()) as T;
+}
+
+// ── Section 09 (2026-05-27) — error detail extraction + toast formatting ──
+async function extractErrorDetail(res: Response): Promise<string> {
+  const text = await res.text();
+  try {
+    const json = JSON.parse(text) as { detail?: unknown };
+    const detail = json?.detail;
+    if (typeof detail === "string") return detail;
+    if (Array.isArray(detail)) {
+      // Pydantic ValidationError: [{loc: [...], msg, type}]
+      return detail
+        .map((d: { loc?: unknown; msg?: string }) => {
+          const loc = Array.isArray(d?.loc) ? d.loc.join(".") : "";
+          const msg = d?.msg ?? "";
+          return loc ? `${loc}: ${msg}` : msg;
+        })
+        .filter(Boolean)
+        .join(" / ");
+    }
+    if (detail) return JSON.stringify(detail);
+    return text.slice(0, 500);
+  } catch {
+    return text.slice(0, 500);
+  }
+}
+
+export interface ApiErrorInfo {
+  short: string; // 토스트용 (≤ 100자, truncate 시 … 부착)
+  full: string; // 모달용 (전체)
+  truncated: boolean;
+}
+
+export function formatErrorForToast(err: unknown): ApiErrorInfo {
+  const detail =
+    (err as { detail?: string })?.detail ??
+    (err instanceof Error ? err.message : String(err));
+  const truncated = detail.length > 100;
+  return {
+    short: truncated ? `${detail.slice(0, 100)}…` : detail,
+    full: detail,
+    truncated,
+  };
 }
 
 export async function listApiCatalog(

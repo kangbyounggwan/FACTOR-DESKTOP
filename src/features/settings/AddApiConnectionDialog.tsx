@@ -32,8 +32,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Loader2, Eye, EyeOff, User2, Building2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 import type { ApiCatalogEntry, ApiCatalogScope } from "./apiCatalogClient";
+import { formatErrorForToast } from "./apiCatalogClient";
 import { useCreateCustomApi, useUpdateCustomApi } from "./useApiCatalog";
+import { ErrorDetailModal } from "@desktop/components/ErrorDetailModal";
 
 const COST_TIERS = ["low", "tier_a", "tier_b", "tier_c", "high"] as const;
 
@@ -81,6 +84,9 @@ export function AddApiConnectionDialog({
   const [form, setForm] = useState<FormState>(EMPTY);
   const [showSecret, setShowSecret] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  // Section 09 — 100자 초과 detail 의 "더 보기" 모달 토글
+  const [errorDetail, setErrorDetail] = useState<string | null>(null);
+  const { toast } = useToast();
 
   const createMutation = useCreateCustomApi();
   const updateMutation = useUpdateCustomApi();
@@ -158,7 +164,23 @@ export function AddApiConnectionDialog({
       onSaved?.();
       onOpenChange(false);
     } catch (e) {
-      setError(e instanceof Error ? e.message : String(e));
+      // ── Section 09 — detail 추출 + 토스트 + (truncated 시) 모달 ──
+      const info = formatErrorForToast(e);
+      setError(info.short);
+      toast({
+        title: "저장 실패",
+        description: info.short,
+        variant: "destructive",
+        action: info.truncated ? (
+          <Button
+            size="sm"
+            variant="outline"
+            onClick={() => setErrorDetail(info.full)}
+          >
+            더 보기
+          </Button>
+        ) : undefined,
+      });
     }
   };
 
@@ -341,6 +363,13 @@ export function AddApiConnectionDialog({
           </Button>
         </DialogFooter>
       </DialogContent>
+      {/* Section 09 — 100자 초과 detail 의 "더 보기" 모달. Dialog 안에 두면
+          z-index 상충 → outside 마운트. */}
+      <ErrorDetailModal
+        open={!!errorDetail}
+        onOpenChange={(o) => !o && setErrorDetail(null)}
+        detail={errorDetail ?? ""}
+      />
     </Dialog>
   );
 }
