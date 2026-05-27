@@ -24,6 +24,7 @@ import { AuthProvider, ProtectedRoute } from "@/features/auth";
 // FE의 리프 컴포넌트(MonitoringContent, AIChatPanelView, LoginFormContent 등)는
 // 자유롭게 import 하되, **페이지 레이아웃은 데스크탑 책임**.
 import { DesktopShell } from "@desktop/components/DesktopShell";
+import { UpdateBanner } from "@desktop/components/UpdateBanner";
 import ChatPage from "@desktop/pages/chat/ChatPage";
 import LoginPage from "@desktop/pages/auth/LoginPage";
 import SignupPage from "@desktop/pages/auth/SignupPage";
@@ -53,6 +54,8 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
+        {/* Section 02 — autoUpdater 가 새 버전 다운로드 완료 시 우하단 배너 */}
+        <UpdateBanner />
         {/* HashRouter: Electron file:// 프로토콜에서 BrowserRouter는
             history.replaceState 시 URL이 file:///C:/chat 으로 변형되어
             Route 매칭이 깨짐 → 화면이 비어 보임. HashRouter는 #/chat

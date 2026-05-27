@@ -56,6 +56,13 @@ export interface DesktopElectronAPI {
       update: (id: string, patch: Partial<AppUrlEntry>) => Promise<AppUrlEntry[]>;
     };
   };
+  /** Section 02 — autoUpdater bridge (electron-updater + GitHub Releases). */
+  autoUpdater?: {
+    onUpdateDownloaded: (
+      cb: (info: { version: string; releaseNotes: string | null }) => void,
+    ) => () => void;
+    quitAndInstall: () => Promise<void>;
+  };
 }
 
 declare global {

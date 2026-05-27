@@ -55,4 +55,21 @@ contextBridge.exposeInMainWorld('electron', {
       ) => ipcRenderer.invoke('settings:appUrls:update', id, patch),
     },
   },
+  // Section 02 (2026-05-27) — autoUpdater bridge.
+  // UpdateBanner 가 onUpdateDownloaded 로 구독 → "재시작" 클릭 시 quitAndInstall.
+  autoUpdater: {
+    onUpdateDownloaded: (
+      cb: (info: { version: string; releaseNotes: string | null }) => void,
+    ) => {
+      const handler = (
+        _e: unknown,
+        info: { version: string; releaseNotes: string | null },
+      ) => cb(info);
+      ipcRenderer.on('autoUpdater:update-downloaded', handler);
+      return () => {
+        ipcRenderer.off('autoUpdater:update-downloaded', handler);
+      };
+    },
+    quitAndInstall: () => ipcRenderer.invoke('autoUpdater:quitAndInstall'),
+  },
 });

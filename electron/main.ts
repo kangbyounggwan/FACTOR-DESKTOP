@@ -2,6 +2,7 @@ import { app, BrowserWindow, ipcMain, shell } from 'electron';
 import log from 'electron-log';
 import path from 'node:path';
 import fs from 'node:fs';
+import { autoUpdater } from 'electron-updater';
 import { createMainWindow } from './windows/mainWindow';
 import { registerDeepLink, installDeepLinkHandlers } from './protocol';
 import { registerSettingsIpc } from './ipc/settings';
@@ -53,6 +54,63 @@ let mainWindow: BrowserWindow | null = null;
 ipcMain.handle('app:version', () => app.getVersion());
 registerSettingsIpc();
 registerLinkIpc();
+
+// ── Section 02 (2026-05-27) — autoUpdater IPC ───────────────────────
+// 렌더러의 UpdateBanner 가 "재시작" 클릭 시 호출.
+ipcMain.handle('autoUpdater:quitAndInstall', () => {
+  log.info('[autoUpdater] quitAndInstall requested by renderer');
+  autoUpdater.quitAndInstall();
+});
+
+// ── Section 02 — setupAutoUpdater ───────────────────────────────────
+// 미서명 EXE 도 OK — electron-updater 는 sha512 hash (latest.yml) 로 무결성
+// 검증. Section 01 (code signing) 은 B2B 외부 고객 확대 시점에 도입 예정.
+// dev 모드 skip + 4시간 polling + electron-log 통합.
+function setupAutoUpdater(window: BrowserWindow | null) {
+  if (process.env.NODE_ENV === 'development') {
+    log.info('[autoUpdater] skipped in dev');
+    return;
+  }
+  autoUpdater.logger = log as unknown as typeof autoUpdater.logger;
+  autoUpdater.autoDownload = true;
+  autoUpdater.autoInstallOnAppQuit = true;
+
+  autoUpdater.on('checking-for-update', () =>
+    log.info('[autoUpdater] checking'),
+  );
+  autoUpdater.on('update-available', (info) =>
+    log.info('[autoUpdater] available', info.version),
+  );
+  autoUpdater.on('update-not-available', () =>
+    log.info('[autoUpdater] up-to-date'),
+  );
+  autoUpdater.on('download-progress', (p) =>
+    log.info('[autoUpdater] download', `${p.percent.toFixed(1)}%`),
+  );
+  autoUpdater.on('update-downloaded', (info) => {
+    log.info('[autoUpdater] downloaded', info.version);
+    // 렌더러 UpdateBanner 에 전달 — 사용자 "재시작" 클릭 시 quitAndInstall
+    window?.webContents.send('autoUpdater:update-downloaded', {
+      version: info.version,
+      releaseNotes:
+        typeof info.releaseNotes === 'string' ? info.releaseNotes : null,
+    });
+  });
+  autoUpdater.on('error', (err) => log.error('[autoUpdater] error', err));
+
+  // 시작 1회 + 4시간 polling
+  autoUpdater
+    .checkForUpdates()
+    .catch((e) => log.error('[autoUpdater] check fail', e));
+  setInterval(
+    () => {
+      autoUpdater
+        .checkForUpdates()
+        .catch((e) => log.error('[autoUpdater] periodic check fail', e));
+    },
+    4 * 60 * 60 * 1000,
+  );
+}
 ipcMain.handle('shell:openExternal', async (_e, url: string) => {
   // 안전 검사: http/https/mailto 만 허용
   if (!/^(https?:|mailto:)/.test(url)) {
@@ -68,6 +126,9 @@ installDeepLinkHandlers(() => mainWindow);
 
 app.whenReady().then(() => {
   mainWindow = createMainWindow({ isDev });
+
+  // Section 02 — 시작 직후 백그라운드 update 확인 + 4h polling
+  setupAutoUpdater(mainWindow);
 
   // 모든 <a target="_blank"> / window.open() → 시스템 브라우저 위임
   mainWindow.webContents.setWindowOpenHandler(({ url }) => {

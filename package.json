@@ -17,7 +17,8 @@
     "_wait-electron": "wait-on http://localhost:5180 && npm run _build-electron && cross-env NODE_ENV=development electron .",
     "dev:electron": "concurrently -k -n vite,electron -c blue,green \"npm:dev\" \"npm:_wait-electron\"",
     "preview:electron": "npm run build && npm run _build-electron && electron .",
-    "build:electron": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder"
+    "build:electron": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder",
+    "release": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder --publish always"
   },
   "build": {
     "appId": "com.factor.desktop",
@@ -56,7 +57,16 @@
       "createStartMenuShortcut": true,
       "shortcutName": "FACTOR DESKTOP",
       "deleteAppDataOnUninstall": false
-    }
+    },
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "kangbyounggwan",
+        "repo": "FACTOR-DESKTOP",
+        "releaseType": "release",
+        "vPrefixedTagName": true
+      }
+    ]
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -82,6 +92,7 @@
     "date-fns": "^3.6.0",
     "electron-log": "^5.4.4",
     "electron-store": "^8.2.0",
+    "electron-updater": "^6.8.3",
     "gridstack": "^12.4.2",
     "lucide-react": "^0.462.0",
     "next-themes": "^0.3.0",
