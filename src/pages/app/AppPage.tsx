@@ -111,11 +111,7 @@ export default function AppPage() {
               </div>
               {/* 챗 본문 — enhancedChat (sendMessage 가 page snapshot 자동 첨부) */}
               <div className="flex-1 min-h-0">
-                <AIChatPanelView
-                  {...s.enhancedChat}
-                  showHistoryButton={false}
-                  headerless
-                />
+                <AIChatPanelView {...s.enhancedChat} />
               </div>
             </aside>
           )}

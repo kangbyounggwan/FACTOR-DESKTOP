@@ -11,6 +11,6 @@ import { useDesktopShell } from "@desktop/components/DesktopShellContext";
 export default function ChatPage() {
   const { chat } = useDesktopShell();
   return (
-    <AIChatPanelView {...chat} showHistoryButton={false} headerless />
+    <AIChatPanelView {...chat} />
   );
 }
