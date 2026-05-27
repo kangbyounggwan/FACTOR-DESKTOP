@@ -96,9 +96,11 @@ export function ApiConnectionsSection() {
     patchMutation.mutate(
       { methodName: entry.method_name, patch: { enabled } },
       {
+        // Section 06 — optimistic update 가 onMutate 에서 cache 변경 후,
+        // 실패 시 onError 가 rollback 한다. UI 는 이미 원래 상태로 복귀.
         onError: (e) =>
           toast({
-            title: "토글 실패",
+            title: "토글 실패 — 이전 상태로 되돌렸습니다",
             description: e instanceof Error ? e.message : String(e),
             variant: "destructive",
           }),
