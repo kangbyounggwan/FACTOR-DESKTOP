@@ -7,10 +7,38 @@
  * Vercel ENV-style 행 = ApiCatalogEntry 한 개.
  */
 
+import { supabase } from "@/lib/supabase";
+
 const LLM_BACKEND_URL =
   import.meta.env.VITE_LLM_BACKEND_URL ?? "http://127.0.0.1:8000";
 
 const BASE = `${LLM_BACKEND_URL}/api/chat/settings/api-catalog`;
+
+// ── Section 04 (2026-05-27) — 401 handler ────────────────────────────
+// 백엔드 라우터가 만료/누락 user_id 에 401 을 반환하면 자동으로 Supabase
+// signOut + HashRouter /login redirect. 동시 다발 401 시 in-flight
+// promise 로 중복 signOut 차단 (race safe).
+let signOutInFlight: Promise<void> | null = null;
+
+async function handle401(): Promise<void> {
+  if (signOutInFlight) return signOutInFlight;
+  signOutInFlight = (async () => {
+    try {
+      await supabase.auth.signOut();
+    } catch (e) {
+      // signOut 실패해도 redirect 진행 — 토큰이 어쨌든 무효.
+      console.warn("[apiCatalogClient] signOut failed", e);
+    } finally {
+      // HashRouter — file:// 프로토콜에서 BrowserRouter pushState 불가.
+      window.location.hash = "#/login";
+      // flag 는 5s 후 reset (페이지 전환되면 무의미하지만 safety net).
+      setTimeout(() => {
+        signOutInFlight = null;
+      }, 5000);
+    }
+  })();
+  return signOutInFlight;
+}
 
 export type ApiCatalogSource = "catalog" | "custom";
 export type ApiCatalogScope = "account" | "company";
@@ -102,6 +130,13 @@ async function call<T>(
       ...(init.headers || {}),
     },
   });
+
+  // ── 401: 세션 만료 → signOut + /login redirect (Section 04) ──
+  if (res.status === 401) {
+    await handle401();
+    throw new Error("Session expired — redirecting to login");
+  }
+
   if (!res.ok) {
     const text = await res.text();
     throw new Error(
