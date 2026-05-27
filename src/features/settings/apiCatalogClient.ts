@@ -14,6 +14,9 @@ const LLM_BACKEND_URL =
 
 const BASE = `${LLM_BACKEND_URL}/api/chat/settings/api-catalog`;
 
+// ── Section 07 (2026-05-27) — fetch timeout ──────────────────────────
+const FETCH_TIMEOUT_MS = 8000;
+
 // ── Section 04 (2026-05-27) — 401 handler ────────────────────────────
 // 백엔드 라우터가 만료/누락 user_id 에 401 을 반환하면 자동으로 Supabase
 // signOut + HashRouter /login redirect. 동시 다발 401 시 in-flight
@@ -123,13 +126,36 @@ async function call<T>(
   // 모든 호출에 user_id 강제. POST/PATCH/DELETE 도 query param 으로 (서버 Depends).
   const sep = path.includes("?") ? "&" : "?";
   const url = `${BASE}${path}${sep}user_id=${encodeURIComponent(userId)}`;
-  const res = await fetch(url, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      ...(init.headers || {}),
-    },
-  });
+
+  // ── Section 07 — timeout via AbortController ──
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
+
+  let res: Response;
+  try {
+    res = await fetch(url, {
+      ...init,
+      signal: ctrl.signal,
+      headers: {
+        "Content-Type": "application/json",
+        ...(init.headers || {}),
+      },
+    });
+  } catch (err) {
+    // AbortError → user-friendly timeout
+    if (err instanceof Error && err.name === "AbortError") {
+      throw new Error(
+        `서버 응답이 없습니다 (${FETCH_TIMEOUT_MS / 1000}초 초과) — 잠시 후 다시 시도해주세요`,
+      );
+    }
+    // 네트워크 실패 (DNS / offline / CORS 등)
+    if (err instanceof TypeError) {
+      throw new Error("네트워크 연결을 확인해주세요");
+    }
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
 
   // ── 401: 세션 만료 → signOut + /login redirect (Section 04) ──
   if (res.status === 401) {
