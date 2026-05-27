@@ -34,7 +34,6 @@ import { useToast } from "@/hooks/use-toast";
 
 import {
   SettingsNavList,
-  ApiConnectionsSection,
   type DesktopMenuSection,
 } from "@desktop/features/settings";
 
@@ -56,6 +55,7 @@ import {
   TeamSection,
   AssignedEquipmentSection,
   NotificationsSection,
+  ApiConnectionsSection,
 } from "@/features/settings";
 
 export default function SettingsPage() {
