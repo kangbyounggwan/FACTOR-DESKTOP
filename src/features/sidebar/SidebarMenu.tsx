@@ -12,6 +12,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useDesktopShell } from "@desktop/components/DesktopShellContext";
 
 interface Props {
   onStartNew: () => void;
@@ -20,7 +21,16 @@ interface Props {
 
 export function SidebarMenu({ onStartNew, onSearch }: Props) {
   const navigate = useNavigate();
-  const handleSettings = useCallback(() => navigate("/settings"), [navigate]);
+  const { requireAuth } = useDesktopShell();
+
+  // 설정 진입: 로그인 안 됐으면 DesktopShell의 RequireAuthDialog(중앙 모달)를
+  // 띄우고, 로그인 성공 시 /settings로 이동. DASHBOARD 버튼과 동일 UX.
+  const handleSettings = useCallback(() => {
+    requireAuth(() => navigate("/settings"), {
+      title: "설정 접근에는 로그인이 필요합니다",
+      description: "이메일로 로그인하면 개인/시스템 설정을 사용할 수 있습니다.",
+    });
+  }, [navigate, requireAuth]);
 
   return (
     <nav className="px-2 pt-1 pb-1 flex flex-col gap-0.5">

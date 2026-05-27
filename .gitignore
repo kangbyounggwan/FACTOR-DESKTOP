@@ -6,3 +6,6 @@ release
 .env
 .env.local
 .env.*.local
+
+# auto-bump-version 스크립트 stamp — 빌드별 소스 해시 추적용 (로컬)
+.build-stamp.json

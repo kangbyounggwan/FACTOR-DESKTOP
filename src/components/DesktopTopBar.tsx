@@ -34,6 +34,11 @@ interface Props {
   onNewChat?: () => void;
   /** 🔍 검색 (Phase 2 placeholder) */
   onSearch?: () => void;
+  /**
+   * ← 뒤로. 미지정 시 router history navigate(-1). DesktopShell 이 페이지별
+   * backHandler 등록되어 있으면 그것 우선 호출하도록 wrap 한 핸들러를 넘김.
+   */
+  onBack?: () => void;
   /** 중앙 타이틀 (없으면 "FACTOR DESKTOP") */
   title?: string;
 }
@@ -42,6 +47,7 @@ export function DesktopTopBar({
   onToggleSidebar,
   onNewChat,
   onSearch,
+  onBack,
   title = "FACTOR DESKTOP",
 }: Props) {
   const navigate = useNavigate();
@@ -85,7 +91,7 @@ export function DesktopTopBar({
         <ToolbarButton
           icon={ArrowLeft}
           label="뒤로"
-          onClick={() => navigate(-1)}
+          onClick={onBack ?? (() => navigate(-1))}
         />
         <ToolbarButton
           icon={ArrowRight}

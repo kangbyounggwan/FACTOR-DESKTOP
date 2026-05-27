@@ -3,10 +3,14 @@ import log from 'electron-log';
 import { createMainWindow } from './windows/mainWindow';
 import { registerDeepLink, installDeepLinkHandlers } from './protocol';
 import { registerSettingsIpc } from './ipc/settings';
+import { registerLinkIpc } from './ipc/link';
 
 log.initialize();
 log.transports.file.level = 'info';
 log.info('[main] starting, version', app.getVersion());
+log.info('[main] electron', process.versions.electron, 'node', process.versions.node, 'chrome', process.versions.chrome);
+log.info('[main] cwd=', process.cwd(), 'execPath=', process.execPath);
+log.info('[main] isPackaged=', app.isPackaged, 'resourcesPath=', process.resourcesPath);
 
 const isDev = process.env.NODE_ENV === 'development';
 
@@ -15,6 +19,7 @@ let mainWindow: BrowserWindow | null = null;
 // IPC handlers
 ipcMain.handle('app:version', () => app.getVersion());
 registerSettingsIpc();
+registerLinkIpc();
 ipcMain.handle('shell:openExternal', async (_e, url: string) => {
   // 안전 검사: http/https/mailto 만 허용
   if (!/^(https?:|mailto:)/.test(url)) {
@@ -64,3 +69,4 @@ app.on('window-all-closed', () => {
 });
 
 process.on('uncaughtException', (err) => log.error('[main] uncaught', err));
+process.on('unhandledRejection', (reason) => log.error('[main] unhandledRejection', reason));

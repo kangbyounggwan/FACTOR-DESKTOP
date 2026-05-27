@@ -6,3 +6,21 @@ export { AddAppUrlDialog } from "./AddAppUrlDialog";
 export { useAppUrls } from "./useAppUrls";
 export { useSelectedAppUrl } from "./useSelectedAppUrl";
 export { AppSidebar } from "./AppSidebar";
+export { AppCatalog } from "./AppCatalog";
+export { useAppCatalog } from "./useAppCatalog";
+export type { CatalogApp, CatalogCategory } from "./useAppCatalog";
+export { AppFavicon } from "./AppFavicon";
+export { AppDetailView } from "./AppDetailView";
+export type { DetailViewSource } from "./AppDetailView";
+export { ScreenshotPreviewDialog } from "./ScreenshotPreviewDialog";
+export { capturePageSnapshot } from "./capturePageSnapshot";
+export type {
+  PageSnapshot,
+  PageMeta,
+  DataElement,
+  TableSnapshot,
+} from "./capturePageSnapshot";
+export { useOpenTabs } from "./useOpenTabs";
+export type { OpenTab } from "./useOpenTabs";
+export { TabBar } from "./TabBar";
+export { WebViewTabs } from "./WebViewTabs";

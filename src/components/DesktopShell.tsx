@@ -19,14 +19,15 @@
 
 import { useState, useCallback, useRef, useEffect, useMemo, type ReactNode } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
+import { ChevronRight } from "lucide-react";
 import { useAuth } from "@/features/auth";
 import { useAIChat } from "@/features/monitoring/hooks/useAIChat";
+import { LineMonitoringSidebarBare } from "@/features/monitoring/components/LineMonitoringSidebar";
+import { LineMonitoringProvider } from "@/features/monitoring/context/LineMonitoringContext";
 import {
   ConversationSidebar,
   SIDEBAR_DEFAULT_WIDTH,
 } from "@desktop/features/sidebar";
-import { LineMonitoringSidebar } from "@/features/monitoring/components/LineMonitoringSidebar";
-import { LineMonitoringProvider } from "@/features/monitoring/context/LineMonitoringContext";
 import { AppSidebar } from "@desktop/features/app";
 import { DesktopAuthWidget } from "./DesktopAuthWidget";
 import { DesktopTopBar } from "./DesktopTopBar";
@@ -44,6 +45,24 @@ export function DesktopShell({ children }: { children: ReactNode }) {
 
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const pendingActionRef = useRef<(() => void) | null>(null);
+  // 페이지별 back handler — 상단 ← 버튼 클릭 시 우선 호출
+  const backHandlerRef = useRef<(() => boolean) | null>(null);
+  const setBackHandler = useCallback((h: (() => boolean) | null) => {
+    backHandlerRef.current = h;
+  }, []);
+  const handleShellBack = useCallback(() => {
+    if (backHandlerRef.current) {
+      const handled = backHandlerRef.current();
+      if (handled) return;
+    }
+    navigate(-1);
+  }, [navigate]);
+  const [authDialogTitle, setAuthDialogTitle] = useState<string>(
+    "DASHBOARD 접근에는 로그인이 필요합니다",
+  );
+  const [authDialogDescription, setAuthDialogDescription] = useState<string>(
+    "이메일로 로그인하면 대시보드 위젯과 대화 이력을 사용할 수 있습니다.",
+  );
 
   // 다른 페이지에서 navigate("/chat", { state: { loadConversationId / startNew } }) 처리
   useEffect(() => {
@@ -60,14 +79,21 @@ export function DesktopShell({ children }: { children: ReactNode }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
-  const requireAuth = useCallback(
-    (action: () => void) => {
+  const requireAuth = useCallback<DesktopShellContextValue["requireAuth"]>(
+    (action, options) => {
       if (isAuthenticated) {
         action();
-      } else {
-        pendingActionRef.current = action;
-        setAuthDialogOpen(true);
+        return;
       }
+      pendingActionRef.current = action;
+      setAuthDialogTitle(
+        options?.title ?? "DASHBOARD 접근에는 로그인이 필요합니다",
+      );
+      setAuthDialogDescription(
+        options?.description ??
+          "이메일로 로그인하면 대시보드 위젯과 대화 이력을 사용할 수 있습니다.",
+      );
+      setAuthDialogOpen(true);
     },
     [isAuthenticated],
   );
@@ -82,6 +108,10 @@ export function DesktopShell({ children }: { children: ReactNode }) {
   const isOnChat = location.pathname.startsWith("/chat");
   const isOnMonitoring = location.pathname.startsWith("/monitoring");
   const isOnApp = location.pathname.startsWith("/app");
+  // /settings 는 Claude 데스크탑 톤으로 conversation sidebar 숨김 — 설정 자체가
+  // 본인의 좌측 nav(SettingsNavList) 를 가지므로 두 nav 가 동시에 보이면 잡스럽다.
+  // 사이드바 expand 트리거(왼쪽 가장자리 ▶ 버튼)도 같이 숨김.
+  const isOnSettings = location.pathname.startsWith("/settings");
   const handleSelectRecent = useCallback(
     (id: string) => {
       if (isOnChat) {
@@ -109,8 +139,9 @@ export function DesktopShell({ children }: { children: ReactNode }) {
       sidebarWidth,
       setSidebarWidth,
       requireAuth,
+      setBackHandler,
     }),
-    [chat, sidebarCollapsed, sidebarWidth, requireAuth],
+    [chat, sidebarCollapsed, sidebarWidth, requireAuth, setBackHandler],
   );
 
   return (
@@ -119,48 +150,72 @@ export function DesktopShell({ children }: { children: ReactNode }) {
         <DesktopTopBar
           onToggleSidebar={() => setSidebarCollapsed((c) => !c)}
           onNewChat={handleStartNew}
+          onBack={handleShellBack}
         />
 
-        <div className="flex-1 flex min-h-0 gap-2 px-2 pb-2">
-          {!sidebarCollapsed && (
-            <ConversationSidebar
-              onSelect={handleSelectRecent}
-              onStartNew={handleStartNew}
-              currentConversationId={chat.conversationId}
-              bottomSlot={<DesktopAuthWidget inline />}
-              onDashboardClick={() =>
-                requireAuth(() => navigate("/monitoring"))
-              }
-              width={sidebarWidth}
-              onWidthChange={setSidebarWidth}
-              customRecents={
-                isOnMonitoring ? (
-                  // /monitoring(DASHBOARD)에서는 Recents 영역에 라인 목록 패널 표시.
-                  // 자체 Provider로 감싸 데이터 fetch (Zustand 선택 상태는 본문 패널과 공유됨).
-                  <LineMonitoringProvider>
-                    <LineMonitoringSidebar embedded />
-                  </LineMonitoringProvider>
-                ) : isOnApp ? (
-                  // /app(APP)에서는 어플리케이션 런처 — 등록된 URL을 favicon + name 행으로.
-                  // 선택 상태는 useSelectedAppUrl(Zustand)로 본문 webview와 공유.
-                  <AppSidebar />
-                ) : undefined
-              }
-              recentsLabel={
-                isOnMonitoring ? "Zone" : isOnApp ? "Apps" : undefined
-              }
-            />
-          )}
+        {(() => {
+          const inner = (
+            <div className="flex-1 flex min-h-0 gap-2 px-2 pb-2">
+              {!sidebarCollapsed && !isOnSettings && (
+                <ConversationSidebar
+                  onSelect={handleSelectRecent}
+                  onStartNew={handleStartNew}
+                  currentConversationId={chat.conversationId}
+                  bottomSlot={<DesktopAuthWidget inline />}
+                  onDashboardClick={() =>
+                    requireAuth(() => navigate("/monitoring"))
+                  }
+                  width={sidebarWidth}
+                  onWidthChange={setSidebarWidth}
+                  onCollapseRequest={() => setSidebarCollapsed(true)}
+                  customRecents={
+                    isOnMonitoring ? (
+                      // /monitoring: 좌측 라인 목록 (chrome 없는 변형 — ConversationSidebar 가 chrome 제공)
+                      <LineMonitoringSidebarBare />
+                    ) : isOnApp ? (
+                      <AppSidebar />
+                    ) : undefined
+                  }
+                  recentsLabel={
+                    isOnMonitoring ? "Zone" : isOnApp ? "Apps" : undefined
+                  }
+                />
+              )}
 
-          <main className="flex-1 flex min-w-0 overflow-hidden">{children}</main>
-        </div>
+              {/* 사이드바 접힘 시 좌측 가장자리에 expand 버튼 노출 — 사용자가
+                  사이드바를 다시 열 수 있는 명시적 트리거. webview 모드에서
+                  특히 중요 (TopBar 의 ≡ 가시성 떨어짐).
+                  /settings 에서는 사이드바 자체를 숨기므로 expand 트리거도 숨김. */}
+              {sidebarCollapsed && !isOnSettings && (
+                <button
+                  type="button"
+                  onClick={() => setSidebarCollapsed(false)}
+                  title="사이드바 열기"
+                  className="flex-shrink-0 w-7 h-full flex items-center justify-center rounded-md bg-card/30 hover:bg-card border border-border/40 hover:border-primary/40 text-muted-foreground hover:text-foreground transition-colors group"
+                >
+                  <ChevronRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />
+                </button>
+              )}
+
+              <main className="flex-1 flex min-w-0 overflow-hidden">{children}</main>
+            </div>
+          );
+
+          // /monitoring 에서만 LineMonitoringProvider 활성 — 좌측 사이드바와 본문이
+          // 같은 selectedLineId/factory state 공유.
+          return isOnMonitoring ? (
+            <LineMonitoringProvider>{inner}</LineMonitoringProvider>
+          ) : (
+            inner
+          );
+        })()}
 
         <RequireAuthDialog
           open={authDialogOpen}
           onOpenChange={setAuthDialogOpen}
           onSuccess={handleAuthSuccess}
-          title="DASHBOARD 접근에는 로그인이 필요합니다"
-          description="이메일로 로그인하면 대시보드 위젯과 대화 이력을 사용할 수 있습니다."
+          title={authDialogTitle}
+          description={authDialogDescription}
         />
       </div>
     </DesktopShellContext.Provider>

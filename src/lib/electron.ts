@@ -9,6 +9,8 @@
  *   await electron.openExternal('https://supabase.com'); // 웹이면 window.open, 데스크탑이면 시스템 브라우저
  */
 
+import type { LinkMetadata } from "@desktop/types/electron";
+
 export const isDesktop =
   typeof window !== "undefined" && !!window.electron;
 
@@ -37,5 +39,23 @@ export const electron = {
       window.removeEventListener("online", handler);
       window.removeEventListener("offline", handler);
     };
+  },
+
+  /**
+   * URL 메타 정보 fetch (Electron 메인 프로세스, CORS 우회).
+   * 웹 환경(데스크탑 아님)에서는 favicon fallback 만 제공.
+   */
+  fetchLinkMetadata: async (url: string): Promise<LinkMetadata> => {
+    if (window.electron) return window.electron.link.fetchMetadata(url);
+    // 웹 fallback — favicon 만
+    try {
+      const host = new URL(url).hostname;
+      return {
+        url,
+        iconUrl: `https://www.google.com/s2/favicons?domain=${host}&sz=64`,
+      };
+    } catch {
+      return { url, error: "잘못된 URL" };
+    }
   },
 };

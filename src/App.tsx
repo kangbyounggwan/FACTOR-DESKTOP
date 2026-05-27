@@ -14,22 +14,24 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
+import { HashRouter, Routes, Route, Navigate, Outlet } from "react-router-dom";
 import { PageLoader } from "@/components/ui/page-loader";
 
 // Auth (FE)
 import { AuthProvider, ProtectedRoute } from "@/features/auth";
 
-// FE 페이지
-import LoginPage from "@/pages/auth/LoginPage";
-import SignupPage from "@/pages/auth/SignupPage";
-import Index from "@/pages/Index"; // MES 대시보드 (DASHBOARD 탭)
-const SettingsPage = lazy(() => import("@/pages/settings/SettingsPage"));
-
-// 데스크탑 전용
+// 데스크탑 전용 페이지 — FE 페이지를 직접 쓰지 않고 데스크탑 셸에 맞게 자체 구현 (R1).
+// FE의 리프 컴포넌트(MonitoringContent, AIChatPanelView, LoginFormContent 등)는
+// 자유롭게 import 하되, **페이지 레이아웃은 데스크탑 책임**.
 import { DesktopShell } from "@desktop/components/DesktopShell";
 import ChatPage from "@desktop/pages/chat/ChatPage";
+import LoginPage from "@desktop/pages/auth/LoginPage";
+import SignupPage from "@desktop/pages/auth/SignupPage";
 const AppPage = lazy(() => import("@desktop/pages/app/AppPage"));
+const MonitoringPage = lazy(() => import("@desktop/pages/monitoring/MonitoringPage"));
+// SettingsPage: 데스크탑 자체 페이지 (R1, R6). FE 의 SettingsPage 는 import 안 함.
+// FE 의 leaf 컴포넌트/hook 은 `@/features/settings` 에서 자유롭게 import.
+const SettingsPage = lazy(() => import("@desktop/pages/settings/SettingsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -51,7 +53,11 @@ const App = () => (
       <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
+        {/* HashRouter: Electron file:// 프로토콜에서 BrowserRouter는
+            history.replaceState 시 URL이 file:///C:/chat 으로 변형되어
+            Route 매칭이 깨짐 → 화면이 비어 보임. HashRouter는 #/chat
+            형태라 경로가 변하지 않아 안전. */}
+        <HashRouter>
           <Routes>
             {/* Auth (public) */}
             <Route path="/login" element={<LoginPage />} />
@@ -81,7 +87,9 @@ const App = () => (
                 path="/monitoring"
                 element={
                   <ProtectedRoute>
-                    <Index />
+                    <Suspense fallback={<PageLoader />}>
+                      <MonitoringPage />
+                    </Suspense>
                   </ProtectedRoute>
                 }
               />
@@ -90,6 +98,7 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoader />}>
+                      {/* 데스크탑 자체 SettingsPage — DashboardHeader 없음, h-full w-full */}
                       <SettingsPage />
                     </Suspense>
                   </ProtectedRoute>
@@ -105,7 +114,7 @@ const App = () => (
             {/* fallback */}
             <Route path="*" element={<Navigate to="/chat" replace />} />
           </Routes>
-        </BrowserRouter>
+        </HashRouter>
       </AuthProvider>
     </TooltipProvider>
   </QueryClientProvider>

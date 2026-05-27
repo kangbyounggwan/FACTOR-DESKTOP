@@ -1,15 +1,14 @@
 /**
  * UrlCard — APP 즐겨찾기 단일 카드.
  *
- * 모던 디자인:
- * - 부드러운 카드 (rounded-xl + subtle border + backdrop-blur)
- * - favicon이 작은 컨테이너 안에 (시각적 정돈)
- * - hover: 살짝 elevate (translate-y) + primary glow + 액션 아이콘 등장
+ * 카탈로그 카드(AppCard) 와 같은 크기로 통일 (h-[180px]).
+ * iconUrl/description 이 있으면 사용, 없으면 favicon API 로 fallback.
  */
 
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AppFavicon } from "./AppFavicon";
 import type { AppUrlEntry } from "@desktop/types/electron";
 
 interface Props {
@@ -27,40 +26,41 @@ export function UrlCard({ entry, onClick, onEdit, onRemove }: Props) {
       return entry.url;
     }
   })();
-  const favicon = `https://www.google.com/s2/favicons?domain=${host}&sz=64`;
 
   return (
     <div
       className={cn(
-        "group relative rounded-xl overflow-hidden",
-        "border border-border/40 bg-card/40 backdrop-blur-sm",
-        "hover:border-primary/40 hover:bg-card/70",
-        "hover:shadow-lg hover:shadow-primary/5 hover:-translate-y-0.5",
+        "group relative h-[180px] rounded-xl overflow-hidden flex flex-col",
+        "border border-border/40 bg-card/40",
+        "hover:border-primary/40 hover:bg-card/70 hover:shadow-lg hover:shadow-primary/5",
         "transition-all duration-200",
       )}
     >
-      <button type="button" onClick={onClick} className="w-full text-left p-4">
-        <div className="flex items-start gap-3">
-          <div className="flex-shrink-0 w-9 h-9 rounded-lg bg-background/60 border border-border/40 flex items-center justify-center overflow-hidden">
-            <img
-              src={favicon}
-              alt=""
-              className="w-5 h-5"
-              onError={(e) => {
-                (e.currentTarget as HTMLImageElement).style.visibility = "hidden";
-              }}
-            />
+      <button
+        type="button"
+        onClick={onClick}
+        className="flex-1 text-left p-4 flex flex-col gap-3 min-h-0"
+      >
+        {/* 헤더 (고정 44px — 카탈로그 카드와 정렬) */}
+        <div className="flex items-start gap-3 h-[44px]">
+          <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted/40 border border-border/40 flex items-center justify-center overflow-hidden">
+            <AppFavicon primarySrc={entry.iconUrl} host={host} size={28} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium truncate text-foreground group-hover:text-primary transition-colors">
+            <p className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
               {entry.name}
             </p>
-            <p className="text-[10px] text-muted-foreground truncate mt-0.5 font-mono">
-              {host}
-            </p>
+            <p className="text-[11px] text-muted-foreground truncate">{host}</p>
           </div>
         </div>
+
+        {/* 설명 (2줄 고정 영역, 비어 있어도 같은 높이) */}
+        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
+          {entry.description ?? ""}
+        </p>
       </button>
+
+      {/* 액션 (hover 시 등장) */}
       <div className="absolute top-1.5 right-1.5 opacity-0 group-hover:opacity-100 transition-opacity flex gap-0.5">
         <Button
           variant="ghost"

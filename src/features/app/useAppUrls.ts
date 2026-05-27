@@ -49,23 +49,32 @@ export function useAppUrls() {
     };
   }, []);
 
-  const add = useCallback(async (name: string, url: string) => {
-    const entry: AppUrlEntry = {
-      id: crypto.randomUUID(),
-      name: name.trim(),
-      url: url.trim(),
-      addedAt: Date.now(),
-    };
-    if (isDesktop) {
-      const next = await window.electron!.settings.appUrls.add(entry);
-      setUrls(next);
-    } else {
-      const next = [...urls, entry];
-      await saveAll(next);
-      setUrls(next);
-    }
-    return entry;
-  }, [urls]);
+  const add = useCallback(
+    async (
+      name: string,
+      url: string,
+      extra?: { iconUrl?: string; description?: string },
+    ) => {
+      const entry: AppUrlEntry = {
+        id: crypto.randomUUID(),
+        name: name.trim(),
+        url: url.trim(),
+        addedAt: Date.now(),
+        ...(extra?.iconUrl ? { iconUrl: extra.iconUrl } : {}),
+        ...(extra?.description ? { description: extra.description } : {}),
+      };
+      if (isDesktop) {
+        const next = await window.electron!.settings.appUrls.add(entry);
+        setUrls(next);
+      } else {
+        const next = [...urls, entry];
+        await saveAll(next);
+        setUrls(next);
+      }
+      return entry;
+    },
+    [urls],
+  );
 
   const remove = useCallback(async (id: string) => {
     if (isDesktop) {

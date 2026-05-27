@@ -2,7 +2,7 @@
   "name": "factor-desktop",
   "productName": "FACTOR DESKTOP",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.0.36",
   "type": "module",
   "main": "dist-electron/main.js",
   "description": "FACTOR MES 데스크탑 클라이언트 (Electron 셰 + anomaly-eye-monitor FE 소스 공유)",
@@ -11,10 +11,52 @@
     "build": "vite build",
     "preview": "vite preview",
     "_build-electron": "tsc -p electron && node scripts/post-build-electron.cjs",
+    "_auto-bump": "node scripts/auto-bump-version.cjs",
+    "lint": "eslint \"src/**/*.{ts,tsx}\" \"electron/**/*.ts\"",
+    "lint:tailwind-drift": "node scripts/check-tailwind-drift.cjs",
     "_wait-electron": "wait-on http://localhost:5180 && npm run _build-electron && cross-env NODE_ENV=development electron .",
     "dev:electron": "concurrently -k -n vite,electron -c blue,green \"npm:dev\" \"npm:_wait-electron\"",
     "preview:electron": "npm run build && npm run _build-electron && electron .",
-    "build:electron": "npm run build && npm run _build-electron && electron-builder"
+    "build:electron": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder"
+  },
+  "build": {
+    "appId": "com.factor.desktop",
+    "productName": "FACTOR DESKTOP",
+    "asar": true,
+    "directories": {
+      "output": "release",
+      "buildResources": "build"
+    },
+    "files": [
+      "dist/**",
+      "dist-electron/**",
+      "package.json",
+      "!**/*.map"
+    ],
+    "extraMetadata": {
+      "main": "dist-electron/main.js"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "artifactName": "${productName}-Setup-${version}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowElevation": true,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "FACTOR DESKTOP",
+      "deleteAppDataOnUninstall": false
+    }
   },
   "dependencies": {
     "@radix-ui/react-alert-dialog": "^1.1.14",
@@ -65,12 +107,16 @@
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
     "@types/three": "^0.183.1",
+    "@typescript-eslint/eslint-plugin": "^7.18.0",
+    "@typescript-eslint/parser": "^7.18.0",
     "@vitejs/plugin-react-swc": "^3.11.0",
     "autoprefixer": "^10.4.21",
     "concurrently": "^8.2.2",
     "cross-env": "^7.0.3",
     "electron": "^30.5.1",
     "electron-builder": "^24.13.3",
+    "eslint": "^8.57.1",
+    "eslint-plugin-react-hooks": "^4.6.2",
     "postcss": "^8.5.6",
     "tailwindcss": "^3.4.17",
     "typescript": "^5.8.3",

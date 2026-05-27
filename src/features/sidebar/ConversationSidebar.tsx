@@ -43,6 +43,11 @@ import { GuestEmpty } from "./GuestEmpty";
 export const SIDEBAR_MIN_WIDTH = 296;
 export const SIDEBAR_MAX_WIDTH = 480;
 export const SIDEBAR_DEFAULT_WIDTH = 320;
+/**
+ * 드래그 중 raw mouseX 가 이 값 이하로 내려가면 사이드바를 자동 접음.
+ * (SIDEBAR_MIN_WIDTH 보다 더 좁히려는 시도 = "닫고 싶다" 의 신호로 해석)
+ */
+export const SIDEBAR_COLLAPSE_THRESHOLD = 220;
 
 interface Props {
   onSelect: (conversationId: string) => void;
@@ -54,6 +59,11 @@ interface Props {
   onAppClick?: () => void;
   width?: number;
   onWidthChange?: (width: number) => void;
+  /**
+   * 사용자가 사이드바를 SIDEBAR_COLLAPSE_THRESHOLD 미만으로 좁히려고 드래그할 때 호출.
+   * 부모(DesktopShell)가 setSidebarCollapsed(true) 처리.
+   */
+  onCollapseRequest?: () => void;
   /** 제공되면 Recents 섹션을 이걸로 대체 (예: DASHBOARD 페이지에서 라인 목록 표시) */
   customRecents?: ReactNode;
   /** Recents 헤더 라벨 (default: "Recents"). customRecents 사용 시 도메인 라벨로 교체 가능 (예: "Zone"). */
@@ -71,6 +81,7 @@ export function ConversationSidebar({
   onAppClick,
   width = SIDEBAR_DEFAULT_WIDTH,
   onWidthChange,
+  onCollapseRequest,
   customRecents,
   recentsLabel = "Recents",
   className,
@@ -112,15 +123,23 @@ export function ConversationSidebar({
     };
   }, [user?.id, profile?.company_id, isAuthenticated, refreshKey, currentConversationId]);
 
-  // 우측 핸들 드래그 → 부모에 width 전파
+  // 우측 핸들 드래그 → 부모에 width 전파.
+  // raw mouseX 가 SIDEBAR_COLLAPSE_THRESHOLD 미만이면 collapse 트리거 + drag 종료.
   useEffect(() => {
-    if (!resizing || !onWidthChange) return;
+    if (!resizing) return;
     const handleMove = (e: MouseEvent) => {
+      const raw = e.clientX - 8;
+      // 사용자가 한참 좁히려는 시도 — collapse 신호
+      if (raw < SIDEBAR_COLLAPSE_THRESHOLD && onCollapseRequest) {
+        onCollapseRequest();
+        setResizing(false);
+        return;
+      }
       const next = Math.max(
         SIDEBAR_MIN_WIDTH,
-        Math.min(SIDEBAR_MAX_WIDTH, e.clientX - 8),
+        Math.min(SIDEBAR_MAX_WIDTH, raw),
       );
-      onWidthChange(next);
+      onWidthChange?.(next);
     };
     const handleUp = () => setResizing(false);
     document.addEventListener("mousemove", handleMove);
@@ -133,7 +152,7 @@ export function ConversationSidebar({
       document.body.style.cursor = "";
       document.body.style.userSelect = "";
     };
-  }, [resizing, onWidthChange]);
+  }, [resizing, onWidthChange, onCollapseRequest]);
 
   const grouped = useMemo(() => groupByDate(items), [items]);
 

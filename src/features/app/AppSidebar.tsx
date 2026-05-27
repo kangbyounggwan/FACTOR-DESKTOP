@@ -12,10 +12,10 @@
 import { useState } from "react";
 import { Plus, Trash2, Loader2, Globe } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useAppUrls } from "./useAppUrls";
 import { useSelectedAppUrl } from "./useSelectedAppUrl";
+import { useOpenTabs } from "./useOpenTabs";
 import { AddAppUrlDialog } from "./AddAppUrlDialog";
 import type { AppUrlEntry } from "@desktop/types/electron";
 
@@ -28,20 +28,24 @@ const QUICK_SUGGESTIONS = [
 
 export function AppSidebar() {
   const { urls, loading, add, remove } = useAppUrls();
-  const { selectedId, setSelectedId } = useSelectedAppUrl();
+  // selectedId 는 AppSidebar 의 활성 강조용으로만 (AppPage 가 active tab → selectedId sync).
+  const { selectedId } = useSelectedAppUrl();
+  // 멀티탭 refactor 이후 webview 모드 진입은 openTab() 이 트리거 — setSelectedId 만 하면 안 들어감.
+  const openTab = useOpenTabs((s) => s.openTab);
+  const dropTabsByUrl = useOpenTabs((s) => s.dropByUrlEntryId);
 
   const [addOpen, setAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AppUrlEntry | null>(null);
 
   const handleAdd = async (name: string, url: string) => {
-    if (editTarget) return; // sidebar에서는 새 추가만 (편집은 본문 AddressBar에서)
+    if (editTarget) return; // sidebar에서는 새 추가만 (편집은 본문 ⋮ 메뉴에서)
     const entry = await add(name, url);
-    setSelectedId(entry.id);
+    openTab(entry.id);
   };
 
   const handleQuickAdd = async (name: string, url: string) => {
     const entry = await add(name, url);
-    setSelectedId(entry.id);
+    openTab(entry.id);
   };
 
   return (
@@ -78,10 +82,10 @@ export function AppSidebar() {
                   key={u.id}
                   entry={u}
                   active={u.id === selectedId}
-                  onClick={() => setSelectedId(u.id)}
+                  onClick={() => openTab(u.id)}
                   onRemove={() => {
                     void remove(u.id);
-                    if (selectedId === u.id) setSelectedId(null);
+                    dropTabsByUrl(u.id);
                   }}
                 />
               ))}
