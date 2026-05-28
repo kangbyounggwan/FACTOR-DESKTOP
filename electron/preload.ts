@@ -70,6 +70,12 @@ contextBridge.exposeInMainWorld('electron', {
       ) => ipcRenderer.invoke('settings:appUrls:update', id, patch),
     },
   },
+  // 테마 — renderer 가 light/dark 전환 시 native chrome (titleBarOverlay) 도
+  // 동적 변경. Electron 30+ 의 BrowserWindow.setTitleBarOverlay() 사용.
+  theme: {
+    setTitleBarOverlay: (opts: { color: string; symbolColor: string }) =>
+      ipcRenderer.invoke('theme:setTitleBarOverlay', opts),
+  },
   // Section 02 (2026-05-27) — autoUpdater bridge.
   // UpdateBanner 가 onUpdateDownloaded 로 구독 → "재시작" 클릭 시 quitAndInstall.
   autoUpdater: {

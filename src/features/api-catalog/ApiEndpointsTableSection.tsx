@@ -199,7 +199,6 @@ export function ApiEndpointsTableSection() {
               <col className="w-[200px]" />
               <col className="w-[60px]" />
               <col />
-              <col className="w-[140px]" />
               <col className="w-[80px]" />
               <col className="w-[72px]" />
             </colgroup>
@@ -209,7 +208,6 @@ export function ApiEndpointsTableSection() {
                 <ColHeader>식별</ColHeader>
                 <ColHeader>HTTP</ColHeader>
                 <ColHeader>path</ColHeader>
-                <ColHeader>필수 파라미터</ColHeader>
                 <ColHeader>read-only</ColHeader>
                 <ColHeader>활성</ColHeader>
               </tr>
@@ -313,7 +311,6 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
     }
   }, [isOpen]);
 
-  const required = formatRequiredParams(spec.parameter_schema);
   const queryStr = formatQueryParams(spec.query_params);
 
   return (
@@ -368,28 +365,6 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
           <div className="text-[11.5px] text-foreground/45 mt-1 font-mono tabular-nums truncate">
             query: <span className="text-foreground/60">{queryStr}</span>
           </div>
-        </td>
-
-        <td className="px-3 py-3 align-top">
-          {required.length > 0 ? (
-            <div className="flex flex-wrap gap-1">
-              {required.slice(0, 3).map((name) => (
-                <span
-                  key={name}
-                  className="text-[12px] font-mono px-1.5 py-0.5 rounded bg-foreground/[0.05] text-foreground/75"
-                >
-                  {name}
-                </span>
-              ))}
-              {required.length > 3 && (
-                <span className="text-[12px] text-foreground/40 self-center">
-                  +{required.length - 3}
-                </span>
-              )}
-            </div>
-          ) : (
-            <span className="text-[12px] text-foreground/35">—</span>
-          )}
         </td>
 
         <td className="px-3 py-3 align-top">

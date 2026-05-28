@@ -80,6 +80,25 @@ ipcMain.handle('app:version', () => app.getVersion());
 registerSettingsIpc();
 registerLinkIpc();
 
+// 테마 — renderer 의 ThemeProvider 가 light/dark 전환 시 호출.
+// Windows / Linux 의 titleBarOverlay 색을 동적 변경 (macOS 는 hiddenInset 라 무관).
+ipcMain.handle(
+  'theme:setTitleBarOverlay',
+  (_e, opts: { color: string; symbolColor: string }) => {
+    if (!mainWindow || mainWindow.isDestroyed()) return;
+    if (process.platform === 'darwin') return; // macOS hiddenInset — overlay 없음
+    try {
+      mainWindow.setTitleBarOverlay({
+        color: opts.color,
+        symbolColor: opts.symbolColor,
+        height: 40,
+      });
+    } catch (err) {
+      log.warn('[theme] setTitleBarOverlay failed', err);
+    }
+  },
+);
+
 // ── Section 02 (2026-05-27) — autoUpdater IPC ───────────────────────
 // 렌더러의 UpdateBanner 가 "재시작" 클릭 시 호출.
 ipcMain.handle('autoUpdater:quitAndInstall', () => {

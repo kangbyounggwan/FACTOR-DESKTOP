@@ -53,6 +53,16 @@ function systemPrefersDark(): boolean {
 function applyDom(isDark: boolean): void {
   if (typeof document === "undefined") return;
   document.documentElement.classList.toggle("dark", isDark);
+  // Electron native chrome (titleBarOverlay) 색도 함께 변경.
+  // window.electron 이 없으면 (브라우저) silent skip.
+  try {
+    const overlay = isDark
+      ? { color: "#0a0d12", symbolColor: "#e5e7eb" }
+      : { color: "#f5f6f7", symbolColor: "#222831" };
+    window.electron?.theme?.setTitleBarOverlay?.(overlay);
+  } catch {
+    /* ignore */
+  }
 }
 
 interface ProviderProps {

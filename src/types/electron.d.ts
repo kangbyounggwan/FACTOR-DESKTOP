@@ -55,6 +55,14 @@ export interface DesktopElectronAPI {
       update: (id: string, patch: Partial<AppUrlEntry>) => Promise<AppUrlEntry[]>;
     };
   };
+  /** 테마 — renderer 의 ThemeProvider 가 light/dark 전환 시 native chrome
+   * (titleBarOverlay) 색도 함께 변경. macOS 는 hiddenInset 라 main 에서 no-op. */
+  theme?: {
+    setTitleBarOverlay: (opts: {
+      color: string;
+      symbolColor: string;
+    }) => Promise<void>;
+  };
   /** Section 02 — autoUpdater bridge (electron-updater + GitHub Releases). */
   autoUpdater?: {
     onUpdateDownloaded: (
