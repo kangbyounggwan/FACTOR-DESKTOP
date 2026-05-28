@@ -32,7 +32,8 @@ interface Props {
 const WebviewTag = "webview" as unknown as React.FC<
   React.HTMLAttributes<HTMLElement> & {
     src?: string;
-    allowpopups?: string;
+    partition?: string;
+    webpreferences?: string;
     ref?: React.Ref<HTMLElement>;
     style?: React.CSSProperties;
   }
@@ -124,6 +125,8 @@ export function WebViewTabs({
               }
             }}
             src={entry.url}
+            partition="persist:factor-apps"
+            webpreferences="contextIsolation=yes,nodeIntegration=no,allowRunningInsecureContent=no"
             allowpopups="true"
             style={{
               position: "absolute",

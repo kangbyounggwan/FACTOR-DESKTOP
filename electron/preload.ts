@@ -1,6 +1,13 @@
 import { contextBridge, ipcRenderer } from 'electron';
-// ── Section 03 — Sentry preload bridge (v7+ side-effect import, main IPC 자동 연결) ──
-import '@sentry/electron/preload';
+// ── Sentry preload bridge — packaged 환경에서 module not found 발생 (electron-builder
+// 가 @sentry/electron 의 sub-path "/preload" 를 asar 에 포함 못 함) → main 윈도우
+// preload 전체 실패. main process 에 setupSentryMain() 으로 메인 에러는 이미 캡쳐
+// 하므로 preload bridge 없어도 OK. require 가 throw 해도 무시되도록 try-catch.
+try {
+  require('@sentry/electron/preload');
+} catch {
+  // optional — sentry preload 없이도 preload 자체는 정상 작동
+}
 
 // ────────────────────────────────────────────────────────────
 // 진단용: 렌더러 측 uncaught error / unhandledrejection을
@@ -46,9 +53,15 @@ contextBridge.exposeInMainWorld('electron', {
   settings: {
     getAll: () => ipcRenderer.invoke('settings:getAll'),
     get: (key: string) => ipcRenderer.invoke('settings:get', key),
-    set: (key: string, value: unknown) => ipcRenderer.invoke('settings:set', key, value),
     appUrls: {
-      add: (entry: { id: string; name: string; url: string; addedAt: number }) =>
+      add: (entry: {
+        id: string;
+        name: string;
+        url: string;
+        addedAt: number;
+        iconUrl?: string;
+        description?: string;
+      }) =>
         ipcRenderer.invoke('settings:appUrls:add', entry),
       remove: (id: string) => ipcRenderer.invoke('settings:appUrls:remove', id),
       update: (

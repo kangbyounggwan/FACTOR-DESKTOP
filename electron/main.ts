@@ -12,8 +12,29 @@ import { setupSentryMain } from './sentry';
 // ── Section 03 — Sentry main init (가장 먼저, 다른 import 들의 throw 도 캐치) ──
 setupSentryMain();
 
+// ── webview 3rd-party cookie 정책 완화 (v0.0.71) ─────────────────────────
+// Chromium 124+ 의 Tracking Protection 3PCD (third-party cookie phase-out)
+// 가 webview 내부 외부 사이트 (서한 MES 등) 의 SSO/CSRF/session cookie 를
+// 차단해 로그인이 깨지는 문제. APP 탭의 임베드 브라우저 용도에 한해 차단 해제.
+//   - TrackingProtection3pcd: 핵심 3PCD 차단 feature
+//   - PrivacySandboxAdsAPIs: 광고 sandbox (3PCD 와 같이 동작)
+// 이 커맨드라인 플래그는 app.whenReady() 이전에 호출해야 적용된다.
+app.commandLine.appendSwitch(
+  'disable-features',
+  'TrackingProtection3pcd,PrivacySandboxAdsAPIs',
+);
+
 log.initialize();
 log.transports.file.level = 'info';
+// ── EPIPE 무한루프 방지 (v0.0.73) ─────────────────────────────────────
+// packaged Electron GUI 앱은 stdout/stderr 가 detached console 에 연결됨.
+// console.log/error 호출 시 random 하게 EPIPE (broken pipe) 발생 가능 — 그
+// 에러가 process.on('uncaughtException') 으로 잡혀 log.error 가 다시 console
+// transport 로 write → EPIPE → uncaughtException → 무한 루프.
+// 해결: packaged 환경에선 console transport 끄기. 파일 transport 만 유지.
+if (app.isPackaged) {
+  log.transports.console.level = false;
+}
 
 // ── Section 05 (2026-05-27) — log rotation ──────────────────────────
 // maxSize 5MB × depth 5 (총 상한 ~30MB).
@@ -166,5 +187,19 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-process.on('uncaughtException', (err) => log.error('[main] uncaught', err));
-process.on('unhandledRejection', (reason) => log.error('[main] unhandledRejection', reason));
+// EPIPE 등 stdout/stderr 관련 에러는 swallow (electron-log 가 broken pipe 에 write
+// → uncaughtException → log.error → 또 broken pipe 무한 루프 방지). 그 외 에러는
+// 정상 로깅. try-catch 로 log 자체 실패 가능성도 차단.
+function safeLogError(prefix: string, err: unknown): void {
+  try {
+    const code = (err as { code?: string } | null | undefined)?.code;
+    if (code === 'EPIPE' || code === 'EAGAIN') return; // stdout/stderr 깨짐 — 무시
+    log.error(prefix, err);
+  } catch {
+    // log 자체가 실패해도 무한 루프 차단
+  }
+}
+process.on('uncaughtException', (err) => safeLogError('[main] uncaught', err));
+process.on('unhandledRejection', (reason) =>
+  safeLogError('[main] unhandledRejection', reason),
+);

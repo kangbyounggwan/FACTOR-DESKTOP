@@ -21,7 +21,8 @@ export const WebViewFrame = forwardRef<HTMLElement, Props>(({ url }, ref) => {
   const WebviewTag = "webview" as unknown as React.FC<
     React.HTMLAttributes<HTMLElement> & {
       src?: string;
-      allowpopups?: string;
+      partition?: string;
+      webpreferences?: string;
       ref?: React.Ref<HTMLElement>;
     }
   >;
@@ -31,6 +32,8 @@ export const WebViewFrame = forwardRef<HTMLElement, Props>(({ url }, ref) => {
       ref={ref}
       src={url}
       style={{ width: "100%", height: "100%", display: "flex" }}
+      partition="persist:factor-apps"
+      webpreferences="contextIsolation=yes,nodeIntegration=no,allowRunningInsecureContent=no"
       allowpopups="true"
     />
   );
