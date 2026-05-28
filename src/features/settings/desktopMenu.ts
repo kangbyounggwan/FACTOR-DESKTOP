@@ -11,7 +11,11 @@
 
 import type { MenuSection } from "@/features/settings";
 
-export type DesktopMenuSection = MenuSection | "api" | "data-schedules";
+export type DesktopMenuSection =
+  | MenuSection
+  | "api"
+  | "data-schedules"
+  | "api-catalog";
 
 export interface DesktopMenuGroup {
   /** 섹션 헤더 (uppercase tiny). null 이면 헤더 없이 그냥 리스트. */
@@ -38,6 +42,7 @@ export const desktopMenuGroups: DesktopMenuGroup[] = [
     label: "통합",
     items: [
       { id: "api", label: "API 연결" },
+      { id: "api-catalog", label: "API 카탈로그" },
       { id: "data-schedules", label: "ETL 스케쥴" },
     ],
   },

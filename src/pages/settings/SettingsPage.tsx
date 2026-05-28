@@ -37,6 +37,7 @@ import {
   type DesktopMenuSection,
 } from "@desktop/features/settings";
 import { DataSchedulesSection } from "@desktop/features/data-schedules";
+import { ApiCatalogTableSection } from "@desktop/features/api-catalog";
 
 import {
   type EditedProfile,
@@ -242,6 +243,8 @@ export default function SettingsPage() {
                 {activeSection === "api" && <ApiConnectionsSection />}
 
                 {activeSection === "data-schedules" && <DataSchedulesSection />}
+
+                {activeSection === "api-catalog" && <ApiCatalogTableSection />}
               </div>
             </div>
           </SimpleBar>
