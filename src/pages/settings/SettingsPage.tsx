@@ -36,6 +36,7 @@ import {
   SettingsNavList,
   type DesktopMenuSection,
 } from "@desktop/features/settings";
+import { DataSchedulesSection } from "@desktop/features/data-schedules";
 
 import {
   type EditedProfile,
@@ -239,6 +240,8 @@ export default function SettingsPage() {
                 )}
 
                 {activeSection === "api" && <ApiConnectionsSection />}
+
+                {activeSection === "data-schedules" && <DataSchedulesSection />}
               </div>
             </div>
           </SimpleBar>
