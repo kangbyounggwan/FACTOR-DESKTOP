@@ -396,7 +396,7 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
 
       {isOpen && (
         <tr className="border-b border-border/40">
-          <td colSpan={7} className="p-0 bg-foreground/[0.015] relative">
+          <td colSpan={6} className="p-0 bg-foreground/[0.015] relative">
             <span
               className="absolute left-0 top-0 bottom-0 w-[2px] bg-primary"
               aria-hidden
