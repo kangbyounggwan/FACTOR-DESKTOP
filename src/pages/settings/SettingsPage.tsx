@@ -40,6 +40,7 @@ import {
   SettingsNavList,
   type DesktopMenuSection,
   desktopMenuItems,
+  GeneralSectionDesktop,
   ProfileSectionDesktop,
   TeamSectionDesktop,
   AssignedEquipmentSectionDesktop,
@@ -78,7 +79,7 @@ export default function SettingsPage() {
   const { data: assignedEquipmentIds = [] } = useAssignedEquipments();
   const toggleAssignedEquipmentMutation = useToggleAssignedEquipment();
 
-  const [activeSection, setActiveSection] = useState<DesktopMenuSection>("profile");
+  const [activeSection, setActiveSection] = useState<DesktopMenuSection>("general");
   const [editedProfile, setEditedProfile] = useState<EditedProfile>({
     full_name: "",
     email: "",
@@ -203,9 +204,10 @@ export default function SettingsPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // 폼 4종 콘텐츠 — api 가 아닌 case 의 본문. 별도 변수로 빼서 SimpleBar wrap 처리.
+  // 폼 콘텐츠 — api 가 아닌 case 의 본문. 별도 변수로 빼서 SimpleBar wrap 처리.
   const formContent = (
     <>
+      {activeSection === "general" && <GeneralSectionDesktop />}
       {activeSection === "profile" && (
         <ProfileSectionDesktop
           displayProfile={displayProfile}
