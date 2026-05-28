@@ -47,6 +47,36 @@ import type { AppUrlEntry } from "@desktop/types/electron";
 
 export type AppPageMode = "tabs" | "detail" | "empty" | "home";
 
+const DEFAULT_SNAPSHOT_ALLOWED_HOSTS = [
+  "factor.io.kr",
+  "api.factor.io.kr",
+  "pnpjbadjfxczezmkqyhh.supabase.co",
+];
+
+function getSnapshotAllowedHosts(): string[] {
+  const configured = import.meta.env.VITE_DESKTOP_SNAPSHOT_ALLOWED_HOSTS;
+  if (typeof configured !== "string" || !configured.trim()) {
+    return DEFAULT_SNAPSHOT_ALLOWED_HOSTS;
+  }
+  return configured
+    .split(",")
+    .map((host) => host.trim().toLowerCase())
+    .filter(Boolean);
+}
+
+function isSnapshotAllowed(url: string): boolean {
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:") return false;
+    const host = parsed.hostname.toLowerCase();
+    return getSnapshotAllowedHosts().some(
+      (allowed) => host === allowed || host.endsWith(`.${allowed}`),
+    );
+  } catch {
+    return false;
+  }
+}
+
 export interface UseAppPageStateReturn {
   // urls
   urls: AppUrlEntry[];
@@ -270,6 +300,9 @@ export function useAppPageState(): UseAppPageStateReturn {
       ) => {
         const snapshot = await captureSnapshot();
         if (!snapshot) {
+          return chat.sendMessage(content, context);
+        }
+        if (!isSnapshotAllowed(snapshot.url)) {
           return chat.sendMessage(content, context);
         }
         const snapshotJson = JSON.stringify({

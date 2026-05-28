@@ -16,7 +16,6 @@
 import { Plus, MessageSquare, X } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
-import { AIChatPanelView } from "@/features/monitoring/components/ai-chat";
 import { cn } from "@/lib/utils";
 import {
   useAppPageState,
@@ -26,6 +25,7 @@ import {
   AddAppUrlDialog,
   TabBar,
   WebViewTabs,
+  DesktopAppChatPanel,
 } from "@desktop/features/app";
 
 export default function AppPage() {
@@ -111,7 +111,7 @@ export default function AppPage() {
               </div>
               {/* 챗 본문 — enhancedChat (sendMessage 가 page snapshot 자동 첨부) */}
               <div className="flex-1 min-h-0">
-                <AIChatPanelView {...s.enhancedChat} />
+                <DesktopAppChatPanel {...s.enhancedChat} />
               </div>
             </aside>
           )}

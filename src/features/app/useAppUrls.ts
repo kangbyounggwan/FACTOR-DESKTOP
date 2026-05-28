@@ -24,10 +24,6 @@ async function loadAll(): Promise<AppUrlEntry[]> {
 }
 
 async function saveAll(list: AppUrlEntry[]): Promise<void> {
-  if (isDesktop) {
-    await window.electron!.settings.set("appUrls", list);
-    return;
-  }
   localStorage.setItem(LS_KEY, JSON.stringify(list));
 }
 

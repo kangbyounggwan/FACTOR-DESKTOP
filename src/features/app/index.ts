@@ -24,5 +24,6 @@ export { useOpenTabs } from "./useOpenTabs";
 export type { OpenTab } from "./useOpenTabs";
 export { TabBar } from "./TabBar";
 export { WebViewTabs } from "./WebViewTabs";
+export { DesktopAppChatPanel } from "./DesktopAppChatPanel";
 export { useAppPageState } from "./useAppPageState";
 export type { AppPageMode, UseAppPageStateReturn } from "./useAppPageState";

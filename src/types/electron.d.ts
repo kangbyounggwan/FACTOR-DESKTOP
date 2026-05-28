@@ -49,7 +49,6 @@ export interface DesktopElectronAPI {
   settings: {
     getAll: () => Promise<DesktopSettings>;
     get: <K extends keyof DesktopSettings>(key: K) => Promise<DesktopSettings[K]>;
-    set: <K extends keyof DesktopSettings>(key: K, value: DesktopSettings[K]) => Promise<void>;
     appUrls: {
       add: (entry: AppUrlEntry) => Promise<AppUrlEntry[]>;
       remove: (id: string) => Promise<AppUrlEntry[]>;

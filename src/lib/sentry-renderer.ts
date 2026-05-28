@@ -23,5 +23,32 @@ export function setupSentryRenderer() {
     dsn,
     // main 과 같은 sample rate (별도 설정 가능).
     tracesSampleRate: 0.1,
+    beforeSend(event) {
+      if (event.request?.url) {
+        event.request.url = maskSecretsInUrl(event.request.url);
+      }
+      if (event.user) {
+        delete event.user.email;
+        delete event.user.ip_address;
+        delete (event.user as Record<string, unknown>).username;
+      }
+      return event;
+    },
+    beforeBreadcrumb(breadcrumb) {
+      if (breadcrumb.data && typeof breadcrumb.data === "object") {
+        const data = breadcrumb.data as Record<string, unknown>;
+        if (typeof data.url === "string") {
+          data.url = maskSecretsInUrl(data.url);
+        }
+      }
+      return breadcrumb;
+    },
   });
+}
+
+function maskSecretsInUrl(url: string): string {
+  return url.replace(
+    /([?&](user_id|token|secret[^=]*|password|apikey|access_token|refresh_token)=)[^&]+/gi,
+    "$1[REDACTED]",
+  );
 }
