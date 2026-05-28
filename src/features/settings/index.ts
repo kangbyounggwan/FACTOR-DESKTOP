@@ -10,3 +10,9 @@
 
 export { SettingsNavList } from "./SettingsNavList";
 export { desktopMenuItems, type DesktopMenuSection } from "./desktopMenu";
+
+// 데스크탑 자체 섹션 컴포넌트 (v0.0.53 — "refined technical instrument" 톤)
+export { ProfileSectionDesktop } from "./sections/ProfileSectionDesktop";
+export { TeamSectionDesktop } from "./sections/TeamSectionDesktop";
+export { AssignedEquipmentSectionDesktop } from "./sections/AssignedEquipmentSectionDesktop";
+export { NotificationsSectionDesktop } from "./sections/NotificationsSectionDesktop";

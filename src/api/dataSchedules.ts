@@ -83,12 +83,26 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
+    // body stream 은 한 번만 소비 가능. text() 로 받고 JSON 시도 (반대 순서면
+    // json() 이 fail 후 text() 가 'body stream already read' 로 또 fail).
     let detail = "";
     try {
-      const j = await res.json();
-      detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j);
+      const raw = await res.text();
+      if (raw) {
+        try {
+          const j = JSON.parse(raw);
+          detail =
+            typeof j.detail === "string"
+              ? j.detail
+              : typeof j.message === "string"
+                ? j.message
+                : JSON.stringify(j);
+        } catch {
+          detail = raw;
+        }
+      }
     } catch {
-      detail = await res.text();
+      // body 읽기 실패 — statusText 만
     }
     throw new Error(`HTTP ${res.status}: ${detail || res.statusText}`);
   }

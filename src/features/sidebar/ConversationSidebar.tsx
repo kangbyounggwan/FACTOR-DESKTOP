@@ -38,7 +38,7 @@ import { ConversationRow } from "./ConversationRow";
 import { GuestEmpty } from "./GuestEmpty";
 
 // 3개 탭(CHAT / DASHBOARD / APP) 중 DASHBOARD가 가장 길어 폭의 하한을 결정.
-// 실측: 296px 미만에서는 text-[10px] semibold라도 "DASHBOA…"로 잘림.
+// 실측: 296px 미만에서는 text-[11px] semibold라도 "DASHBOA…"로 잘림.
 // 기본은 여유 있게 320px로 둠.
 export const SIDEBAR_MIN_WIDTH = 296;
 export const SIDEBAR_MAX_WIDTH = 480;
@@ -176,7 +176,7 @@ export function ConversationSidebar({
         {customRecents ? (
           <div className="flex-1 min-h-0 flex flex-col overflow-hidden">
             <div className="px-3 pt-3 pb-1 flex items-center justify-between flex-shrink-0">
-              <h3 className="text-[11px] font-medium text-muted-foreground">
+              <h3 className="text-[12px] font-medium text-muted-foreground">
                 {recentsLabel}
               </h3>
             </div>
@@ -209,7 +209,7 @@ export function ConversationSidebar({
                   <div className="space-y-3">
                     {grouped.map(({ group, items: gItems }) => (
                       <section key={group}>
-                        <h4 className="px-2.5 py-1 text-[10px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                        <h4 className="px-2.5 py-1 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
                           {group}
                         </h4>
                         <ul className="space-y-px">
@@ -260,7 +260,7 @@ function RecentsHeader({
 }) {
   return (
     <div className="px-3 pt-3 pb-1 flex items-center justify-between flex-shrink-0">
-      <h3 className="text-[11px] font-medium text-muted-foreground">{label}</h3>
+      <h3 className="text-[12px] font-medium text-muted-foreground">{label}</h3>
       {authenticated && hasItems && (
         <TooltipProvider delayDuration={300}>
           <Tooltip>
@@ -273,7 +273,7 @@ function RecentsHeader({
                 <RefreshCw className="w-3 h-3 text-muted-foreground/70" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" className="text-[10px]">
+            <TooltipContent side="right" className="text-[11px]">
               새로고침
             </TooltipContent>
           </Tooltip>
@@ -300,7 +300,7 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="text-[11px] text-destructive py-3 px-2">
+    <div className="text-[12px] text-destructive py-3 px-2">
       불러오기 실패 ({message})
       <button
         type="button"
@@ -315,7 +315,7 @@ function ErrorState({
 
 function EmptyState() {
   return (
-    <div className="text-[11px] text-muted-foreground py-8 text-center px-3">
+    <div className="text-[12px] text-muted-foreground py-8 text-center px-3">
       저장된 대화 없음
     </div>
   );

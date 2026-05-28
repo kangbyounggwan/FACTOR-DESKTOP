@@ -26,19 +26,28 @@
  */
 
 import { useState, useEffect, useMemo } from "react";
-import { equipmentList } from "@/data/mockData";
+import { useNavigate } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
+import { ArrowLeft } from "lucide-react";
+
+import { equipmentList } from "@/data/mockData";
 import { useAuth } from "@/features/auth";
 import { useToast } from "@/hooks/use-toast";
+import { cn } from "@/lib/utils";
 
 import {
   SettingsNavList,
   type DesktopMenuSection,
+  desktopMenuItems,
+  ProfileSectionDesktop,
+  TeamSectionDesktop,
+  AssignedEquipmentSectionDesktop,
+  NotificationsSectionDesktop,
 } from "@desktop/features/settings";
-import { DataSchedulesSection } from "@desktop/features/data-schedules";
-import { ApiCatalogTableSection } from "@desktop/features/api-catalog";
+import { ApiConnectionsContainer } from "@desktop/features/api-catalog";
 
+// FE 의 leaf hook / type / config 만 import — 페이지 / 섹션 컴포넌트는 데스크탑 자체 사용 (R6).
 import {
   type EditedProfile,
   type DisplayProfile,
@@ -53,14 +62,10 @@ import {
   useToggleNotification,
   useAssignedEquipments,
   useToggleAssignedEquipment,
-  ProfileSection,
-  TeamSection,
-  AssignedEquipmentSection,
-  NotificationsSection,
-  ApiConnectionsSection,
 } from "@/features/settings";
 
 export default function SettingsPage() {
+  const navigate = useNavigate();
   const { profile: authProfile } = useAuth();
   const { toast } = useToast();
 
@@ -180,74 +185,125 @@ export default function SettingsPage() {
     toggleNotificationMutation.mutate({ key, value });
   };
 
+  const activeLabel =
+    desktopMenuItems.find((m) => m.id === activeSection)?.label ?? null;
+  const handleBack = () => navigate(-1);
+
+  // Esc 키 — 뒤로. 설정 페이지는 별도 modal 이 없으니 esc 전역 hijack 해도 안전.
+  // (각 section 내부 Dialog 는 Radix 가 stopPropagation 처리.)
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        e.preventDefault();
+        handleBack();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // 폼 4종 콘텐츠 — api 가 아닌 case 의 본문. 별도 변수로 빼서 SimpleBar wrap 처리.
+  const formContent = (
+    <>
+      {activeSection === "profile" && (
+        <ProfileSectionDesktop
+          displayProfile={displayProfile}
+          editedProfile={editedProfile}
+          onEditedProfileChange={setEditedProfile}
+          onSave={handleSaveProfile}
+          isSaving={updateProfileMutation.isPending}
+          isLoading={profileLoading}
+        />
+      )}
+      {activeSection === "team" && (
+        <TeamSectionDesktop
+          teamMembers={teamMembers}
+          isLoading={teamLoading}
+          department={displayProfile.department}
+          onInvite={handleInvite}
+          isInviting={inviteTeamMemberMutation.isPending}
+        />
+      )}
+      {activeSection === "equipment" && (
+        <AssignedEquipmentSectionDesktop
+          equipmentList={equipmentList}
+          assignedEquipmentIds={assignedEquipmentIds}
+          selectedLine={selectedLine}
+          lineOptions={lineOptions}
+          onLineChange={setSelectedLine}
+          onToggleEquipment={handleToggleEquipment}
+        />
+      )}
+      {activeSection === "notifications" && (
+        <NotificationsSectionDesktop
+          notifications={notifications}
+          onToggle={handleNotificationToggle}
+        />
+      )}
+    </>
+  );
+
   return (
     <div className="h-full w-full min-h-0 flex flex-col bg-background">
-      {/* 상단 헤더 — Claude 의 "← 설정" 라인. 데스크탑 TopBar 에 이미 back 버튼이
-          있으므로 여기는 타이틀만 표시 (중복 방지). */}
-      <header className="flex-shrink-0 px-6 py-3.5 border-b border-border/40">
-        <h1 className="text-[15px] font-medium text-foreground">설정</h1>
+      {/* ── 상단 헤더 — border-b 전체 폭 / 텍스트 wrapper 는 nav 와 같은 정렬 ──
+          header 의 border-b 는 화면 전체 폭을 유지 ("공간 확보는 그대로") 하되,
+          back + "설정 / 활성라벨" 텍스트는 본문 wrapper(max-w-[1500px] mx-auto)
+          와 같은 x-position 에서 시작 → 콘텐츠 정렬과 일치. */}
+      <header className="flex-shrink-0 border-b border-border/40">
+        <div className="w-full max-w-[1500px] mx-auto flex items-center gap-3 pl-3 pr-6 py-2.5">
+          <button
+            type="button"
+            onClick={handleBack}
+            title="뒤로 (Esc)"
+            aria-label="뒤로가기"
+            className={cn(
+              "h-8 w-8 flex items-center justify-center rounded-md flex-shrink-0",
+              "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]",
+              "transition-colors",
+            )}
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+
+          <div className="flex items-baseline gap-2 min-w-0">
+            <h1 className="text-[19px] font-semibold tracking-tight text-foreground">
+              설정
+            </h1>
+            {activeLabel && (
+              <>
+                <span className="text-foreground/25 text-[16px]">/</span>
+                <span className="text-[15.5px] text-foreground/65 font-medium tracking-tight truncate">
+                  {activeLabel}
+                </span>
+              </>
+            )}
+          </div>
+
+          {/* 우측 — 빈 공간 (향후 global save / search 등). */}
+          <div className="ml-auto" />
+        </div>
       </header>
 
-      {/* 본문: nav + content. 카드 wrap 없음 (Claude 모티브). */}
-      <div className="flex-1 flex min-h-0">
+      {/* ── 본문: nav + main. wrapper max-w-[1500px] mx-auto. ── */}
+      <div className="flex-1 flex min-h-0 w-full max-w-[1500px] mx-auto">
         <SettingsNavList
           activeSection={activeSection}
           onSectionChange={setActiveSection}
         />
 
-        <main className="flex-1 min-w-0">
-          <SimpleBar className="h-full">
-            <div className="px-10 py-8 mx-auto max-w-[860px]">
-              {/* leaf 컴포넌트들이 각자 h2 + description 을 그림 —
-                  좌측 nav 의 활성 항목이 컨텍스트 주므로 별도 SectionHeader 중복 X. */}
-              <div>
-                {activeSection === "profile" && (
-                  <ProfileSection
-                    displayProfile={displayProfile}
-                    editedProfile={editedProfile}
-                    onEditedProfileChange={setEditedProfile}
-                    onSave={handleSaveProfile}
-                    isSaving={updateProfileMutation.isPending}
-                    isLoading={profileLoading}
-                  />
-                )}
-
-                {activeSection === "team" && (
-                  <TeamSection
-                    teamMembers={teamMembers}
-                    isLoading={teamLoading}
-                    department={displayProfile.department}
-                    onInvite={handleInvite}
-                    isInviting={inviteTeamMemberMutation.isPending}
-                  />
-                )}
-
-                {activeSection === "equipment" && (
-                  <AssignedEquipmentSection
-                    equipmentList={equipmentList}
-                    assignedEquipmentIds={assignedEquipmentIds}
-                    selectedLine={selectedLine}
-                    lineOptions={lineOptions}
-                    onLineChange={setSelectedLine}
-                    onToggleEquipment={handleToggleEquipment}
-                  />
-                )}
-
-                {activeSection === "notifications" && (
-                  <NotificationsSection
-                    notifications={notifications}
-                    onToggle={handleNotificationToggle}
-                  />
-                )}
-
-                {activeSection === "api" && <ApiConnectionsSection />}
-
-                {activeSection === "data-schedules" && <DataSchedulesSection />}
-
-                {activeSection === "api-catalog" && <ApiCatalogTableSection />}
-              </div>
+        <main className="flex-1 min-w-0 min-h-0">
+          {activeSection === "api" ? (
+            <div className="h-full px-6 py-8">
+              <ApiConnectionsContainer />
             </div>
-          </SimpleBar>
+          ) : (
+            <SimpleBar className="h-full">
+              <div className="px-10 py-8 mx-auto max-w-[860px]">
+                {formContent}
+              </div>
+            </SimpleBar>
+          )}
         </main>
       </div>
     </div>

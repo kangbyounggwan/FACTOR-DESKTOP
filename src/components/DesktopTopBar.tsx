@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const DRAG_REGION_HEIGHT = 36;
+const DRAG_REGION_HEIGHT = 40;
 const MAC_TRAFFIC_LIGHTS_WIDTH = 80;
 const WIN_CONTROLS_WIDTH = 140;
 
@@ -86,7 +86,7 @@ export function DesktopTopBar({
         />
 
         {/* 분리자 */}
-        <div className="w-px h-4 bg-border/60 mx-1" />
+        <div className="w-px h-5 bg-border/60 mx-1" />
 
         <ToolbarButton
           icon={ArrowLeft}
@@ -101,7 +101,7 @@ export function DesktopTopBar({
       </div>
 
       {/* 중앙 — drag region, 타이틀 표시 */}
-      <div className="flex-1 text-center text-[11px] text-muted-foreground/60 font-medium tracking-wider">
+      <div className="flex-1 text-center text-[12px] text-muted-foreground/60 font-medium tracking-wider">
         {title}
       </div>
 
@@ -132,7 +132,7 @@ function ToolbarButton({
       title={label}
       aria-label={label}
       className={cn(
-        "h-7 w-7 flex items-center justify-center rounded-md transition-colors",
+        "h-8 w-8 flex items-center justify-center rounded-md transition-colors",
         disabled || !onClick
           ? "text-muted-foreground/40 cursor-not-allowed"
           : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]",
@@ -142,7 +142,7 @@ function ToolbarButton({
         WebkitAppRegion: "no-drag",
       }}
     >
-      <Icon className="w-4 h-4" />
+      <Icon className="w-[18px] h-[18px]" />
     </button>
   );
 }

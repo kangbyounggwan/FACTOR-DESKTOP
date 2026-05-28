@@ -17,7 +17,6 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogOut, Settings, Loader2, ChevronUp } from "lucide-react";
 import { useAuth } from "@/features/auth";
-import { isDesktop } from "@desktop/lib/electron";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -39,7 +38,12 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
   const [profileOpen, setProfileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
 
-  if (!isDesktop) return null;
+  // ⚠ 과거에는 `if (!isDesktop) return null` 로 window.electron 없으면 widget 자체를
+  // 숨겼는데, (1) dev preview (브라우저, electron preload 없음) 에서 위젯이 통째로
+  // 안 보이고 (2) EXE 에서도 preload 가 어떤 이유로 늦게 inject 되면 첫 렌더에서
+  // 위젯이 사라지는 regression 발생. 본 widget 은 DesktopShell 에서만 mount 되고
+  // (R6, factor-desktop 전용), 기능(login/signOut/navigate) 모두 Supabase useAuth
+  // + react-router 만 의존 — electron API 없어도 정상 동작. 가드 제거 안전.
 
   const displayName =
     profile?.full_name || profile?.name || user?.email?.split("@")[0] || "사용자";
@@ -82,12 +86,12 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
           {isAuthenticated ? displayName : "로그인"}
         </p>
         {!isAuthenticated && !isLoading && (
-          <p className="text-[10px] text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">
+          <p className="text-[11px] text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">
             게스트 모드
           </p>
         )}
         {isAuthenticated && user?.email && (
-          <p className="text-[10px] text-muted-foreground/70 group-hover:text-muted-foreground truncate transition-colors">
+          <p className="text-[11px] text-muted-foreground/70 group-hover:text-muted-foreground truncate transition-colors">
             {user.email}
           </p>
         )}
@@ -101,7 +105,7 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
         {isAuthenticated ? displayName : "로그인"}
       </span>
       {!isAuthenticated && !isLoading && (
-        <Badge variant="secondary" className="text-[10px] h-5">
+        <Badge variant="secondary" className="text-[11px] h-5">
           게스트
         </Badge>
       )}

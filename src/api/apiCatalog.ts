@@ -24,6 +24,11 @@ export interface ApiCatalogEntry {
   parameters: Array<{ name: string; type?: string; required?: boolean }> | Record<string, unknown>;
   example_question: string | null;
   cost_tier: CostTier | string;
+  /** 마이그 045 — 메서드별 권장 폴링 주기(초). NULL = 폴링 부적절. */
+  recommended_interval_sec: number | null;
+  /** adapter_endpoint_specs JOIN — 실 HTTP 경로. spec 미시드된 메서드는 null. */
+  http_method: string | null;
+  path_template: string | null;
   is_working: boolean;
   is_read_only: boolean;
   is_curated: boolean;
@@ -47,6 +52,7 @@ export interface ApiCatalogUpdate {
   example_question?: string;
   domain?: string;
   cost_tier?: CostTier;
+  recommended_interval_sec?: number | null;
   is_curated?: boolean;
   note?: string;
 }
@@ -57,12 +63,26 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
     ...init,
   });
   if (!res.ok) {
+    // body stream 은 한 번만 소비 가능. text() 로 받아 보고 JSON 시도 (반대 순서면
+    // json() 이 fail 후 text() 가 'body stream already read' 로 또 fail).
     let detail = "";
     try {
-      const j = await res.json();
-      detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j);
+      const raw = await res.text();
+      if (raw) {
+        try {
+          const j = JSON.parse(raw);
+          detail =
+            typeof j.detail === "string"
+              ? j.detail
+              : typeof j.message === "string"
+                ? j.message
+                : JSON.stringify(j);
+        } catch {
+          detail = raw;
+        }
+      }
     } catch {
-      detail = await res.text();
+      // body 읽기 실패 — statusText 만
     }
     throw new Error(`HTTP ${res.status}: ${detail || res.statusText}`);
   }
