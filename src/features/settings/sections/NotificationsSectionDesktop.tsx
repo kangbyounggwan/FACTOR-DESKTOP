@@ -94,10 +94,10 @@ export const NotificationsSectionDesktop = memo(
         <header className="space-y-4">
           <div className="flex items-baseline justify-between gap-4">
             <div>
-              <h2 className="text-[19px] font-semibold tracking-tight text-foreground">
+              <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
                 알림 설정
               </h2>
-              <p className="text-[14.5px] text-muted-foreground mt-1 leading-relaxed">
+              <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
                 채널과 알림 종류 별 수신 여부.{" "}
                 <span className="text-foreground/65">토글</span>은 즉시 적용됩니다.
               </p>
@@ -107,9 +107,9 @@ export const NotificationsSectionDesktop = memo(
               <div className="text-[12px] uppercase tracking-[0.14em] text-muted-foreground/65 font-medium">
                 활성 알림
               </div>
-              <div className="text-[24px] font-semibold tabular-nums leading-none tracking-tight text-foreground mt-1.5">
+              <div className="text-[22px] font-semibold tabular-nums leading-none tracking-tight text-foreground mt-1.5">
                 {enabledCount}
-                <span className="text-foreground/35 ml-1 text-[15px] font-medium">
+                <span className="text-foreground/35 ml-1 text-[12px] font-medium">
                   / {total}
                 </span>
               </div>
@@ -166,12 +166,12 @@ function Section({
           <div className="text-[12px] uppercase tracking-[0.16em] text-muted-foreground/65 font-medium">
             {eyebrow}
           </div>
-          <h3 className="text-[16px] font-medium text-foreground mt-0.5 tracking-tight">
+          <h3 className="text-[12px] font-medium text-foreground mt-0.5 tracking-tight">
             {title}
           </h3>
         </div>
         {hint && (
-          <span className="text-[13px] text-muted-foreground/60">{hint}</span>
+          <span className="text-[12px] text-muted-foreground/60">{hint}</span>
         )}
       </div>
       <div className="rounded-lg bg-foreground/[0.025] border border-border/40 overflow-hidden">
@@ -217,10 +217,10 @@ function ItemList({
                 )}
               </div>
               <div className="min-w-0">
-                <div className="text-[14.5px] text-foreground font-medium tracking-tight">
+                <div className="text-[11.5px] text-foreground font-medium tracking-tight">
                   {item.title}
                 </div>
-                <div className="text-[13px] text-muted-foreground/75 mt-0.5">
+                <div className="text-[12px] text-muted-foreground/75 mt-0.5">
                   {item.description}
                 </div>
               </div>

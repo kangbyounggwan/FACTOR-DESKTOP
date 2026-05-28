@@ -120,10 +120,10 @@ export function ApiCatalogTableSection() {
       <header className="space-y-4">
         <div className="flex items-baseline justify-between gap-4">
           <div>
-            <h2 className="text-[19px] font-semibold tracking-tight text-foreground">
+            <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
               메서드 카탈로그
             </h2>
-            <p className="text-[14.5px] text-muted-foreground mt-1 leading-relaxed">
+            <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
               비즈니스 메서드 + LLM 컨텍스트.{" "}
               <span className="text-foreground/65">행 클릭</span>해서 편집.{" "}
               <span className="text-amber-400/85">수동 편집</span>은 다음
@@ -165,7 +165,7 @@ export function ApiCatalogTableSection() {
             placeholder="method_name 또는 설명 검색…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-9 h-9 text-[15px] bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]"
+            className="pl-9 pr-9 h-9 text-[12px] bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]"
           />
           {search && (
             <button
@@ -206,7 +206,7 @@ export function ApiCatalogTableSection() {
           type="button"
           onClick={() => setOnlyCurated((v) => !v)}
           className={cn(
-            "flex items-center gap-2 h-9 px-3 rounded-md border text-[14px] font-medium transition-colors",
+            "flex items-center gap-2 h-9 px-3 rounded-md border text-[12px] font-medium transition-colors",
             onlyCurated
               ? "bg-amber-500/[0.12] border-amber-500/30 text-amber-300"
               : "bg-foreground/[0.03] border-border/40 text-foreground/65 hover:bg-foreground/[0.05]",
@@ -222,7 +222,7 @@ export function ApiCatalogTableSection() {
         </button>
 
         {/* Result counter — 우측 align */}
-        <div className="ml-auto text-[13px] text-foreground/45 font-mono tabular-nums whitespace-nowrap">
+        <div className="ml-auto text-[12px] text-foreground/45 font-mono tabular-nums whitespace-nowrap">
           {items.length}
           <span className="text-foreground/30 mx-1">/</span>
           {stats.total}
@@ -232,7 +232,7 @@ export function ApiCatalogTableSection() {
       {/* ── 표 ── */}
       {isLoading && <SkeletonTable />}
       {isError && (
-        <div className="rounded-md border border-rose-500/30 bg-rose-500/[0.08] px-4 py-3 text-[14.5px] text-rose-300">
+        <div className="rounded-md border border-rose-500/30 bg-rose-500/[0.08] px-4 py-3 text-[11.5px] text-rose-300">
           로드 실패 — {error instanceof Error ? error.message : String(error)}
         </div>
       )}
@@ -306,14 +306,14 @@ function Stat({
       <div className="mt-1.5 flex items-baseline gap-2">
         <span
           className={cn(
-            "text-[26px] font-semibold tabular-nums leading-none tracking-tight",
+            "text-[22px] font-semibold tabular-nums leading-none tracking-tight",
             tint ?? "text-foreground",
           )}
         >
           {value}
         </span>
         {hint && (
-          <span className="text-[12.5px] text-foreground/40 font-mono tabular-nums">
+          <span className="text-[11.5px] text-foreground/40 font-mono tabular-nums">
             {hint}
           </span>
         )}
@@ -344,7 +344,7 @@ function DomainChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "px-2.5 py-1 rounded text-[13px] font-medium whitespace-nowrap transition-colors",
+        "px-2.5 py-1 rounded text-[12px] font-medium whitespace-nowrap transition-colors",
         active
           ? "bg-foreground text-background"
           : "text-foreground/65 hover:text-foreground hover:bg-foreground/[0.04]",
@@ -384,10 +384,10 @@ function SkeletonTable() {
 function EmptyState() {
   return (
     <div className="rounded-lg border border-border/40 bg-foreground/[0.02] px-6 py-12 text-center">
-      <div className="text-[15px] text-foreground/70 font-medium">
+      <div className="text-[12px] text-foreground/70 font-medium">
         조건에 맞는 카탈로그 항목이 없습니다
       </div>
-      <div className="text-[13.5px] text-muted-foreground mt-1.5">
+      <div className="text-[11.5px] text-muted-foreground mt-1.5">
         검색어를 다시 입력하거나 필터를 초기화해보세요.
       </div>
     </div>
@@ -457,12 +457,12 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
 
         {/* 식별 — method_name + path + params */}
         <td className="px-3 py-3 align-top">
-          <code className="block text-[14.5px] font-mono font-medium text-foreground break-all leading-tight">
+          <code className="block text-[11.5px] font-mono font-medium text-foreground break-all leading-tight">
             {entry.method_name}
           </code>
           {entry.path_template ? (
             <div
-              className="text-[13px] font-mono text-emerald-400/85 mt-1 truncate leading-tight"
+              className="text-[12px] font-mono text-emerald-400/85 mt-1 truncate leading-tight"
               title={`${entry.http_method ?? "GET"} ${entry.path_template}`}
             >
               <span className="text-emerald-400/55 mr-1">
@@ -471,12 +471,12 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
               {entry.path_template}
             </div>
           ) : (
-            <div className="text-[13px] text-foreground/35 mt-1 leading-tight">
+            <div className="text-[12px] text-foreground/35 mt-1 leading-tight">
               <span className="inline-block h-1 w-1 rounded-full bg-foreground/25 mr-1.5 align-middle" />
               path 미시드 · 코드 fallback
             </div>
           )}
-          <div className="text-[12.5px] text-foreground/45 mt-1.5 font-mono tabular-nums truncate">
+          <div className="text-[11.5px] text-foreground/45 mt-1.5 font-mono tabular-nums truncate">
             {formatParams(entry)} · 권장{" "}
             <span className="text-foreground/60">
               {formatRecommended(entry.recommended_interval_sec)}
@@ -486,7 +486,7 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
 
         {/* 설명 — korean_label 만 */}
         <td className="px-3 py-3 align-top">
-          <div className="text-[15.5px] font-medium text-foreground leading-snug">
+          <div className="text-[11.5px] font-medium text-foreground leading-snug">
             {entry.korean_label || (
               <span className="text-foreground/35 font-normal italic">
                 라벨 미설정
@@ -497,7 +497,7 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
 
         {/* 도메인 — flat chip */}
         <td className="px-3 py-3 align-top">
-          <span className="inline-flex items-center text-[12.5px] font-medium tracking-tight text-foreground/75 bg-foreground/[0.05] px-2 py-0.5 rounded">
+          <span className="inline-flex items-center text-[11.5px] font-medium tracking-tight text-foreground/75 bg-foreground/[0.05] px-2 py-0.5 rounded">
             {entry.domain}
           </span>
         </td>
@@ -506,7 +506,7 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
         <td className="px-3 py-3 align-top">
           <span className="inline-flex items-center gap-1.5">
             <span className={cn("h-1.5 w-1.5 rounded-full", tier.dot)} />
-            <span className={cn("text-[13px] font-mono", tier.text)}>
+            <span className={cn("text-[12px] font-mono", tier.text)}>
               {entry.cost_tier}
             </span>
           </span>
@@ -525,7 +525,7 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
             />
             <span
               className={cn(
-                "text-[13px]",
+                "text-[12px]",
                 entry.is_working ? "text-emerald-300" : "text-rose-300",
               )}
             >
@@ -538,7 +538,7 @@ function RowGroup({ entry, isOpen, onToggle }: RowGroupProps) {
         <td className="px-3 py-3 align-top">
           <span
             className={cn(
-              "inline-flex items-center gap-1.5 text-[13px]",
+              "inline-flex items-center gap-1.5 text-[12px]",
               isManual ? "text-amber-300" : "text-foreground/45",
             )}
           >

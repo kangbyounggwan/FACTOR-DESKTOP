@@ -267,13 +267,13 @@ export default function SettingsPage() {
           </button>
 
           <div className="flex items-baseline gap-2 min-w-0">
-            <h1 className="text-[19px] font-semibold tracking-tight text-foreground">
+            <h1 className="text-[17px] font-semibold tracking-tight text-foreground">
               설정
             </h1>
             {activeLabel && (
               <>
-                <span className="text-foreground/25 text-[16px]">/</span>
-                <span className="text-[15.5px] text-foreground/65 font-medium tracking-tight truncate">
+                <span className="text-foreground/25 text-[12px]">/</span>
+                <span className="text-[11.5px] text-foreground/65 font-medium tracking-tight truncate">
                   {activeLabel}
                 </span>
               </>

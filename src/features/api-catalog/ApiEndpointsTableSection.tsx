@@ -121,10 +121,10 @@ export function ApiEndpointsTableSection() {
       {/* ── 헤더 ── */}
       <header className="space-y-4">
         <div>
-          <h2 className="text-[19px] font-semibold tracking-tight text-foreground">
+          <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
             API 명세
           </h2>
-          <p className="text-[14.5px] text-muted-foreground mt-1 leading-relaxed">
+          <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
             HTTP endpoint 의 path / query / body / response envelope. DB-driven
             adapter 가 이 명세를 그대로 실행합니다.
           </p>
@@ -154,7 +154,7 @@ export function ApiEndpointsTableSection() {
             placeholder="method_name 또는 path 검색…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-9 h-9 text-[15px] bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]"
+            className="pl-9 pr-9 h-9 text-[12px] bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]"
           />
           {search && (
             <button
@@ -166,7 +166,7 @@ export function ApiEndpointsTableSection() {
             </button>
           )}
         </div>
-        <div className="ml-auto text-[13px] text-foreground/45 font-mono tabular-nums">
+        <div className="ml-auto text-[12px] text-foreground/45 font-mono tabular-nums">
           {items.length}
           <span className="text-foreground/30 mx-1">/</span>
           {stats.total}
@@ -176,16 +176,16 @@ export function ApiEndpointsTableSection() {
       {/* ── 표 ── */}
       {isLoading && <SkeletonTable />}
       {isError && (
-        <div className="rounded-md border border-rose-500/30 bg-rose-500/[0.08] px-4 py-3 text-[14.5px] text-rose-300">
+        <div className="rounded-md border border-rose-500/30 bg-rose-500/[0.08] px-4 py-3 text-[11.5px] text-rose-300">
           로드 실패 — {error instanceof Error ? error.message : String(error)}
         </div>
       )}
       {!isLoading && !isError && items.length === 0 && (
         <div className="rounded-lg border border-border/40 bg-foreground/[0.02] px-6 py-12 text-center">
-          <div className="text-[15px] text-foreground/70 font-medium">
+          <div className="text-[12px] text-foreground/70 font-medium">
             등록된 endpoint 명세가 없습니다
           </div>
-          <div className="text-[13.5px] text-muted-foreground mt-1.5">
+          <div className="text-[11.5px] text-muted-foreground mt-1.5">
             adapter_endpoint_specs 테이블에 spec 을 시드하세요.
           </div>
         </div>
@@ -253,7 +253,7 @@ function Stat({
       <div className="mt-1.5">
         <span
           className={cn(
-            "text-[26px] font-semibold tabular-nums leading-none tracking-tight",
+            "text-[22px] font-semibold tabular-nums leading-none tracking-tight",
             tint ?? "text-foreground",
           )}
         >
@@ -349,10 +349,10 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
         </td>
 
         <td className="px-3 py-3 align-top">
-          <code className="block text-[14.5px] font-mono font-medium text-foreground break-all leading-tight">
+          <code className="block text-[11.5px] font-mono font-medium text-foreground break-all leading-tight">
             {spec.method_name}
           </code>
-          <div className="text-[12.5px] text-foreground/45 mt-1 font-mono">
+          <div className="text-[11.5px] text-foreground/45 mt-1 font-mono">
             {spec.adapter_type}
           </div>
         </td>
@@ -362,10 +362,10 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
         </td>
 
         <td className="px-3 py-3 align-top">
-          <code className="block text-[13.5px] font-mono text-emerald-400/90 break-all leading-tight">
+          <code className="block text-[11.5px] font-mono text-emerald-400/90 break-all leading-tight">
             {spec.path_template}
           </code>
-          <div className="text-[12.5px] text-foreground/45 mt-1 font-mono tabular-nums truncate">
+          <div className="text-[11.5px] text-foreground/45 mt-1 font-mono tabular-nums truncate">
             query: <span className="text-foreground/60">{queryStr}</span>
           </div>
         </td>
@@ -388,7 +388,7 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
               )}
             </div>
           ) : (
-            <span className="text-[13px] text-foreground/35">—</span>
+            <span className="text-[12px] text-foreground/35">—</span>
           )}
         </td>
 
@@ -402,7 +402,7 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
             />
             <span
               className={cn(
-                "text-[13px]",
+                "text-[12px]",
                 spec.is_read_only ? "text-emerald-300" : "text-rose-300",
               )}
             >
@@ -465,10 +465,10 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
       {/* ── Header — method + adapter + actions ── */}
       <div className="flex items-start justify-between gap-4">
         <div className="space-y-1.5">
-          <code className="block text-[18px] font-mono font-semibold text-foreground tracking-tight">
+          <code className="block text-[17px] font-mono font-semibold text-foreground tracking-tight">
             {spec.method_name}
           </code>
-          <div className="text-[13px] text-muted-foreground font-mono">
+          <div className="text-[12px] text-muted-foreground font-mono">
             adapter:{" "}
             <span className="text-foreground/75">{spec.adapter_type}</span>
             <span className="mx-2 text-foreground/30">·</span>
@@ -481,7 +481,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
         <button
           type="button"
           onClick={onClose}
-          className="text-[13px] text-foreground/55 hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-foreground/[0.04]"
+          className="text-[12px] text-foreground/55 hover:text-foreground transition-colors px-2 py-1 rounded hover:bg-foreground/[0.04]"
         >
           접기
         </button>
@@ -492,7 +492,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
         <SectionLabel>HTTP 요청</SectionLabel>
         <div className="mt-2 rounded-lg bg-foreground/[0.045] border border-border/30 px-4 py-3 flex items-center gap-3">
           <MethodTag method={spec.http_method} />
-          <code className="flex-1 text-[15px] font-mono text-emerald-400/90 break-all">
+          <code className="flex-1 text-[12px] font-mono text-emerald-400/90 break-all">
             {spec.path_template}
           </code>
           <button
@@ -508,7 +508,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
             )}
           </button>
         </div>
-        <div className="mt-2 flex flex-wrap gap-4 text-[12.5px] text-foreground/55 font-mono">
+        <div className="mt-2 flex flex-wrap gap-4 text-[11.5px] text-foreground/55 font-mono">
           <span>
             timeout:{" "}
             <span className="text-foreground/75 tabular-nums">
@@ -557,7 +557,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
             <>
               <SectionLabel>응답 path</SectionLabel>
               <div className="mt-2 rounded-md bg-foreground/[0.04] border border-border/30 px-3 py-2.5">
-                <code className="text-[14px] font-mono text-foreground/85">
+                <code className="text-[12px] font-mono text-foreground/85">
                   {spec.response_path || "(envelope unwrap default)"}
                 </code>
               </div>
@@ -580,7 +580,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
           <section>
             <SectionLabel>응답 path</SectionLabel>
             <div className="mt-2 rounded-md bg-foreground/[0.04] border border-border/30 px-3 py-2.5">
-              <code className="text-[14px] font-mono text-foreground/85">
+              <code className="text-[12px] font-mono text-foreground/85">
                 {spec.response_path || "(envelope unwrap default)"}
               </code>
             </div>
@@ -600,7 +600,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
       {spec.notes && (
         <section>
           <SectionLabel>메모</SectionLabel>
-          <p className="mt-2 text-[14.5px] text-foreground/80 leading-relaxed">
+          <p className="mt-2 text-[11.5px] text-foreground/80 leading-relaxed">
             {spec.notes}
           </p>
         </section>
@@ -619,7 +619,7 @@ function SectionLabel({ children }: { children: React.ReactNode }) {
 
 function JsonView({ value }: { value: unknown }) {
   return (
-    <pre className="mt-2 text-[13px] font-mono bg-foreground/[0.04] border border-border/30 px-3 py-2.5 rounded-md text-foreground/85 overflow-x-auto leading-relaxed">
+    <pre className="mt-2 text-[12px] font-mono bg-foreground/[0.04] border border-border/30 px-3 py-2.5 rounded-md text-foreground/85 overflow-x-auto leading-relaxed">
       {JSON.stringify(value, null, 2)}
     </pre>
   );

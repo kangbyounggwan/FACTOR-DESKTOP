@@ -112,7 +112,7 @@ export function ApiConnectionsContainer() {
                   />
                   <span
                     className={cn(
-                      "text-[15px] font-medium tracking-tight",
+                      "text-[12px] font-medium tracking-tight",
                       active ? "text-foreground" : "text-foreground/80",
                     )}
                   >
@@ -133,7 +133,7 @@ export function ApiConnectionsContainer() {
                 </div>
                 <div
                   className={cn(
-                    "text-[12.5px] mt-0.5 transition-colors leading-tight",
+                    "text-[11.5px] mt-0.5 transition-colors leading-tight",
                     active ? "text-muted-foreground" : "text-muted-foreground/65",
                   )}
                 >

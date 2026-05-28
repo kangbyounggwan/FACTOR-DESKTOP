@@ -68,10 +68,10 @@ export const AssignedEquipmentSectionDesktop = memo(
         <header className="space-y-4">
           <div className="flex items-baseline justify-between gap-4">
             <div>
-              <h2 className="text-[19px] font-semibold tracking-tight text-foreground">
+              <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
                 담당 설비
               </h2>
-              <p className="text-[14.5px] text-muted-foreground mt-1 leading-relaxed">
+              <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
                 모니터링 대상 설비 지정. 라인별로 좁혀 보고{" "}
                 <span className="text-foreground/65">카드 클릭</span>으로 토글.
               </p>
@@ -109,7 +109,7 @@ export const AssignedEquipmentSectionDesktop = memo(
             ))}
           </div>
 
-          <div className="ml-auto text-[13px] text-foreground/45 font-mono tabular-nums">
+          <div className="ml-auto text-[12px] text-foreground/45 font-mono tabular-nums">
             {filtered.length}
             <span className="text-foreground/30 mx-1">/</span>
             {stats.total}
@@ -119,7 +119,7 @@ export const AssignedEquipmentSectionDesktop = memo(
         {/* ── 카드 그리드 ── */}
         {filtered.length === 0 ? (
           <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-12 text-center">
-            <p className="text-[15px] text-foreground/65">
+            <p className="text-[12px] text-foreground/65">
               이 라인에 설비가 없습니다.
             </p>
           </div>
@@ -152,20 +152,20 @@ export const AssignedEquipmentSectionDesktop = memo(
                   <div className="flex items-start gap-3">
                     <div className="flex-1 min-w-0 space-y-2">
                       <div className="flex items-center gap-2 min-w-0">
-                        <h4 className="text-[15.5px] font-medium tracking-tight text-foreground truncate">
+                        <h4 className="text-[11.5px] font-medium tracking-tight text-foreground truncate">
                           {eq.name}
                         </h4>
                         <div className="flex items-center gap-1.5 flex-shrink-0">
                           <span
                             className={cn("h-1.5 w-1.5 rounded-full", status.dot)}
                           />
-                          <span className={cn("text-[12.5px]", status.text)}>
+                          <span className={cn("text-[11.5px]", status.text)}>
                             {status.label}
                           </span>
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 text-[12.5px]">
+                      <div className="flex items-center gap-3 text-[11.5px]">
                         <span className="font-mono text-foreground/55">
                           {eq.id}
                         </span>
@@ -218,7 +218,7 @@ function LineChip({
       type="button"
       onClick={onClick}
       className={cn(
-        "h-7 px-2.5 rounded text-[13.5px] font-medium tracking-tight whitespace-nowrap transition-colors",
+        "h-7 px-2.5 rounded text-[11.5px] font-medium tracking-tight whitespace-nowrap transition-colors",
         active
           ? "bg-foreground/[0.08] text-foreground"
           : "text-foreground/60 hover:text-foreground hover:bg-foreground/[0.04]",
@@ -246,7 +246,7 @@ function Stat({
       <div className="mt-1.5">
         <span
           className={cn(
-            "text-[26px] font-semibold tabular-nums leading-none tracking-tight",
+            "text-[22px] font-semibold tabular-nums leading-none tracking-tight",
             tint ?? "text-foreground",
           )}
         >
