@@ -38,7 +38,7 @@ import { ConversationRow } from "./ConversationRow";
 import { GuestEmpty } from "./GuestEmpty";
 
 // 3개 탭(CHAT / DASHBOARD / APP) 중 DASHBOARD가 가장 길어 폭의 하한을 결정.
-// 실측: 296px 미만에서는 text-[11px] semibold라도 "DASHBOA…"로 잘림.
+// 실측: 296px 미만에서는 text-[12px] semibold라도 "DASHBOA…"로 잘림.
 // 기본은 여유 있게 320px로 둠.
 export const SIDEBAR_MIN_WIDTH = 296;
 export const SIDEBAR_MAX_WIDTH = 480;
@@ -209,7 +209,7 @@ export function ConversationSidebar({
                   <div className="space-y-3">
                     {grouped.map(({ group, items: gItems }) => (
                       <section key={group}>
-                        <h4 className="px-2.5 py-1 text-[11px] font-medium text-muted-foreground/60 uppercase tracking-wider">
+                        <h4 className="px-2.5 py-1 text-[12px] font-medium text-muted-foreground/60 uppercase tracking-wider">
                           {group}
                         </h4>
                         <ul className="space-y-px">
@@ -273,7 +273,7 @@ function RecentsHeader({
                 <RefreshCw className="w-3 h-3 text-muted-foreground/70" />
               </button>
             </TooltipTrigger>
-            <TooltipContent side="right" className="text-[11px]">
+            <TooltipContent side="right" className="text-[12px]">
               새로고침
             </TooltipContent>
           </Tooltip>
@@ -285,7 +285,7 @@ function RecentsHeader({
 
 function LoadingState() {
   return (
-    <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
+    <div className="flex items-center justify-center py-8 text-[12px] text-muted-foreground">
       <Loader2 className="h-3.5 w-3.5 animate-spin mr-2" />
       불러오는 중
     </div>
