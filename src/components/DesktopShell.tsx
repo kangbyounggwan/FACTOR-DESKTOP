@@ -155,7 +155,7 @@ export function DesktopShell({ children }: { children: ReactNode }) {
 
         {(() => {
           const inner = (
-            <div className="flex-1 flex min-h-0 gap-2 px-2 pb-2">
+            <div className="flex-1 flex min-h-0 gap-2 px-2 pt-3 pb-2">
               {!sidebarCollapsed && !isOnSettings && (
                 <ConversationSidebar
                   onSelect={handleSelectRecent}
