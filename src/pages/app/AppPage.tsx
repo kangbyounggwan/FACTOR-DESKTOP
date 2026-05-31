@@ -13,7 +13,8 @@
  * 룰북: ../../../../CLAUDE.md § 코드 분리 룰북 (R1, R5, R6).
  */
 
-import { Plus, MessageSquare, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Plus, MessageSquare, X, PictureInPicture2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -26,10 +27,105 @@ import {
   TabBar,
   WebViewTabs,
   DesktopAppChatPanel,
+  AppChatConversationBar,
 } from "@desktop/features/app";
+import { electron } from "@desktop/lib/electron";
+
+// AI 패널 폭 — 기본을 키우고(480) 드래그로 320~760 사이 조절, localStorage 영속.
+const AI_PANEL_MIN = 320;
+const AI_PANEL_MAX = 760;
+const AI_PANEL_DEFAULT = 480;
+const AI_PANEL_LS_KEY = "factor-desktop:aiPanelWidth";
+
+function useAiPanelWidth() {
+  const [width, setWidth] = useState<number>(() => {
+    try {
+      const saved = Number(localStorage.getItem(AI_PANEL_LS_KEY));
+      if (Number.isFinite(saved) && saved >= AI_PANEL_MIN && saved <= AI_PANEL_MAX) {
+        return saved;
+      }
+    } catch {
+      /* ignore */
+    }
+    return AI_PANEL_DEFAULT;
+  });
+  const setClamped = useCallback((w: number) => {
+    const c = Math.max(AI_PANEL_MIN, Math.min(AI_PANEL_MAX, Math.round(w)));
+    setWidth(c);
+    try {
+      localStorage.setItem(AI_PANEL_LS_KEY, String(c));
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  return [width, setClamped] as const;
+}
+
+/** AI 패널 좌측 모서리 리사이즈 핸들 (패널은 우측 도킹 → 왼쪽으로 끌면 넓어짐). */
+function AiPanelResizeHandle({
+  width,
+  onWidth,
+}: {
+  width: number;
+  onWidth: (w: number) => void;
+}) {
+  const [resizing, setResizing] = useState(false);
+  const start = useRef<{ x: number; w: number } | null>(null);
+
+  useEffect(() => {
+    if (!resizing) return;
+    const move = (e: MouseEvent) => {
+      if (!start.current) return;
+      // 우측 도킹 패널 — 핸들을 왼쪽으로 끌수록(clientX↓) 폭 증가.
+      const delta = start.current.x - e.clientX;
+      onWidth(start.current.w + delta);
+    };
+    const up = () => setResizing(false);
+    document.addEventListener("mousemove", move);
+    document.addEventListener("mouseup", up);
+    document.body.style.cursor = "col-resize";
+    document.body.style.userSelect = "none";
+    return () => {
+      document.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseup", up);
+      document.body.style.cursor = "";
+      document.body.style.userSelect = "";
+    };
+  }, [resizing, onWidth]);
+
+  return (
+    <>
+      <div
+        onMouseDown={(e) => {
+          e.preventDefault();
+          start.current = { x: e.clientX, w: width };
+          setResizing(true);
+        }}
+        className={cn(
+          "absolute top-0 left-0 z-10 h-full w-1.5 -ml-1 cursor-col-resize",
+          "after:absolute after:top-0 after:left-0 after:h-full after:w-px after:transition-colors",
+          resizing ? "after:bg-primary/60" : "hover:after:bg-primary/40",
+        )}
+        // @ts-expect-error -webkit-app-region 은 Electron 전용 CSS 속성
+        style={{ WebkitAppRegion: "no-drag" }}
+      />
+      {/* 드래그 중에만 전체 화면 투명 오버레이 — 옆 <webview>(별도 프로세스)가
+          mousemove/mouseup 을 가로채 "손 떼도 계속 따라오는" 문제 방지.
+          오버레이가 webview 를 덮어 이벤트가 호스트 renderer 로 들어온다. */}
+      {resizing && (
+        <div
+          className="fixed inset-0 z-[60] cursor-col-resize"
+          // @ts-expect-error -webkit-app-region 은 Electron 전용 CSS 속성
+          style={{ WebkitAppRegion: "no-drag" }}
+        />
+      )}
+    </>
+  );
+}
 
 export default function AppPage() {
   const s = useAppPageState();
+  const [aiPanelWidth, setAiPanelWidth] = useAiPanelWidth();
 
   // ──────────── 1. webview (멀티 탭) ────────────
   if (s.mode === "tabs") {
@@ -82,12 +178,16 @@ export default function AppPage() {
           </div>
           {s.aiPanelOpen && (
             <aside
+              style={{ width: aiPanelWidth }}
               className={cn(
-                "flex-shrink-0 w-[380px] border-l border-border/60 bg-card/30 flex flex-col min-h-0",
+                "relative flex-shrink-0 border-l border-border/60 bg-card/30 flex flex-col min-h-0",
                 "ml-2",
               )}
             >
-              {/* 패널 헤더 — 페이지 인식 표시 + 닫기 */}
+              {/* 좌측 모서리 드래그 → 폭 조절 (320~760, 기본 480) */}
+              <AiPanelResizeHandle width={aiPanelWidth} onWidth={setAiPanelWidth} />
+
+              {/* 패널 헤더 — 페이지 인식 표시 + 팝업 + 닫기 */}
               <div className="flex items-center justify-between px-3 py-2 border-b border-border/40 flex-shrink-0">
                 <div className="flex items-center gap-2 text-xs font-medium text-foreground/80">
                   <MessageSquare className="w-3.5 h-3.5 text-primary" />
@@ -99,16 +199,31 @@ export default function AppPage() {
                     페이지 인식 중
                   </span>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-6 w-6"
-                  onClick={() => s.setAiPanelOpen(false)}
-                  title="패널 닫기"
-                >
-                  <X className="w-3.5 h-3.5" />
-                </Button>
+                <div className="flex items-center gap-0.5">
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => void electron.chatPopup.open()}
+                    title="팝업 창으로 열기 (별도 화면 + 투명도)"
+                  >
+                    <PictureInPicture2 className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={() => s.setAiPanelOpen(false)}
+                    title="패널 닫기"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
               </div>
+
+              {/* 대화 전환기 — 헤더 바로 아래 (현재 대화명 + 꺽쇠 → 새 대화 / 최근 3개) */}
+              <AppChatConversationBar chat={s.enhancedChat} />
+
               {/* 챗 본문 — enhancedChat (sendMessage 가 page snapshot 자동 첨부) */}
               <div className="flex-1 min-h-0">
                 <DesktopAppChatPanel {...s.enhancedChat} />

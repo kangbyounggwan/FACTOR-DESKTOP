@@ -2,14 +2,13 @@ import { Bot, Cable, Loader2, Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ChatMessageList } from "@/features/monitoring/components/ai-chat/ChatMessageList";
-import { ChatQuickActions } from "@/features/monitoring/components/ai-chat/ChatQuickActions";
 import { ChatInput } from "@/features/monitoring/components/ai-chat/ChatInput";
-import type { UseAIChatReturn } from "@/features/monitoring/components/ai-chat";
+import type { UseAIChatReturn } from "@/features/monitoring/hooks/useAIChat";
 
 type DesktopAppChatPanelProps = UseAIChatReturn;
 
 export function DesktopAppChatPanel(chat: DesktopAppChatPanelProps) {
-  const { messages, input, isLoading, setInput, sendMessage, handleSubmit } = chat;
+  const { messages, input, isLoading, setInput, handleSubmit } = chat;
   const isSplash = messages.length === 1 && messages[0].id === "welcome";
 
   if (isSplash) {
@@ -23,10 +22,12 @@ export function DesktopAppChatPanel(chat: DesktopAppChatPanelProps) {
     );
   }
 
+  // 대화 시작 후엔 welcome(인사) 메시지를 목록에서 제거 — splash 에서만 노출.
+  const visibleMessages = messages.filter((m) => m.id !== "welcome");
+
   return (
     <div className="flex h-full min-h-0 flex-col">
-      <ChatMessageList messages={messages} />
-      <ChatQuickActions onAction={sendMessage} isLoading={isLoading} />
+      <ChatMessageList messages={visibleMessages} />
       <ChatInput
         value={input}
         onChange={setInput}

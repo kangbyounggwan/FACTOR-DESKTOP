@@ -76,6 +76,12 @@ contextBridge.exposeInMainWorld('electron', {
     setTitleBarOverlay: (opts: { color: string; symbolColor: string }) =>
       ipcRenderer.invoke('theme:setTitleBarOverlay', opts),
   },
+  // Chat 팝업 — 별도 창 열기 / 투명도 / 닫기.
+  chatPopup: {
+    open: () => ipcRenderer.invoke('chatPopup:open'),
+    setOpacity: (value: number) => ipcRenderer.invoke('chatPopup:setOpacity', value),
+    close: () => ipcRenderer.invoke('chatPopup:close'),
+  },
   // Section 02 (2026-05-27) — autoUpdater bridge.
   // UpdateBanner 가 onUpdateDownloaded 로 구독 → "재시작" 클릭 시 quitAndInstall.
   autoUpdater: {

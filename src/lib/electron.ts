@@ -41,6 +41,19 @@ export const electron = {
     };
   },
 
+  /** Chat 팝업 — 별도 떠 있는 창 (투명도 조절). 웹/미지원 환경은 no-op. */
+  chatPopup: {
+    open: async (): Promise<void> => {
+      await window.electron?.chatPopup?.open();
+    },
+    setOpacity: async (value: number): Promise<void> => {
+      await window.electron?.chatPopup?.setOpacity(value);
+    },
+    close: async (): Promise<void> => {
+      await window.electron?.chatPopup?.close();
+    },
+  },
+
   /**
    * URL 메타 정보 fetch (Electron 메인 프로세스, CORS 우회).
    * 웹 환경(데스크탑 아님)에서는 favicon fallback 만 제공.

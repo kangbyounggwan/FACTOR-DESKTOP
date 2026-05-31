@@ -4,6 +4,7 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { autoUpdater } from 'electron-updater';
 import { createMainWindow } from './windows/mainWindow';
+import { createChatPopupWindow } from './windows/chatPopupWindow';
 import { registerDeepLink, installDeepLinkHandlers } from './protocol';
 import { registerSettingsIpc } from './ipc/settings';
 import { registerLinkIpc } from './ipc/link';
@@ -74,9 +75,35 @@ log.info('[main] isPackaged=', app.isPackaged, 'resourcesPath=', process.resourc
 const isDev = process.env.NODE_ENV === 'development';
 
 let mainWindow: BrowserWindow | null = null;
+let chatPopupWindow: BrowserWindow | null = null;
 
 // IPC handlers
 ipcMain.handle('app:version', () => app.getVersion());
+
+// ── Chat 팝업 — 별도 떠 있는 창에서 질문 + 투명도(setOpacity) ──
+ipcMain.handle('chatPopup:open', () => {
+  if (chatPopupWindow && !chatPopupWindow.isDestroyed()) {
+    chatPopupWindow.show();
+    chatPopupWindow.focus();
+    return;
+  }
+  chatPopupWindow = createChatPopupWindow({ isDev });
+  chatPopupWindow.on('closed', () => {
+    chatPopupWindow = null;
+  });
+});
+ipcMain.handle('chatPopup:setOpacity', (_e, value: number) => {
+  if (!chatPopupWindow || chatPopupWindow.isDestroyed()) return;
+  const v = Math.max(0.2, Math.min(1, Number(value) || 1));
+  try {
+    chatPopupWindow.setOpacity(v);
+  } catch (err) {
+    log.warn('[chat-popup] setOpacity failed', err);
+  }
+});
+ipcMain.handle('chatPopup:close', () => {
+  if (chatPopupWindow && !chatPopupWindow.isDestroyed()) chatPopupWindow.close();
+});
 registerSettingsIpc();
 registerLinkIpc();
 

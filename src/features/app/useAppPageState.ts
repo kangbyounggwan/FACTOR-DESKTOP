@@ -51,6 +51,9 @@ const DEFAULT_SNAPSHOT_ALLOWED_HOSTS = [
   "factor.io.kr",
   "api.factor.io.kr",
   "pnpjbadjfxczezmkqyhh.supabase.co",
+  // 서한 MES 본체 — APP 탭에서 여는 핵심 분석 대상. endsWith 로 smartops.seohan.com 등 포함.
+  // 이게 빠져 있어 화면분석 page_snapshot 이 isSnapshotAllowed=false 로 버려졌었음.
+  "seohan.com",
 ];
 
 function getSnapshotAllowedHosts(): string[] {
@@ -292,34 +295,31 @@ export function useAppPageState(): UseAppPageStateReturn {
   // (useAIChat 의 stripAugmentation 가 "\n\n[참고 컨텍스트" marker 로 잘라냄).
   const enhancedChat = useMemo(() => {
     if (!selected) return chat;
+    const wrappedSendMessage = async (
+      content: string,
+      context?: Parameters<typeof chat.sendMessage>[1],
+    ) => {
+      const snapshot = await captureSnapshot();
+      if (!snapshot || !isSnapshotAllowed(snapshot.url)) {
+        return chat.sendMessage(content, context);
+      }
+      // 구조화 page_snapshot 으로 전송 → 백엔드 PipelineV3 가 화면분석 모드로
+      // 분기 (NLU/clarification/plant-scope 우회, 현재 화면 내용으로 답변).
+      // 이전 "메시지 텍스트에 JSON append" 방식은 백엔드 page_snapshot 분기를
+      // 못 타 화면연동이 안 됐었음 — 구조화 필드 전송으로 교체.
+      return chat.sendMessage(content, context, {
+        pageSnapshot: snapshot as unknown as Record<string, unknown>,
+      });
+    };
     return {
       ...chat,
-      sendMessage: async (
-        content: string,
-        context?: Parameters<typeof chat.sendMessage>[1],
-      ) => {
-        const snapshot = await captureSnapshot();
-        if (!snapshot) {
-          return chat.sendMessage(content, context);
-        }
-        if (!isSnapshotAllowed(snapshot.url)) {
-          return chat.sendMessage(content, context);
-        }
-        const snapshotJson = JSON.stringify({
-          url: snapshot.url,
-          title: snapshot.title,
-          meta: snapshot.meta,
-          visibleText: snapshot.visibleText,
-          dataElements: snapshot.dataElements,
-          tables: snapshot.tables,
-        });
-        const augmented =
-          content +
-          `\n\n[참고 컨텍스트 — 사용자가 데스크탑 앱에서 열어둔 외부 웹페이지의 rich snapshot (JSON). ` +
-          `사용자 질문에 답할 때 이 페이지 내용을 우선 참고하세요. ` +
-          `dataElements 의 data-* attrs (라인/장비/알람 식별자) 와 tables (헤더+샘플 10행) 을 활용.]\n` +
-          `${snapshotJson}`;
-        return chat.sendMessage(augmented, context);
+      sendMessage: wrappedSendMessage,
+      // ⚠ 입력창 제출(handleSubmit)도 wrap 필수 — base handleSubmit 은 base
+      // sendMessage 를 closure 로 호출해 page_snapshot 이 빠진다. 타이핑한
+      // 질문도 화면분석 경로를 타도록 같은 wrappedSendMessage 로 보냄.
+      handleSubmit: (e: Parameters<typeof chat.handleSubmit>[0]) => {
+        e.preventDefault();
+        void wrappedSendMessage(chat.input);
       },
     };
   }, [chat, selected, captureSnapshot]);

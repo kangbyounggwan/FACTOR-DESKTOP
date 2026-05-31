@@ -63,6 +63,12 @@ export interface DesktopElectronAPI {
       symbolColor: string;
     }) => Promise<void>;
   };
+  /** Chat 팝업 — 별도 떠 있는 창에서 질문 + 투명도 조절. */
+  chatPopup?: {
+    open: () => Promise<void>;
+    setOpacity: (value: number) => Promise<void>;
+    close: () => Promise<void>;
+  };
   /** Section 02 — autoUpdater bridge (electron-updater + GitHub Releases). */
   autoUpdater?: {
     onUpdateDownloaded: (

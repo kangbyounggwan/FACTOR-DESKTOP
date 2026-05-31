@@ -26,6 +26,7 @@ import { AuthProvider, ProtectedRoute } from "@/features/auth";
 import { DesktopShell } from "@desktop/components/DesktopShell";
 import { UpdateBanner } from "@desktop/components/UpdateBanner";
 import ChatPage from "@desktop/pages/chat/ChatPage";
+const ChatPopupPage = lazy(() => import("@desktop/pages/chat/ChatPopupPage"));
 import LoginPage from "@desktop/pages/auth/LoginPage";
 import SignupPage from "@desktop/pages/auth/SignupPage";
 const AppPage = lazy(() => import("@desktop/pages/app/AppPage"));
@@ -65,6 +66,16 @@ const App = () => (
             {/* Auth (public) */}
             <Route path="/login" element={<LoginPage />} />
             <Route path="/signup" element={<SignupPage />} />
+
+            {/* 별도 떠 있는 팝업 창 — DesktopShell 밖 (자체 titlebar). */}
+            <Route
+              path="/chat-popup"
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  <ChatPopupPage />
+                </Suspense>
+              }
+            />
 
             {/* 데스크탑 셀: 모든 페이지가 동일 outer (드래그 / 사이드바 / auth modal) 공유 */}
             <Route

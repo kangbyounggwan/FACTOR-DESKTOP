@@ -180,7 +180,13 @@ export function createMainWindow({ isDev }: Opts): BrowserWindow {
               partition: WEBVIEW_PARTITION,
               nodeIntegration: false,
               contextIsolation: true,
-              sandbox: true,
+              // ⚠ sandbox=false — 이 popup 도 외부 SPA(서한 MES) 를 로드한다.
+              // will-attach-webview(메인 webview) 와 동일 이유: Electron sandbox 가
+              // localStorage / fetch credentials 흐름을 일반 Chrome 과 다르게 처리해
+              // SPA 의 jwt-decode 가 throw (InvalidTokenError). v0.0.75 에서 메인
+              // webview 만 고치고 popup 경로를 누락 → 로그인 팝업에서 재발하던 것을 정합.
+              // contextIsolation/nodeIntegration 보안은 유지.
+              sandbox: false,
               webSecurity: true,
               allowRunningInsecureContent: false,
             },
