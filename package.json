@@ -2,7 +2,7 @@
   "name": "factor-desktop",
   "productName": "FACTOR DESKTOP",
   "private": true,
-  "version": "0.0.91",
+  "version": "0.0.96",
   "type": "module",
   "main": "dist-electron/main.js",
   "description": "FACTOR MES 데스크탑 클라이언트 (Electron 셰 + anomaly-eye-monitor FE 소스 공유)",
@@ -33,6 +33,17 @@
       "dist-electron/**",
       "package.json",
       "!**/*.map"
+    ],
+    "extraResources": [
+      {
+        "from": "electron/ontology-viewer",
+        "to": "ontology-viewer",
+        "filter": [
+          "viewer.html",
+          "viewer.js",
+          "vis-network.min.js"
+        ]
+      }
     ],
     "extraMetadata": {
       "main": "dist-electron/main.js"

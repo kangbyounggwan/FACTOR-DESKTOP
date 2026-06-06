@@ -28,7 +28,23 @@ export interface LinkMetadata {
 }
 
 export interface DesktopSettings {
-  appUrls: AppUrlEntry[];
+  /** 로그인 user_id 별 즐겨찾기 버킷 (계정 격리). */
+  appUrlsByUser: Record<string, AppUrlEntry[]>;
+}
+
+/** S4 — 설치 가능한 온톨로지 어댑터(레지스트리가 테넌트 필터한 목록). */
+export interface OntologyAdapter {
+  adapter_type: string;
+  plugin_id: string;
+  name: string | null;
+  version: string | null;
+}
+
+/** S4 — 로컬에 설치된 팩. */
+export interface InstalledOntologyPack {
+  adapter_type: string;
+  bytes: number;
+  installedAt: number;
 }
 
 export interface DesktopElectronAPI {
@@ -49,10 +65,16 @@ export interface DesktopElectronAPI {
   settings: {
     getAll: () => Promise<DesktopSettings>;
     get: <K extends keyof DesktopSettings>(key: K) => Promise<DesktopSettings[K]>;
+    /** appUrls — 모두 user_id 스코프(계정 격리). 비로그인은 호출 측에서 빈 문자열 전달. */
     appUrls: {
-      add: (entry: AppUrlEntry) => Promise<AppUrlEntry[]>;
-      remove: (id: string) => Promise<AppUrlEntry[]>;
-      update: (id: string, patch: Partial<AppUrlEntry>) => Promise<AppUrlEntry[]>;
+      list: (userId: string) => Promise<AppUrlEntry[]>;
+      add: (userId: string, entry: AppUrlEntry) => Promise<AppUrlEntry[]>;
+      remove: (userId: string, id: string) => Promise<AppUrlEntry[]>;
+      update: (
+        userId: string,
+        id: string,
+        patch: Partial<AppUrlEntry>,
+      ) => Promise<AppUrlEntry[]>;
     };
   };
   /** 테마 — renderer 의 ThemeProvider 가 light/dark 전환 시 native chrome
@@ -75,6 +97,15 @@ export interface DesktopElectronAPI {
       cb: (info: { version: string; releaseNotes: string | null }) => void,
     ) => () => void;
     quitAndInstall: () => Promise<void>;
+  };
+  /** S4 — 온톨로지 플러그인 다운로드/설치 (데스크탑 전용). */
+  ontology?: {
+    available: (userId: string) => Promise<OntologyAdapter[]>;
+    install: (
+      adapterType: string,
+      userId: string,
+    ) => Promise<InstalledOntologyPack>;
+    listInstalled: (userId: string) => Promise<InstalledOntologyPack[]>;
   };
 }
 

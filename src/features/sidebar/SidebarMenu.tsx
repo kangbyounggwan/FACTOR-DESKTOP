@@ -8,6 +8,7 @@ import {
   Plus,
   Search,
   Settings,
+  Network,
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
@@ -32,6 +33,14 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
     });
   }, [navigate, requireAuth]);
 
+  // 온톨로지 플러그인: user_id 스코프라 로그인 필요 (설정과 동일 UX).
+  const handleOntology = useCallback(() => {
+    requireAuth(() => navigate("/ontology"), {
+      title: "플러그인 설치에는 로그인이 필요합니다",
+      description: "로그인하면 소속 회사의 온톨로지 플러그인을 다운로드할 수 있습니다.",
+    });
+  }, [navigate, requireAuth]);
+
   return (
     <nav className="px-2 pt-1 pb-1 flex flex-col gap-0.5">
       <MenuItem icon={Plus} label="새 대화" onClick={onStartNew} />
@@ -41,6 +50,7 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
         onClick={onSearch}
         disabled={!onSearch}
       />
+      <MenuItem icon={Network} label="온톨로지 플러그인" onClick={handleOntology} />
       <MenuItem icon={Settings} label="설정" onClick={handleSettings} />
       <MenuItem icon={MoreHorizontal} label="더보기" disabled />
     </nav>

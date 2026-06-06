@@ -53,21 +53,27 @@ contextBridge.exposeInMainWorld('electron', {
   settings: {
     getAll: () => ipcRenderer.invoke('settings:getAll'),
     get: (key: string) => ipcRenderer.invoke('settings:get', key),
+    // appUrls — user_id 스코프 (계정 격리). 모든 호출에 현재 로그인 user_id 전달.
     appUrls: {
-      add: (entry: {
-        id: string;
-        name: string;
-        url: string;
-        addedAt: number;
-        iconUrl?: string;
-        description?: string;
-      }) =>
-        ipcRenderer.invoke('settings:appUrls:add', entry),
-      remove: (id: string) => ipcRenderer.invoke('settings:appUrls:remove', id),
+      list: (userId: string) => ipcRenderer.invoke('settings:appUrls:list', userId),
+      add: (
+        userId: string,
+        entry: {
+          id: string;
+          name: string;
+          url: string;
+          addedAt: number;
+          iconUrl?: string;
+          description?: string;
+        },
+      ) => ipcRenderer.invoke('settings:appUrls:add', userId, entry),
+      remove: (userId: string, id: string) =>
+        ipcRenderer.invoke('settings:appUrls:remove', userId, id),
       update: (
+        userId: string,
         id: string,
         patch: Partial<{ id: string; name: string; url: string; addedAt: number }>,
-      ) => ipcRenderer.invoke('settings:appUrls:update', id, patch),
+      ) => ipcRenderer.invoke('settings:appUrls:update', userId, id, patch),
     },
   },
   // 테마 — renderer 가 light/dark 전환 시 native chrome (titleBarOverlay) 도
@@ -81,6 +87,15 @@ contextBridge.exposeInMainWorld('electron', {
     open: () => ipcRenderer.invoke('chatPopup:open'),
     setOpacity: (value: number) => ipcRenderer.invoke('chatPopup:setOpacity', value),
     close: () => ipcRenderer.invoke('chatPopup:close'),
+  },
+  // S4 — 온톨로지 플러그인 다운로드/설치. install 은 검증+로컬 저장(이관 동의 후 호출).
+  // 신원은 user_id(렌더러가 supabase 세션에서 획득) 전달 — main 이 ?user_id= 로 S3 호출.
+  ontology: {
+    available: (userId: string) => ipcRenderer.invoke('ontology:available', userId),
+    install: (adapterType: string, userId: string) =>
+      ipcRenderer.invoke('ontology:install', adapterType, userId),
+    listInstalled: (userId: string) =>
+      ipcRenderer.invoke('ontology:listInstalled', userId),
   },
   // Section 02 (2026-05-27) — autoUpdater bridge.
   // UpdateBanner 가 onUpdateDownloaded 로 구독 → "재시작" 클릭 시 quitAndInstall.

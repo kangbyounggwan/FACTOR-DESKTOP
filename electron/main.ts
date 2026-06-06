@@ -6,8 +6,13 @@ import { autoUpdater } from 'electron-updater';
 import { createMainWindow } from './windows/mainWindow';
 import { createChatPopupWindow } from './windows/chatPopupWindow';
 import { registerDeepLink, installDeepLinkHandlers } from './protocol';
+import {
+  registerOntologySchemePrivileged,
+  registerOntologyProtocolHandlers,
+} from './ontology_protocol';
 import { registerSettingsIpc } from './ipc/settings';
 import { registerLinkIpc } from './ipc/link';
+import { registerOntologyPacksIpc } from './ipc/ontology_packs';
 import { setupSentryMain } from './sentry';
 
 // ── Section 03 — Sentry main init (가장 먼저, 다른 import 들의 throw 도 캐치) ──
@@ -24,6 +29,10 @@ app.commandLine.appendSwitch(
   'disable-features',
   'TrackingProtection3pcd,PrivacySandboxAdsAPIs',
 );
+
+// ── 온톨로지 뷰어 app:// custom scheme — privileged 등록은 app.whenReady 이전 필수.
+//    (standard/secure/supportFetchAPI 없으면 fetch/CSP/secure-context 깨짐.)
+registerOntologySchemePrivileged();
 
 log.initialize();
 log.transports.file.level = 'info';
@@ -106,6 +115,7 @@ ipcMain.handle('chatPopup:close', () => {
 });
 registerSettingsIpc();
 registerLinkIpc();
+registerOntologyPacksIpc();
 
 // 테마 — renderer 의 ThemeProvider 가 light/dark 전환 시 호출.
 // Windows / Linux 의 titleBarOverlay 색을 동적 변경 (macOS 는 hiddenInset 라 무관).
@@ -196,6 +206,9 @@ registerDeepLink();
 installDeepLinkHandlers(() => mainWindow);
 
 app.whenReady().then(() => {
+  // app:// handler 는 윈도우가 webview 를 붙이기 전에 살아 있어야 한다.
+  registerOntologyProtocolHandlers();
+
   mainWindow = createMainWindow({ isDev });
 
   // Section 02 — 시작 직후 백그라운드 update 확인 + 4h polling

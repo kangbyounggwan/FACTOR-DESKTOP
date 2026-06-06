@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <title>온톨로지 뷰어</title>
+  <!-- CSP 는 app:// 핸들러 응답헤더(ontology_protocol.ts)가 최종 강제. meta 는 로컬 dev 폴백용. -->
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    html, body { margin: 0; height: 100%; background: #0d1117; color: #cdd9e5;
+      font-family: -apple-system, "Segoe UI", "Malgun Gothic", sans-serif; }
+    #app { display: grid; grid-template-columns: 280px 1fr 320px; height: 100vh; }
+    #side { border-right: 1px solid #21262d; padding: 12px; overflow: auto; }
+    #detail { border-left: 1px solid #21262d; padding: 12px; overflow: auto; font-size: 13px; }
+    #net { width: 100%; height: 100%; }
+    h1 { font-size: 14px; margin: 0 0 8px; color: #8b949e; font-weight: 600; }
+    h2 { font-size: 12px; margin: 14px 0 6px; color: #8b949e; text-transform: uppercase; letter-spacing: .04em; }
+    #search { width: 100%; padding: 8px; background: #161b22; border: 1px solid #30363d;
+      border-radius: 6px; color: #cdd9e5; font-size: 13px; }
+    #search:focus { outline: none; border-color: #388bfd; }
+    .result, .route { padding: 5px 6px; border-radius: 4px; font-size: 12px; line-height: 1.3; }
+    .result:hover, .route:hover { background: #161b22; }
+    .sub { color: #6e7681; font-size: 11px; padding: 4px 6px; }
+    .err { color: #f85149; font-size: 12px; padding: 6px; }
+    .mono { font-family: "Cascadia Code", Consolas, monospace; font-size: 11px; word-break: break-all; }
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; color: #8b949e; font-weight: 500; font-size: 11px; padding: 3px 8px 3px 0;
+      vertical-align: top; white-space: nowrap; }
+    td { padding: 3px 0; }
+    #stats { font-size: 11px; color: #6e7681; margin-top: 10px; }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div id="side">
+      <h1>온톨로지 검색</h1>
+      <input id="search" type="text" placeholder="노드·엣지·개념 검색…" autocomplete="off" />
+      <div id="results"></div>
+      <div id="stats">로딩…</div>
+    </div>
+    <div id="net"></div>
+    <div id="detail"><div class="sub">노드를 클릭하면 상세가 표시됩니다.</div></div>
+  </div>
+  <!-- 외부 .js 만 (CSP script-src 'self'). 번들 로컬, CDN 금지. -->
+  <script src="vis-network.min.js"></script>
+  <script src="viewer.js"></script>
+</body>
+</html>
