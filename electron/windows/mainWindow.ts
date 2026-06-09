@@ -8,12 +8,24 @@ interface Opts {
 }
 
 const WEBVIEW_PARTITION = 'persist:factor-apps';
+// 온톨로지 뷰어 전용 partition — 외부 MES(persist:factor-apps)와 격리.
+// app:// handler 도 이 partition session 에만 등록(ontology_protocol.ts) → 외부
+// 사이트는 app:// 자체를 모름(2중 격리).
+const ONTOLOGY_PARTITION = 'persist:factor-ontology';
+
+function isOntologyAppUrl(parsed: URL): boolean {
+  // app:// 는 host 가 ontology|packs 일 때만 허용(무조건 app: 허용 금지).
+  return parsed.protocol === 'app:' && (parsed.host === 'ontology' || parsed.host === 'packs');
+}
 
 function isAllowedWebviewUrl(rawUrl: string | undefined): boolean {
   if (!rawUrl) return false;
   try {
     const parsed = new URL(rawUrl);
-    return /^https?:$/.test(parsed.protocol) && !parsed.username && !parsed.password;
+    if (/^https?:$/.test(parsed.protocol) && !parsed.username && !parsed.password) {
+      return true;
+    }
+    return isOntologyAppUrl(parsed);
   } catch {
     return false;
   }
@@ -130,7 +142,14 @@ export function createMainWindow({ isDev }: Opts): BrowserWindow {
       return;
     }
 
-    params.partition = WEBVIEW_PARTITION;
+    // 온톨로지 뷰어(app://)는 전용 partition 으로 강제 — 외부 MES 와 격리.
+    let _isOntology = false;
+    try {
+      _isOntology = isOntologyAppUrl(new URL(src as string));
+    } catch {
+      _isOntology = false;
+    }
+    params.partition = _isOntology ? ONTOLOGY_PARTITION : WEBVIEW_PARTITION;
     delete params.preload;
     delete params.nodeintegration;
     // allowpopups 유지 — MES 로그인 / 메뉴 popup 사용.

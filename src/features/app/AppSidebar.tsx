@@ -16,7 +16,7 @@ import { cn } from "@/lib/utils";
 import { useAppUrls } from "./useAppUrls";
 import { useSelectedAppUrl } from "./useSelectedAppUrl";
 import { useOpenTabs } from "./useOpenTabs";
-import { AddAppUrlDialog } from "./AddAppUrlDialog";
+import { AddAppUrlDialog, type AddAppUrlSubmit } from "./AddAppUrlDialog";
 import type { AppUrlEntry } from "@desktop/types/electron";
 
 const QUICK_SUGGESTIONS = [
@@ -37,9 +37,15 @@ export function AppSidebar() {
   const [addOpen, setAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AppUrlEntry | null>(null);
 
-  const handleAdd = async (name: string, url: string) => {
+  // AddAppUrlDialog.onSubmit 은 객체(AddAppUrlSubmit)를 넘긴다.
+  // (이전 버그: positional (name, url) 로 받아 name 에 객체가 통째로 들어가
+  //  useAppUrls.add 의 name.trim() 에서 "s.trim is not a function" TypeError.)
+  const handleAdd = async (data: AddAppUrlSubmit) => {
     if (editTarget) return; // sidebar에서는 새 추가만 (편집은 본문 ⋮ 메뉴에서)
-    const entry = await add(name, url);
+    const entry = await add(data.name, data.url, {
+      iconUrl: data.iconUrl,
+      description: data.description,
+    });
     openTab(entry.id);
   };
 

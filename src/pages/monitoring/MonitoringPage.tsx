@@ -14,7 +14,7 @@
  */
 
 import { useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useLineMonitoringContext } from "@/features/monitoring/context/LineMonitoringContext";
 import { LineViewLayout } from "@/features/monitoring/components/line-view/line-view/LineViewLayout";
 import { MultiZoneLayout } from "@/features/monitoring/components/line-view/multi-zone/MultiZoneLayout";
@@ -26,6 +26,7 @@ import {
 export default function MonitoringPage() {
   const { selectedLineId, lines, selectLine } = useLineMonitoringContext();
   const [searchParams, setSearchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   // URL ?line={uuid} → state 복원 (mount 시 1회)
   useEffect(() => {
@@ -59,7 +60,12 @@ export default function MonitoringPage() {
         ) : line.zones.length === 1 ? (
           <LineViewLayout line={line} />
         ) : (
-          <MultiZoneLayout line={line} />
+          <MultiZoneLayout
+            line={line}
+            onSelectZone={(z) =>
+              navigate(`/monitoring/zone/${line.id}/${z.zone_id}`)
+            }
+          />
         )}
       </div>
     </div>
