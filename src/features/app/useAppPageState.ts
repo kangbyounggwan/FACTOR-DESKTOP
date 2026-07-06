@@ -97,6 +97,43 @@ function isSnapshotAllowed(url: string): boolean {
   }
 }
 
+// AI 화면분석 패널 대상 판정 — "URL 을 통한 접근"(외부 웹 화면)일 때만 활성.
+// FACTOR 자체 도구 페이지(factor.io.kr 의 리포트 등)와 런처는 분석 대상이 아니므로
+// 우측 AI 패널을 숨긴다(리포트는 자체 기능만 사용). factor.io.kr 외 host 를 더 제외하려면
+// VITE_DESKTOP_AI_EXCLUDED_HOSTS (콤마 구분) 설정.
+const AI_OWN_HOSTS_DEFAULT = [
+  "factor.io.kr",
+  "localhost",
+  "127.0.0.1",
+];
+
+function getAiExcludedHosts(): string[] {
+  const configured = import.meta.env.VITE_DESKTOP_AI_EXCLUDED_HOSTS;
+  const extra =
+    typeof configured === "string" && configured.trim()
+      ? configured
+          .split(",")
+          .map((h) => h.trim().toLowerCase())
+          .filter(Boolean)
+      : [];
+  return [...AI_OWN_HOSTS_DEFAULT, ...extra];
+}
+
+/** 활성 탭이 화면분석 AI 대상인가 — 외부 http(s) 화면만(FACTOR 자체 도구·비웹 스킴 제외). */
+function isAiScreenEligible(url: string | null | undefined): boolean {
+  if (!url) return false;
+  try {
+    const parsed = new URL(url);
+    if (parsed.protocol !== "https:" && parsed.protocol !== "http:") return false;
+    const host = parsed.hostname.toLowerCase();
+    return !getAiExcludedHosts().some(
+      (h) => host === h || host.endsWith(`.${h}`),
+    );
+  } catch {
+    return false;
+  }
+}
+
 export interface UseAppPageStateReturn {
   // urls
   urls: AppUrlEntry[];
@@ -129,6 +166,8 @@ export interface UseAppPageStateReturn {
   setViewing: (v: DetailViewSource | null) => void;
 
   // AI panel + webview
+  /** 활성 탭이 화면분석 AI 대상인가(외부 URL 화면만). false면 우측 AI 패널 자체를 숨긴다. */
+  aiEligible: boolean;
   aiPanelOpen: boolean;
   setAiPanelOpen: (open: boolean) => void;
   webviewRef: MutableRefObject<HTMLElement | null>;
@@ -205,6 +244,8 @@ export function useAppPageState(): UseAppPageStateReturn {
 
   const isInWebview = tabs.length > 0;
   const isActiveTabLauncher = !!activeTab && activeTab.urlEntryId === null;
+  // 화면분석 AI 대상 = 외부 URL 화면 탭만 (런처·FACTOR 자체 도구 페이지 제외).
+  const aiEligible = !isActiveTabLauncher && isAiScreenEligible(selected?.url);
 
   const mode: AppPageMode = useMemo(() => {
     if (isInWebview) return "tabs";
@@ -634,6 +675,7 @@ export function useAppPageState(): UseAppPageStateReturn {
     dropTabsByUrl,
     resolveEntry,
     isActiveTabLauncher,
+    aiEligible,
     openLauncherTab,
     handleLauncherPickInstalled,
     handleLauncherPickCatalog,

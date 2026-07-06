@@ -157,7 +157,8 @@ export default function AppPage() {
               onZoomReset={s.zoomReset}
             />
           </div>
-          {!s.aiPanelOpen && (
+          {/* AI 토글은 화면분석 대상 탭(외부 URL)에서만 — 리포트 등 FACTOR 자체 도구엔 숨김 */}
+          {s.aiEligible && !s.aiPanelOpen && (
             <Button
               variant="ghost"
               size="sm"
@@ -193,7 +194,7 @@ export default function AppPage() {
               />
             )}
           </div>
-          {s.aiPanelOpen && (
+          {s.aiEligible && s.aiPanelOpen && (
             <aside
               style={{ width: aiPanelWidth }}
               className={cn(
