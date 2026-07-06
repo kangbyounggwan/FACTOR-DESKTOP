@@ -262,3 +262,39 @@ export function patchSchedule(
 export function deleteSchedule(sid: string): Promise<{ deleted: string }> {
   return request(`${ROOT}/schedules/${sid}`, { method: "DELETE" });
 }
+
+// ── 회사 리포트 표현 설정 (데스크톱이 소유·관리 → 백엔드가 수신·소비) ──────────
+// tz/locale/industry 등 고객사색은 여기서 관리하고, 백엔드(report-service)는 이 값을
+// 스케줄 tz·합성 언어·온톨로지 업종에 소비한다. 코드/DB 기본값은 중립(UTC/en).
+
+/** report_tenant_settings row — 백엔드 GET/PUT /settings 와 1:1 */
+export interface TenantSettings {
+  /** IANA tz — cron 해석·'어제' 기준일 (예: "Asia/Seoul"). 중립 기본 "UTC" */
+  timezone: string;
+  /** 리포트/프롬프트 언어 (예: "ko"). 중립 기본 "en" */
+  locale: string;
+  default_persona: Persona | null;
+  default_formats: ReportFormat[];
+  /** 페르소나 문구 얕은 병합 (제목/섹션) */
+  persona_overrides: Record<string, unknown> | null;
+  /** 리포트 헤더 표시명/로고 등 */
+  branding: Record<string, unknown> | null;
+}
+
+/** PUT /settings body — 부분 갱신(제공한 필드만 upsert) */
+export type TenantSettingsPatch = Partial<TenantSettings>;
+
+/** GET /settings — 회사 표현 설정 (행 없으면 백엔드가 중립 기본값 반환) */
+export function getTenantSettings(): Promise<TenantSettings> {
+  return request(`${ROOT}/settings`);
+}
+
+/** PUT /settings — 부분 upsert. 반환 = 갱신 후 전체 설정 */
+export function putTenantSettings(
+  body: TenantSettingsPatch,
+): Promise<TenantSettings> {
+  return request(`${ROOT}/settings`, {
+    method: "PUT",
+    body: JSON.stringify(body),
+  });
+}

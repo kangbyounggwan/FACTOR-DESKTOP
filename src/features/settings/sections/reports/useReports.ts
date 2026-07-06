@@ -18,14 +18,17 @@ import {
   generateReport,
   getRun,
   getTemplates,
+  getTenantSettings,
   listRuns,
   listSchedules,
   patchSchedule,
+  putTenantSettings,
   type GenerateRequest,
   type Persona,
   type ReportSchedule,
   type ScheduleCreate,
   type SchedulePatch,
+  type TenantSettingsPatch,
 } from "@desktop/api/reports";
 
 // report_recipients 는 생성 타입(Database)에 아직 없다(마이그 070 신규) —
@@ -39,6 +42,7 @@ export const REPORT_KEYS = {
   templates: ["reports", "templates"] as const,
   schedules: ["reports", "schedules"] as const,
   recipients: ["reports", "recipients"] as const,
+  settings: ["reports", "settings"] as const,
 };
 
 // ── runs ────────────────────────────────────────────────────────────────
@@ -69,6 +73,26 @@ export function useGenerateReport() {
   return useMutation({
     mutationFn: (body: GenerateRequest) => generateReport(body),
     onSuccess: () => qc.invalidateQueries({ queryKey: REPORT_KEYS.runs }),
+  });
+}
+
+// ── 회사 표현 설정 (데스크톱 소유 → 백엔드 수신) ──────────────────────────
+
+/** GET /settings — 회사 리포트 표현 설정 (tz/locale/persona/formats/branding) */
+export function useTenantSettings() {
+  return useQuery({
+    queryKey: REPORT_KEYS.settings,
+    queryFn: getTenantSettings,
+    staleTime: 30_000,
+  });
+}
+
+/** PUT /settings — 부분 upsert */
+export function usePutTenantSettings() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (body: TenantSettingsPatch) => putTenantSettings(body),
+    onSuccess: (data) => qc.setQueryData(REPORT_KEYS.settings, data),
   });
 }
 

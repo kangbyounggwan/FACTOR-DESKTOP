@@ -90,22 +90,24 @@ export function listEndpointSpecs(params: {
   return request(`${ROOT}${qs ? `?${qs}` : ""}`);
 }
 
+// adapter_type 은 호출자가 회사에서 해석해 명시 전달 — 벤더 리터럴 기본값 없음(멀티테넌트).
 export function updateEndpointSpec(
   methodName: string,
   patch: EndpointSpecUpdate,
-  adapterType = "seohan",
+  adapterType: string,
 ): Promise<EndpointSpec> {
-  return request(`${ROOT}/${encodeURIComponent(methodName)}?adapter_type=${adapterType}`, {
-    method: "PATCH",
-    body: JSON.stringify(patch),
-  });
+  return request(
+    `${ROOT}/${encodeURIComponent(methodName)}?adapter_type=${encodeURIComponent(adapterType)}`,
+    { method: "PATCH", body: JSON.stringify(patch) },
+  );
 }
 
 export function toggleEndpointSpec(
   methodName: string,
-  adapterType = "seohan",
+  adapterType: string,
 ): Promise<EndpointSpec> {
-  return request(`${ROOT}/${encodeURIComponent(methodName)}/toggle?adapter_type=${adapterType}`, {
-    method: "POST",
-  });
+  return request(
+    `${ROOT}/${encodeURIComponent(methodName)}/toggle?adapter_type=${encodeURIComponent(adapterType)}`,
+    { method: "POST" },
+  );
 }

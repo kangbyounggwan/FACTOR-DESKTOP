@@ -14,3 +14,4 @@ export {
   useToggleEndpointSpec,
   type EndpointSpec,
 } from "./useEndpointSpecs";
+export { useMyAdapterType } from "./useMyAdapterType";

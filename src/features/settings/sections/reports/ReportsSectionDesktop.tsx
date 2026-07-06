@@ -18,15 +18,17 @@ import { cn } from "@/lib/utils";
 
 import { ReportsFormatsTab } from "./ReportsFormatsTab";
 import { ReportsHistoryTab } from "./ReportsHistoryTab";
+import { ReportsGeneralTab } from "./ReportsGeneralTab";
 import { ReportsRecipientsTab } from "./ReportsRecipientsTab";
 import { ReportViewerPanel } from "./ReportViewerPanel";
 
-type ReportsTab = "history" | "recipients" | "formats";
+type ReportsTab = "history" | "recipients" | "formats" | "general";
 
 const TABS: { id: ReportsTab; label: string }[] = [
   { id: "history", label: "이력" },
   { id: "recipients", label: "수신자" },
   { id: "formats", label: "포맷" },
+  { id: "general", label: "기본 설정" },
 ];
 
 export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
@@ -110,6 +112,7 @@ export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
           />
         )}
         {tab === "formats" && <ReportsFormatsTab />}
+        {tab === "general" && <ReportsGeneralTab />}
       </div>
     </SimpleBar>
   );

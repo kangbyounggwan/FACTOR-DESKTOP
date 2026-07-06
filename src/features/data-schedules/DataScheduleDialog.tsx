@@ -25,6 +25,8 @@ import { Switch } from "@/components/ui/switch";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 
+import { useMyAdapterType } from "@desktop/features/api-catalog";
+
 import {
   useCreateDataSchedule,
   useUpdateDataSchedule,
@@ -57,7 +59,7 @@ interface FormState {
 
 const DEFAULT_FORM: FormState = {
   name: "",
-  adapter_type: "seohan",
+  adapter_type: "",                 // 회사에서 해석(useMyAdapterType) — 벤더 리터럴 기본값 없음
   method_name: "",
   params_template: "{}",
   schedule_type: "interval",
@@ -103,13 +105,19 @@ export function DataScheduleDialog({
 
   const [form, setForm] = useState<FormState>(DEFAULT_FORM);
   const [paramsError, setParamsError] = useState<string | null>(null);
+  const { data: myAdapterType } = useMyAdapterType();   // 회사 벤더 해석(하드코딩 제거)
 
   useEffect(() => {
     if (open) {
-      setForm(target ? targetToForm(target) : DEFAULT_FORM);
+      // 신규 = 회사 adapter_type 프리필(해석 전이면 빈값), 편집 = 기존 행 값
+      setForm(
+        target
+          ? targetToForm(target)
+          : { ...DEFAULT_FORM, adapter_type: myAdapterType ?? "" },
+      );
       setParamsError(null);
     }
-  }, [open, target]);
+  }, [open, target, myAdapterType]);
 
   const isEdit = target !== null;
   const pending = create.isPending || update.isPending;
@@ -214,7 +222,7 @@ export function DataScheduleDialog({
             <Input
               value={form.adapter_type}
               onChange={(e) => setForm({ ...form, adapter_type: e.target.value })}
-              placeholder="seohan"
+              placeholder={myAdapterType ?? "회사 MES 벤더"}
               disabled={isEdit}
             />
           </div>
