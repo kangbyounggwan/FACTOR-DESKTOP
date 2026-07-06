@@ -29,6 +29,17 @@ export default function ChatPopupPage() {
     void electron.chatPopup.setOpacity(v / 100);
   };
 
+  // 팝업은 독립 창이라 webview 에 직접 접근할 수 없다 → 제출 시 main 을 경유해
+  // 본 창의 활성 webview 화면 스냅샷을 받아 pageSnapshot 으로 첨부한다.
+  // 이게 있으면 백엔드 PipelineV3 가 화면분석 모드로 분기(clarification 우회).
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const content = chat.input;
+    if (!content.trim() || chat.isLoading) return;
+    const pageSnapshot = await electron.chatPopup.captureSnapshot();
+    void chat.sendMessage(content, undefined, { pageSnapshot });
+  };
+
   return (
     <div className="flex h-screen w-screen flex-col overflow-hidden bg-card text-foreground">
       {/* 타이틀바 (드래그 영역) */}
@@ -38,8 +49,11 @@ export default function ChatPopupPage() {
       >
         <Bot className="h-4 w-4 flex-shrink-0 text-primary" />
         <span className="text-xs font-semibold text-foreground/90">FACTOR AI</span>
-        <span className="rounded border border-primary/20 bg-primary/10 px-1.5 py-px text-[10px] text-primary">
-          팝업
+        <span
+          className="rounded border border-primary/20 bg-primary/10 px-1.5 py-px text-[10px] text-primary"
+          title="질문 시 본 창에서 보고 있는 화면을 자동으로 컨텍스트로 첨부합니다."
+        >
+          화면 인식
         </span>
 
         <div className="ml-auto flex items-center gap-2" style={NO_DRAG}>
@@ -74,7 +88,7 @@ export default function ChatPopupPage() {
         <ChatInput
           value={chat.input}
           onChange={chat.setInput}
-          onSubmit={chat.handleSubmit}
+          onSubmit={handleSubmit}
           isLoading={chat.isLoading}
         />
       </div>

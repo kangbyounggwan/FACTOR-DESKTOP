@@ -50,6 +50,8 @@ export interface InstalledOntologyPack {
 export interface DesktopElectronAPI {
   app: {
     version: () => Promise<string>;
+    /** 멀티 윈도우 — 동일 앱의 새 OS 창(독립 탭 상태, 세션 공유) 열기. */
+    openNewWindow: () => Promise<void>;
   };
   shell: {
     openExternal: (url: string) => Promise<void>;
@@ -85,11 +87,26 @@ export interface DesktopElectronAPI {
       symbolColor: string;
     }) => Promise<void>;
   };
-  /** Chat 팝업 — 별도 떠 있는 창에서 질문 + 투명도 조절. */
+  /** Chat 팝업 — 별도 떠 있는 창에서 질문 + 투명도 조절 + 호스트 화면 스냅샷. */
   chatPopup?: {
     open: () => Promise<void>;
     setOpacity: (value: number) => Promise<void>;
     close: () => Promise<void>;
+    /** 팝업 renderer → main → 본 창 활성 webview 스냅샷. 미지원/실패 시 null. */
+    captureSnapshot?: () => Promise<Record<string, unknown> | null>;
+    /** 본 창 renderer 구독 — 팝업 닫힘 시 AI 패널 복원. unsubscribe 반환. */
+    onClosed?: (cb: () => void) => () => void;
+  };
+  /** APP 탭 화면분석 브릿지 — 팝업 캡쳐 요청을 본 창 renderer 가 처리. */
+  appWebview?: {
+    onCaptureRequest: (cb: (payload: { reqId: string }) => void) => () => void;
+    sendCaptureResult: (payload: { reqId: string; snapshot: unknown }) => void;
+  };
+  /** APP 탭 webview 확대/축소 — main 의 Ctrl+휠/키보드 줌 broadcast 구독. */
+  webviewZoom?: {
+    onChanged: (
+      cb: (info: { webContentsId: number; zoomFactor: number }) => void,
+    ) => () => void;
   };
   /** Section 02 — autoUpdater bridge (electron-updater + GitHub Releases). */
   autoUpdater?: {

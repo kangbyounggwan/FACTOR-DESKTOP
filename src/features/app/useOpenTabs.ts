@@ -18,8 +18,12 @@ import { create } from "zustand";
 export interface OpenTab {
   /** uuid (탭 식별자, urlEntryId 와 다름 — 같은 URL 의 두 탭도 허용) */
   id: string;
-  /** AppUrlEntry.id 참조 */
-  urlEntryId: string;
+  /**
+   * AppUrlEntry.id 참조.
+   * null = 런처 "새 탭" (Chrome 새 탭 페이지처럼 앱 선택 화면 — webview 없음).
+   * 앱을 고르면 convertTab 으로 webview 탭으로 전환된다.
+   */
+  urlEntryId: string | null;
   /** 탭 열린 시각 (정렬용) */
   openedAt: number;
   /** webview 가 로딩 중인가 — TabBar 에서 favicon → spinner 전환 */
@@ -35,6 +39,13 @@ interface OpenTabsState {
    * 반환: 열리거나 활성화된 탭의 id.
    */
   openTab: (urlEntryId: string) => string;
+  /** 런처 "새 탭" 열기 (Chrome 새 탭 페이지) — 항상 새로 만들고 활성화. */
+  openLauncherTab: () => string;
+  /**
+   * 런처 탭 → webview 탭 전환 (앱 선택 시).
+   * 같은 urlEntryId 탭이 이미 있으면 그 탭을 활성화하고 런처 탭은 닫는다 (dedupe).
+   */
+  convertTab: (tabId: string, urlEntryId: string) => void;
   /** 탭 닫기. 활성 탭 닫으면 다음 탭 (오른쪽 → 왼쪽) 활성. 모두 닫히면 null. */
   closeTab: (tabId: string) => void;
   /** 지정 탭 외 다른 모든 탭 닫기 (context menu) */
@@ -70,6 +81,40 @@ export const useOpenTabs = create<OpenTabsState>((set, get) => ({
       activeTabId: id,
     });
     return id;
+  },
+
+  openLauncherTab: () => {
+    const state = get();
+    const id = crypto.randomUUID();
+    const tab: OpenTab = { id, urlEntryId: null, openedAt: Date.now() };
+    set({
+      tabs: [...state.tabs, tab],
+      activeTabId: id,
+    });
+    return id;
+  },
+
+  convertTab: (tabId, urlEntryId) => {
+    const state = get();
+    const target = state.tabs.find((t) => t.id === tabId);
+    if (!target) return;
+    // 같은 URL 의 기존 탭 재사용 — 런처 탭은 닫고 그 탭 활성화
+    const existing = state.tabs.find(
+      (t) => t.id !== tabId && t.urlEntryId === urlEntryId,
+    );
+    if (existing) {
+      set({
+        tabs: state.tabs.filter((t) => t.id !== tabId),
+        activeTabId: existing.id,
+      });
+      return;
+    }
+    set({
+      tabs: state.tabs.map((t) =>
+        t.id === tabId ? { ...t, urlEntryId } : t,
+      ),
+      activeTabId: tabId,
+    });
   },
 
   closeTab: (tabId) => {

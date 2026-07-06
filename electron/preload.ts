@@ -31,6 +31,8 @@ window.addEventListener('unhandledrejection', (e) => {
 contextBridge.exposeInMainWorld('electron', {
   app: {
     version: () => ipcRenderer.invoke('app:version'),
+    // 멀티 윈도우 — 동일 앱의 새 OS 창 열기.
+    openNewWindow: () => ipcRenderer.invoke('window:openNew'),
   },
   shell: {
     openExternal: (url: string) => ipcRenderer.invoke('shell:openExternal', url),
@@ -82,11 +84,36 @@ contextBridge.exposeInMainWorld('electron', {
     setTitleBarOverlay: (opts: { color: string; symbolColor: string }) =>
       ipcRenderer.invoke('theme:setTitleBarOverlay', opts),
   },
-  // Chat 팝업 — 별도 창 열기 / 투명도 / 닫기.
+  // Chat 팝업 — 별도 창 열기 / 투명도 / 닫기 / 호스트 화면 스냅샷 / 닫힘 이벤트.
   chatPopup: {
     open: () => ipcRenderer.invoke('chatPopup:open'),
     setOpacity: (value: number) => ipcRenderer.invoke('chatPopup:setOpacity', value),
     close: () => ipcRenderer.invoke('chatPopup:close'),
+    // 팝업 renderer 가 호출 — main 이 본 창의 활성 webview 페이지 스냅샷을 캡쳐해 반환.
+    // (팝업은 독립 창이라 webview 접근 불가 → main 경유로 호스트 화면 인식.)
+    captureSnapshot: () => ipcRenderer.invoke('chatPopup:captureSnapshot'),
+    // 본 창 renderer 가 구독 — 팝업이 닫히면 오른쪽 AI 패널을 자동 복원.
+    onClosed: (cb: () => void) => {
+      const handler = () => cb();
+      ipcRenderer.on('chatPopup:closed', handler);
+      return () => {
+        ipcRenderer.off('chatPopup:closed', handler);
+      };
+    },
+  },
+  // APP 탭 화면분석 브릿지 — main 이 팝업 요청을 받아 본 창 renderer 에 캡쳐를
+  // 위임한다. 본 창 renderer(AppPage)가 자기 webviewRef 로 capturePageSnapshot 실행 후
+  // 결과를 되돌려준다 (스냅샷 구현/allowlist 단일 소스 유지).
+  appWebview: {
+    onCaptureRequest: (cb: (payload: { reqId: string }) => void) => {
+      const handler = (_e: unknown, payload: { reqId: string }) => cb(payload);
+      ipcRenderer.on('appWebview:captureRequest', handler);
+      return () => {
+        ipcRenderer.off('appWebview:captureRequest', handler);
+      };
+    },
+    sendCaptureResult: (payload: { reqId: string; snapshot: unknown }) =>
+      ipcRenderer.send('appWebview:captureResult', payload),
   },
   // S4 — 온톨로지 플러그인 다운로드/설치. install 은 검증+로컬 저장(이관 동의 후 호출).
   // 신원은 user_id(렌더러가 supabase 세션에서 획득) 전달 — main 이 ?user_id= 로 S3 호출.
@@ -96,6 +123,22 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.invoke('ontology:install', adapterType, userId),
     listInstalled: (userId: string) =>
       ipcRenderer.invoke('ontology:listInstalled', userId),
+  },
+  // APP 탭 webview 확대/축소 — main 이 Ctrl+휠/키보드 줌 처리 후 broadcast.
+  // renderer 의 TabBar 줌 % 표시가 이 이벤트로 동기화된다.
+  webviewZoom: {
+    onChanged: (
+      cb: (info: { webContentsId: number; zoomFactor: number }) => void,
+    ) => {
+      const handler = (
+        _e: unknown,
+        info: { webContentsId: number; zoomFactor: number },
+      ) => cb(info);
+      ipcRenderer.on('appWebview:zoomChanged', handler);
+      return () => {
+        ipcRenderer.off('appWebview:zoomChanged', handler);
+      };
+    },
   },
   // Section 02 (2026-05-27) — autoUpdater bridge.
   // UpdateBanner 가 onUpdateDownloaded 로 구독 → "재시작" 클릭 시 quitAndInstall.

@@ -65,7 +65,7 @@ export function UrlGrid({
         ) : urls.length === 0 ? (
           <EmptyHero onAddClick={onAddClick} onQuickAdd={onQuickAdd} />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
             {urls.map((u) => (
               <UrlCard
                 key={u.id}

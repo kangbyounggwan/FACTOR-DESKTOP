@@ -114,7 +114,7 @@ export function AppCatalog({ onPick, onCustomAdd, installedUrls }: Props) {
                   <h2 className="text-sm font-semibold text-foreground/90">{cat.label}</h2>
                   <span className="text-[10px] text-muted-foreground">{cat.apps.length}개</span>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
                   {cat.apps.map((app) => (
                     <AppCard
                       key={app.id}
@@ -150,7 +150,7 @@ function FeaturedRow({
         <h2 className="text-sm font-semibold text-foreground/90">추천</h2>
         <span className="text-[10px] text-muted-foreground">{apps.length}개</span>
       </div>
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
         {apps.map((app) => (
           <AppCard
             key={app.id}
@@ -199,13 +199,13 @@ function AppCard({
           : "border-border/60",
       )}
     >
-      {/* 헤더: 아이콘 + 이름/호스트 (고정 44px) */}
-      <div className="flex items-start gap-3 h-[44px]">
+      {/* 헤더: 아이콘 + 이름/호스트 (최소 44px, 좁으면 이름 2줄 wrap) */}
+      <div className="flex items-start gap-3 min-h-[44px]">
         <div className="w-10 h-10 rounded-lg bg-muted/40 border border-border/40 flex items-center justify-center flex-shrink-0 overflow-hidden">
           <AppFavicon primarySrc={app.icon_url} host={host} size={28} />
         </div>
         <div className="flex-1 min-w-0">
-          <div className="font-medium text-sm text-foreground truncate">{app.name}</div>
+          <div className="font-medium text-sm text-foreground line-clamp-2 leading-tight break-words">{app.name}</div>
           <div className="text-[11px] text-muted-foreground truncate">{host}</div>
         </div>
       </div>

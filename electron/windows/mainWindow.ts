@@ -1,10 +1,12 @@
-import { BrowserWindow, session } from 'electron';
+import { BrowserWindow, session, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
 
 interface Opts {
   isDev: boolean;
+  /** 새 창을 특정 라우트로 열 때 (예: '#/app'). 없으면 기본 경로(/chat). */
+  startHash?: string;
 }
 
 const WEBVIEW_PARTITION = 'persist:factor-apps';
@@ -97,7 +99,7 @@ function installSessionPermissionGuards(): void {
  *
  * 드래그 영역은 renderer 측 CSS `-webkit-app-region: drag`로 지정.
  */
-export function createMainWindow({ isDev }: Opts): BrowserWindow {
+export function createMainWindow({ isDev, startHash }: Opts): BrowserWindow {
   const isMac = process.platform === 'darwin';
   const debugFlag = process.env.FACTOR_DEBUG === '1';
   installSessionPermissionGuards();
@@ -336,8 +338,11 @@ export function createMainWindow({ isDev }: Opts): BrowserWindow {
   }, 5000);
 
   if (isDev) {
-    log.info('[win] loadURL http://localhost:5180');
-    win.loadURL('http://localhost:5180');
+    const devUrl = startHash
+      ? `http://localhost:5180/#${startHash.replace(/^#/, '')}`
+      : 'http://localhost:5180';
+    log.info('[win] loadURL', devUrl);
+    win.loadURL(devUrl);
     win.webContents.openDevTools({ mode: 'detach' });
   } else {
     const indexPath = path.join(__dirname, '../../dist/index.html');
@@ -349,11 +354,11 @@ export function createMainWindow({ isDev }: Opts): BrowserWindow {
       );
     }
     // 시작 hash 오버라이드 (예: FACTOR_START_HASH=#/app 으로 STORE 화면 직접 진입)
-    const startHash = process.env.FACTOR_START_HASH;
-    const loadOptions = startHash
-      ? { hash: startHash.replace(/^#/, '') }
+    const effectiveHash = startHash ?? process.env.FACTOR_START_HASH;
+    const loadOptions = effectiveHash
+      ? { hash: effectiveHash.replace(/^#/, '') }
       : undefined;
-    if (startHash) log.info('[win] FACTOR_START_HASH=', startHash);
+    if (effectiveHash) log.info('[win] startHash=', effectiveHash);
     win.loadFile(indexPath, loadOptions).catch((err) => log.error('[win] loadFile failed', err));
 
     if (debugFlag) {
@@ -361,6 +366,26 @@ export function createMainWindow({ isDev }: Opts): BrowserWindow {
       wc.openDevTools({ mode: 'detach' });
     }
   }
+
+  // ── 모든 창 공통 네비게이션 정책 ──────────────────────────────────
+  // <a target="_blank"> / window.open() → 시스템 브라우저 위임 + 새 chrome 창 차단.
+  // 내부 네비게이션 중 외부 URL 도 차단(방어). main 창뿐 아니라 멀티윈도우(window:openNew)
+  // 와 activate 재생성 창에도 동일 적용 — 예전엔 main.ts 에서 main 창에만 붙어 자식 창이
+  // 누락됐다. (webview 자체의 window.open 은 did-attach-webview 핸들러가 별도 관리.)
+  wc.setWindowOpenHandler(({ url }) => {
+    if (/^https?:\/\//.test(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  wc.on('will-navigate', (event, url) => {
+    const isInternal =
+      url.startsWith('http://localhost:5180') ||
+      url.startsWith('file://') ||
+      url.startsWith('factor-mes://');
+    if (!isInternal) {
+      event.preventDefault();
+      shell.openExternal(url);
+    }
+  });
 
   return win;
 }

@@ -40,12 +40,18 @@ const WebviewTag = "webview" as unknown as React.FC<
 >;
 
 export function WebViewTabs({
-  tabs,
+  tabs: allTabs,
   activeTabId,
   resolveEntry,
   activeWebviewRef,
 }: Props) {
   const setLoading = useOpenTabs((s) => s.setLoading);
+  // 런처 "새 탭"(urlEntryId=null) 은 webview 가 없음 — 여기선 제외.
+  // (런처 탭 활성 시 모든 webview display:none + activeWebviewRef=null 이 되고,
+  //  내용은 AppPage 가 LauncherTabView 로 렌더.)
+  const tabs = allTabs.filter(
+    (t): t is OpenTab & { urlEntryId: string } => t.urlEntryId !== null,
+  );
   // 각 탭의 webview element 보존 — Map<tabId, HTMLElement>
   const refs = useRef<Map<string, HTMLElement | null>>(new Map());
 

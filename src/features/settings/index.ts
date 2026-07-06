@@ -17,3 +17,4 @@ export { ProfileSectionDesktop } from "./sections/ProfileSectionDesktop";
 export { TeamSectionDesktop } from "./sections/TeamSectionDesktop";
 export { AssignedEquipmentSectionDesktop } from "./sections/AssignedEquipmentSectionDesktop";
 export { NotificationsSectionDesktop } from "./sections/NotificationsSectionDesktop";
+export { ReportsSectionDesktop } from "./sections/reports/ReportsSectionDesktop";

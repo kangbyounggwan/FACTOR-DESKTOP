@@ -120,7 +120,7 @@ export function OntologyPackCatalog() {
             desc="소속 회사에 배포된 온톨로지 팩이 없거나 권한이 없습니다."
           />
         ) : (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
             {available.map((a) => {
               const installed = installedSet.has(a.adapter_type);
               return (

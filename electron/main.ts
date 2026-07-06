@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, shell } from 'electron';
+import { app, BrowserWindow, ipcMain, shell, type WebContents } from 'electron';
 import log from 'electron-log';
 import path from 'node:path';
 import fs from 'node:fs';
@@ -89,6 +89,19 @@ let chatPopupWindow: BrowserWindow | null = null;
 // IPC handlers
 ipcMain.handle('app:version', () => app.getVersion());
 
+// ── 멀티 윈도우 — 동일 앱의 독립 BrowserWindow 추가. ──────────────────
+// 각 창은 자체 renderer(독립 zustand 탭 상태) + 공유 default/webview 세션이라 로그인
+// 유지. 새 창은 APP(STORE/브라우저) 화면으로 진입. 네비게이션 정책은 createMainWindow
+// 안에서 모든 창에 공통 적용된다.
+ipcMain.handle('window:openNew', () => {
+  createMainWindow({ isDev, startHash: '#/app' });
+  log.info(
+    '[main] new window opened, total=',
+    BrowserWindow.getAllWindows().length,
+  );
+  return true;
+});
+
 // ── Chat 팝업 — 별도 떠 있는 창에서 질문 + 투명도(setOpacity) ──
 ipcMain.handle('chatPopup:open', () => {
   if (chatPopupWindow && !chatPopupWindow.isDestroyed()) {
@@ -99,8 +112,50 @@ ipcMain.handle('chatPopup:open', () => {
   chatPopupWindow = createChatPopupWindow({ isDev });
   chatPopupWindow.on('closed', () => {
     chatPopupWindow = null;
+    // 팝업이 닫히면 본 창 renderer 가 오른쪽 AI 패널을 복원하도록 알림.
+    for (const w of BrowserWindow.getAllWindows()) {
+      if (!w.isDestroyed()) w.webContents.send('chatPopup:closed');
+    }
   });
 });
+
+// ── 화면분석 스냅샷 브릿지 — 팝업(독립 창)은 webview 접근 불가라 main 경유. ──
+// 팝업 요청 → 본 창 renderer(AppPage)에 캡쳐 위임 → 결과를 팝업 invoke 로 반환.
+// reqId 로 요청/응답 상관. 6s 안에 응답 없으면 null(스냅샷 없이 진행).
+const pendingSnapshotRequests = new Map<string, (snap: unknown) => void>();
+let snapshotReqSeq = 0;
+
+ipcMain.handle('chatPopup:captureSnapshot', async () => {
+  // 본 창(primary) 우선. 닫혀 있으면 팝업이 아닌 첫 창으로 fallback.
+  const host =
+    mainWindow && !mainWindow.isDestroyed()
+      ? mainWindow
+      : (BrowserWindow.getAllWindows().find(
+          (w) => !w.isDestroyed() && w !== chatPopupWindow,
+        ) ?? null);
+  if (!host) return null;
+  const reqId = `snap-${++snapshotReqSeq}`;
+  return await new Promise<unknown>((resolve) => {
+    const timer = setTimeout(() => {
+      pendingSnapshotRequests.delete(reqId);
+      resolve(null);
+    }, 6000);
+    pendingSnapshotRequests.set(reqId, (snap) => {
+      clearTimeout(timer);
+      pendingSnapshotRequests.delete(reqId);
+      resolve(snap ?? null);
+    });
+    host.webContents.send('appWebview:captureRequest', { reqId });
+  });
+});
+
+ipcMain.on(
+  'appWebview:captureResult',
+  (_e, payload: { reqId: string; snapshot: unknown }) => {
+    const resolver = pendingSnapshotRequests.get(payload?.reqId);
+    if (resolver) resolver(payload?.snapshot ?? null);
+  },
+);
 ipcMain.handle('chatPopup:setOpacity', (_e, value: number) => {
   if (!chatPopupWindow || chatPopupWindow.isDestroyed()) return;
   const v = Math.max(0.2, Math.min(1, Number(value) || 1));
@@ -116,6 +171,60 @@ ipcMain.handle('chatPopup:close', () => {
 registerSettingsIpc();
 registerLinkIpc();
 registerOntologyPacksIpc();
+
+// ── APP 탭 webview 확대/축소 ─────────────────────────────────────────
+// Ctrl+휠 / Ctrl+(+/-/0) 은 webview 게스트 프로세스로 들어가는 입력이라
+// 호스트 renderer 에서는 못 잡는다 → main 에서 webview webContents 에 직접
+// 바인딩. 변경 결과는 호스트 renderer 로 broadcast (TabBar 줌 % 표시 동기화).
+// 줌은 Chromium per-origin 정책 — 같은 사이트의 모든 탭에 함께 적용된다.
+const WEBVIEW_ZOOM_MIN = 0.25;
+const WEBVIEW_ZOOM_MAX = 3;
+
+function clampZoom(factor: number): number {
+  return Math.min(WEBVIEW_ZOOM_MAX, Math.max(WEBVIEW_ZOOM_MIN, factor));
+}
+
+function broadcastWebviewZoom(contents: WebContents, zoomFactor: number): void {
+  const host = contents.hostWebContents;
+  if (host && !host.isDestroyed()) {
+    host.send('appWebview:zoomChanged', {
+      webContentsId: contents.id,
+      zoomFactor,
+    });
+  }
+}
+
+app.on('web-contents-created', (_event, contents) => {
+  if (contents.getType() !== 'webview') return;
+
+  // Ctrl+마우스휠 줌
+  contents.on('zoom-changed', (_e, zoomDirection) => {
+    const delta = zoomDirection === 'in' ? 0.1 : -0.1;
+    const next = clampZoom(contents.getZoomFactor() + delta);
+    contents.setZoomFactor(next);
+    broadcastWebviewZoom(contents, next);
+  });
+
+  // Ctrl+(+/-/0) 키보드 줌 — 게스트 페이지가 받기 전에 가로챔
+  contents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown' || !input.control || input.alt || input.meta) {
+      return;
+    }
+    let next: number | null = null;
+    if (input.key === '+' || input.key === '=') {
+      next = clampZoom(contents.getZoomFactor() + 0.1);
+    } else if (input.key === '-') {
+      next = clampZoom(contents.getZoomFactor() - 0.1);
+    } else if (input.key === '0') {
+      next = 1;
+    }
+    if (next !== null) {
+      event.preventDefault();
+      contents.setZoomFactor(next);
+      broadcastWebviewZoom(contents, next);
+    }
+  });
+});
 
 // 테마 — renderer 의 ThemeProvider 가 light/dark 전환 시 호출.
 // Windows / Linux 의 titleBarOverlay 색을 동적 변경 (macOS 는 hiddenInset 라 무관).
@@ -214,26 +323,8 @@ app.whenReady().then(() => {
   // Section 02 — 시작 직후 백그라운드 update 확인 + 4h polling
   setupAutoUpdater(mainWindow);
 
-  // 모든 <a target="_blank"> / window.open() → 시스템 브라우저 위임
-  mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-    if (/^https?:\/\//.test(url)) {
-      shell.openExternal(url);
-    }
-    return { action: 'deny' };
-  });
-
-  // 내부 네비게이션 중 외부 URL은 차단 (방어)
-  mainWindow.webContents.on('will-navigate', (event, url) => {
-    const devOrigin = 'http://localhost:5180';
-    const isInternal =
-      url.startsWith(devOrigin) ||
-      url.startsWith('file://') ||
-      url.startsWith('factor-mes://');
-    if (!isInternal) {
-      event.preventDefault();
-      shell.openExternal(url);
-    }
-  });
+  // 네비게이션 정책(window.open deny + 외부 URL 시스템 브라우저)은 이제
+  // createMainWindow 안에서 모든 창(main/멀티윈도우/activate 재생성)에 공통 적용된다.
 
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
