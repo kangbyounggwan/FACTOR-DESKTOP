@@ -31,6 +31,8 @@ import LoginPage from "@desktop/pages/auth/LoginPage";
 import SignupPage from "@desktop/pages/auth/SignupPage";
 const AppPage = lazy(() => import("@desktop/pages/app/AppPage"));
 const MonitoringPage = lazy(() => import("@desktop/pages/monitoring/MonitoringPage"));
+const OntologyPage = lazy(() => import("@desktop/pages/ontology/OntologyPage"));
+const ZoneDetailPage = lazy(() => import("@desktop/pages/monitoring/ZoneDetailPage"));
 // SettingsPage: 데스크탑 자체 페이지 (R1, R6). FE 의 SettingsPage 는 import 안 함.
 // FE 의 leaf 컴포넌트/hook 은 `@/features/settings` 에서 자유롭게 import.
 const SettingsPage = lazy(() => import("@desktop/pages/settings/SettingsPage"));
@@ -103,6 +105,29 @@ const App = () => (
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoader />}>
                       <MonitoringPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              {/* S4 — 온톨로지 플러그인 (다운로드/설치/뷰어). 로그인 필요(user_id 스코프). */}
+              <Route
+                path="/ontology"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <OntologyPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              {/* 멀티존 라인에서 선택한 단일 존(라인) 상세 — startsWith("/monitoring")
+                  덕분에 DesktopShell 의 LineMonitoringProvider 가 그대로 활성. */}
+              <Route
+                path="/monitoring/zone/:lineId/:zoneId"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <ZoneDetailPage />
                     </Suspense>
                   </ProtectedRoute>
                 }

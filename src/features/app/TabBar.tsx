@@ -27,6 +27,10 @@ import {
   Loader2,
   XCircle,
   ArrowRightCircle,
+  ZoomIn,
+  ZoomOut,
+  LayoutGrid,
+  AppWindow,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -57,8 +61,8 @@ import { electron } from "@desktop/lib/electron";
 interface Props {
   tabs: OpenTab[];
   activeTabId: string | null;
-  /** tab id 로 AppUrlEntry resolve — 없으면 null (drop 된 entry) */
-  resolveEntry: (urlEntryId: string) => AppUrlEntry | null;
+  /** tab id 로 AppUrlEntry resolve — 없으면 null (drop 된 entry / 런처 새 탭) */
+  resolveEntry: (urlEntryId: string | null) => AppUrlEntry | null;
   onActivate: (tabId: string) => void;
   onClose: (tabId: string) => void;
   onNewTab: () => void;
@@ -71,6 +75,11 @@ interface Props {
   onEditActive: () => void;
   onRemoveActive: () => void;
   onOpenExternalActive: () => void;
+  /** 활성 탭 webview 확대/축소 — Ctrl+휠/Ctrl+± 도 동일 동작 (main process 처리) */
+  zoomPercent: number;
+  onZoomIn: () => void;
+  onZoomOut: () => void;
+  onZoomReset: () => void;
 }
 
 export function TabBar({
@@ -87,6 +96,10 @@ export function TabBar({
   onEditActive,
   onRemoveActive,
   onOpenExternalActive,
+  zoomPercent,
+  onZoomIn,
+  onZoomOut,
+  onZoomReset,
 }: Props) {
   const closeOthers = useOpenTabs((s) => s.closeOthers);
   const closeToRight = useOpenTabs((s) => s.closeToRight);
@@ -162,6 +175,42 @@ export function TabBar({
         </Button>
       </div>
 
+      {/* 우측 — 확대/축소 (Ctrl+휠 / Ctrl+± / Ctrl+0 동일 동작) */}
+      <div className="flex items-center flex-shrink-0 ml-0.5">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+          onClick={onZoomOut}
+          title="축소 (Ctrl+-)"
+        >
+          <ZoomOut className="w-4 h-4" />
+        </Button>
+        <button
+          type="button"
+          onClick={onZoomReset}
+          title="원래 크기로 (Ctrl+0)"
+          className={cn(
+            "h-7 min-w-[44px] px-1 rounded-md text-[11px] font-medium tabular-nums",
+            "transition-colors hover:bg-foreground/[0.04]",
+            zoomPercent === 100
+              ? "text-muted-foreground"
+              : "text-primary",
+          )}
+        >
+          {zoomPercent}%
+        </button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-7 w-7 text-muted-foreground hover:text-foreground"
+          onClick={onZoomIn}
+          title="확대 (Ctrl++)"
+        >
+          <ZoomIn className="w-4 h-4" />
+        </Button>
+      </div>
+
       {/* 우측 — 활성 탭 액션 메뉴 (separator 제거, Chrome 처럼 borderless) */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
@@ -169,13 +218,16 @@ export function TabBar({
             variant="ghost"
             size="icon"
             className="h-7 w-7 flex-shrink-0 ml-0.5 text-muted-foreground hover:text-foreground"
-            disabled={!activeEntry}
             title="활성 탭 메뉴"
           >
             <MoreVertical className="w-4 h-4" />
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-52">
+          <DropdownMenuItem onClick={() => void electron.openNewWindow()}>
+            <AppWindow className="w-3.5 h-3.5 mr-2" />새 창 열기
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <DropdownMenuItem
             onClick={onOpenExternalActive}
             disabled={!activeEntry}
@@ -232,6 +284,8 @@ function Tab({
   onOpenExternal,
 }: TabProps) {
   const containerRef = useRef<HTMLDivElement>(null);
+  // 런처 "새 탭" (urlEntryId=null) — 앱 선택 화면, webview 없음
+  const isLauncher = tab.urlEntryId === null;
   const host = (() => {
     if (!entry) return "?";
     try {
@@ -240,7 +294,7 @@ function Tab({
       return entry.url;
     }
   })();
-  const label = entry?.name ?? "(닫힘)";
+  const label = isLauncher ? "새 탭" : (entry?.name ?? "(닫힘)");
 
   // 미들 클릭 (가운데 마우스 버튼) = 탭 닫기 — 브라우저 표준 UX
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -278,10 +332,12 @@ function Tab({
                   : "text-muted-foreground hover:bg-foreground/[0.04]",
               )}
             >
-              {/* favicon / spinner */}
+              {/* favicon / spinner / 런처 아이콘 */}
               <div className="w-4 h-4 flex-shrink-0 flex items-center justify-center">
                 {tab.isLoading ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin text-primary" />
+                ) : isLauncher ? (
+                  <LayoutGrid className="w-3.5 h-3.5 text-muted-foreground" />
                 ) : (
                   <AppFavicon
                     primarySrc={entry?.iconUrl}
@@ -329,7 +385,7 @@ function Tab({
                 {label}
               </span>
               <span className="text-[10.5px] text-muted-foreground font-mono break-all">
-                {entry?.url ?? "(닫힌 즐겨찾기)"}
+                {isLauncher ? "앱 선택 화면" : (entry?.url ?? "(닫힌 즐겨찾기)")}
               </span>
               <span className="text-[10px] text-muted-foreground/70 mt-1">
                 가운데 클릭 = 닫기 · 우클릭 = 메뉴

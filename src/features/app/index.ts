@@ -24,7 +24,13 @@ export { useOpenTabs } from "./useOpenTabs";
 export type { OpenTab } from "./useOpenTabs";
 export { TabBar } from "./TabBar";
 export { WebViewTabs } from "./WebViewTabs";
+export { LauncherTabView } from "./LauncherTabView";
 export { DesktopAppChatPanel } from "./DesktopAppChatPanel";
 export { AppChatConversationBar } from "./AppChatConversationBar";
 export { useAppPageState } from "./useAppPageState";
 export type { AppPageMode, UseAppPageStateReturn } from "./useAppPageState";
+// S4 — 온톨로지 플러그인 (다운로드/설치/뷰어)
+export { OntologyPackCatalog } from "./OntologyPackCatalog";
+export { OntologyWebView } from "./OntologyWebView";
+export { OntologyTransferConsentDialog } from "./OntologyTransferConsentDialog";
+export { useOntologyPacks } from "./useOntologyPacks";

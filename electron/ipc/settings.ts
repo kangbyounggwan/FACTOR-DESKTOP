@@ -11,13 +11,23 @@ export interface AppUrlEntry {
 }
 
 export interface DesktopSettings {
-  appUrls: AppUrlEntry[];
+  /** 로그인 user_id 별 즐겨찾기 버킷. 다른 아이디로 로그인 시 공유 안 됨(계정 격리). */
+  appUrlsByUser: Record<string, AppUrlEntry[]>;
   // 이후 확장: autostart, kioskMode, updateChannel, backend URLs 등
 }
 
 const DEFAULTS: DesktopSettings = {
-  appUrls: [],
+  appUrlsByUser: {},
 };
+
+/** user_id → 저장 버킷 키. 비로그인/빈값은 '_anon'(로컬 디바이스 버킷). 안전 문자만. */
+function userKey(userId: unknown): string {
+  const k = String(userId ?? '')
+    .toLowerCase()
+    .replace(/[^a-z0-9-]/g, '')
+    .slice(0, 64);
+  return k || '_anon';
+}
 
 const store = new Store<DesktopSettings>({
   name: 'config',
@@ -97,40 +107,55 @@ function sanitizeAppUrlPatch(patch: Partial<AppUrlEntry>): Partial<AppUrlEntry> 
   return clean;
 }
 
+// ── user_id 버킷 헬퍼 ─────────────────────────────────────────────────
+function getList(userId: unknown): AppUrlEntry[] {
+  const all = (store.get('appUrlsByUser') as Record<string, AppUrlEntry[]>) ?? {};
+  return all[userKey(userId)] ?? [];
+}
+
+function setList(userId: unknown, list: AppUrlEntry[]): AppUrlEntry[] {
+  const all = (store.get('appUrlsByUser') as Record<string, AppUrlEntry[]>) ?? {};
+  all[userKey(userId)] = list;
+  store.set('appUrlsByUser', all);
+  return list;
+}
+
 export function registerSettingsIpc(): void {
   ipcMain.handle('settings:getAll', () => store.store);
 
   ipcMain.handle('settings:get', (_e, key: keyof DesktopSettings) => store.get(key));
 
-  // appUrls 전용 헬퍼 (atomic add/remove)
-  ipcMain.handle('settings:appUrls:add', (_e, entry: AppUrlEntry) => {
+  // appUrls — 모두 user_id 스코프. 다른 아이디로 로그인하면 서로 안 보임(계정 격리).
+  ipcMain.handle('settings:appUrls:list', (_e, userId: string) => getList(userId));
+
+  ipcMain.handle('settings:appUrls:add', (_e, userId: string, entry: AppUrlEntry) => {
     const cleanEntry = sanitizeAppUrlEntry(entry);
-    const list = (store.get('appUrls') as AppUrlEntry[]) ?? [];
+    const list = getList(userId);
     if (list.length >= MAX_APP_URLS) {
       throw new Error(`Only ${MAX_APP_URLS} URLs can be saved`);
     }
     if (list.some((u) => u.id === cleanEntry.id)) {
       throw new Error('Duplicate URL id');
     }
-    store.set('appUrls', [...list, cleanEntry]);
-    return store.get('appUrls');
+    return setList(userId, [...list, cleanEntry]);
   });
 
-  ipcMain.handle('settings:appUrls:remove', (_e, id: string) => {
-    const list = (store.get('appUrls') as AppUrlEntry[]) ?? [];
-    store.set('appUrls', list.filter((u) => u.id !== id));
-    return store.get('appUrls');
+  ipcMain.handle('settings:appUrls:remove', (_e, userId: string, id: string) => {
+    const list = getList(userId);
+    return setList(userId, list.filter((u) => u.id !== id));
   });
 
-  ipcMain.handle('settings:appUrls:update', (_e, id: string, patch: Partial<AppUrlEntry>) => {
-    const list = (store.get('appUrls') as AppUrlEntry[]) ?? [];
-    const cleanPatch = sanitizeAppUrlPatch(patch);
-    store.set(
-      'appUrls',
-      list.map((u) => (u.id === id ? { ...u, ...cleanPatch } : u)),
-    );
-    return store.get('appUrls');
-  });
+  ipcMain.handle(
+    'settings:appUrls:update',
+    (_e, userId: string, id: string, patch: Partial<AppUrlEntry>) => {
+      const list = getList(userId);
+      const cleanPatch = sanitizeAppUrlPatch(patch);
+      return setList(
+        userId,
+        list.map((u) => (u.id === id ? { ...u, ...cleanPatch } : u)),
+      );
+    },
+  );
 }
 
 export { store as settingsStore };

@@ -410,7 +410,8 @@ function SpecRow({ spec, isOpen, onToggle }: SpecRowProps) {
 }
 
 function SpecEnabledSwitch({ spec }: { spec: EndpointSpec }) {
-  const toggle = useToggleEndpointSpec();
+  // spec 자기 adapter_type 으로 토글 — 벤더 리터럴 하드코딩 제거(각 행이 벤더를 안다).
+  const toggle = useToggleEndpointSpec(spec.adapter_type);
   return (
     <Switch
       checked={spec.enabled}

@@ -26,6 +26,7 @@ import {
   AddAppUrlDialog,
   TabBar,
   WebViewTabs,
+  LauncherTabView,
   DesktopAppChatPanel,
   AppChatConversationBar,
 } from "@desktop/features/app";
@@ -142,7 +143,7 @@ export default function AppPage() {
               resolveEntry={s.resolveEntry}
               onActivate={s.setActiveTab}
               onClose={s.closeTab}
-              onNewTab={s.closeAllTabs}
+              onNewTab={s.openLauncherTab}
               onBack={s.goBack}
               onForward={s.goForward}
               onReload={s.reload}
@@ -150,6 +151,10 @@ export default function AppPage() {
               onEditActive={s.handleEditActive}
               onRemoveActive={s.handleRemoveActive}
               onOpenExternalActive={s.handleOpenExternalActive}
+              zoomPercent={s.zoomPercent}
+              onZoomIn={s.zoomIn}
+              onZoomOut={s.zoomOut}
+              onZoomReset={s.zoomReset}
             />
           </div>
           {!s.aiPanelOpen && (
@@ -168,13 +173,25 @@ export default function AppPage() {
 
         {/* 본문: 모든 탭 webview 동시 mount (활성만 visible) + 우측 AI 사이드 패널 */}
         <div className="flex-1 min-h-0 flex">
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 relative">
             <WebViewTabs
               tabs={s.tabs}
               activeTabId={s.activeTabId}
               resolveEntry={s.resolveEntry}
               activeWebviewRef={s.webviewRef}
             />
+            {/* 런처 "새 탭" 활성 — webview 대신 앱 선택 화면 (Chrome 새 탭) */}
+            {s.isActiveTabLauncher && (
+              <LauncherTabView
+                urls={s.urls}
+                installedUrls={s.normalizedInstalledUrls}
+                onPickInstalled={s.handleLauncherPickInstalled}
+                onPickCatalog={s.handleLauncherPickCatalog}
+                onCustomAdd={s.openCustomAdd}
+                onEditEntry={s.handleEditEntry}
+                onRemoveEntry={s.handleRemoveEntry}
+              />
+            )}
           </div>
           {s.aiPanelOpen && (
             <aside
@@ -204,8 +221,13 @@ export default function AppPage() {
                     variant="ghost"
                     size="icon"
                     className="h-6 w-6"
-                    onClick={() => void electron.chatPopup.open()}
-                    title="팝업 창으로 열기 (별도 화면 + 투명도)"
+                    onClick={() => {
+                      // 팝업으로 띄우면서 오른쪽 패널은 닫아 webview 를 전체화면으로.
+                      // (팝업 닫히면 useAppPageState 가 패널을 자동 복원 — 팝업↔패널 스왑)
+                      void electron.chatPopup.open();
+                      s.setAiPanelOpen(false);
+                    }}
+                    title="팝업 창으로 열기 (별도 화면 + 투명도) — 오른쪽 패널은 닫힘"
                   >
                     <PictureInPicture2 className="w-3.5 h-3.5" />
                   </Button>
@@ -314,7 +336,7 @@ export default function AppPage() {
                 URL 직접 추가
               </Button>
             </header>
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
               {s.urls.map((u) => (
                 <UrlCard
                   key={u.id}

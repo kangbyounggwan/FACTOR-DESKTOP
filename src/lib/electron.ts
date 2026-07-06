@@ -20,6 +20,11 @@ export const electron = {
     return null;
   },
 
+  /** 멀티 윈도우 — 동일 앱의 새 OS 창 열기. 웹/미지원 환경은 no-op. */
+  openNewWindow: async (): Promise<void> => {
+    await window.electron?.app?.openNewWindow?.();
+  },
+
   openExternal: async (url: string): Promise<void> => {
     if (window.electron) return window.electron.shell.openExternal(url);
     window.open(url, "_blank", "noopener,noreferrer");
@@ -51,6 +56,27 @@ export const electron = {
     },
     close: async (): Promise<void> => {
       await window.electron?.chatPopup?.close();
+    },
+    /** 팝업 renderer 전용 — 본 창의 활성 webview 화면 스냅샷을 main 경유로 캡쳐.
+     *  미지원/실패 시 null. */
+    captureSnapshot: async (): Promise<Record<string, unknown> | null> => {
+      const snap = await window.electron?.chatPopup?.captureSnapshot?.();
+      return (snap as Record<string, unknown> | null) ?? null;
+    },
+    /** 본 창 renderer 전용 — 팝업이 닫히면 콜백. unsubscribe 반환. */
+    onClosed: (cb: () => void): (() => void) => {
+      return window.electron?.chatPopup?.onClosed?.(cb) ?? (() => {});
+    },
+  },
+  /** APP 탭 화면분석 브릿지 — 본 창 renderer 가 main 의 캡쳐 요청에 응답. */
+  appWebview: {
+    onCaptureRequest: (
+      cb: (payload: { reqId: string }) => void,
+    ): (() => void) => {
+      return window.electron?.appWebview?.onCaptureRequest?.(cb) ?? (() => {});
+    },
+    sendCaptureResult: (payload: { reqId: string; snapshot: unknown }): void => {
+      window.electron?.appWebview?.sendCaptureResult?.(payload);
     },
   },
 

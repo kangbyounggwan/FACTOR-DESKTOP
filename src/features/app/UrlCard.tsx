@@ -41,13 +41,13 @@ export function UrlCard({ entry, onClick, onEdit, onRemove }: Props) {
         onClick={onClick}
         className="flex-1 text-left p-4 flex flex-col gap-3 min-h-0"
       >
-        {/* 헤더 (고정 44px — 카탈로그 카드와 정렬) */}
-        <div className="flex items-start gap-3 h-[44px]">
+        {/* 헤더 (최소 44px — 카탈로그 카드와 정렬, 좁으면 제목 2줄 wrap) */}
+        <div className="flex items-start gap-3 min-h-[44px]">
           <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-muted/40 border border-border/40 flex items-center justify-center overflow-hidden">
             <AppFavicon primarySrc={entry.iconUrl} host={host} size={28} />
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-medium text-sm text-foreground truncate group-hover:text-primary transition-colors">
+            <p className="font-medium text-sm text-foreground line-clamp-2 leading-tight break-words group-hover:text-primary transition-colors">
               {entry.name}
             </p>
             <p className="text-[11px] text-muted-foreground truncate">{host}</p>

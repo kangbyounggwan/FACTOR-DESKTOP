@@ -11,7 +11,7 @@
 
 import type { MenuSection } from "@/features/settings";
 
-export type DesktopMenuSection = MenuSection | "api" | "general";
+export type DesktopMenuSection = MenuSection | "api" | "general" | "reports";
 
 export interface DesktopMenuGroup {
   /** 섹션 헤더 (uppercase tiny). null 이면 헤더 없이 그냥 리스트. */
@@ -37,7 +37,10 @@ export const desktopMenuGroups: DesktopMenuGroup[] = [
   },
   {
     label: "통합",
-    items: [{ id: "api", label: "데이터 연결" }],
+    items: [
+      { id: "api", label: "데이터 연결" },
+      { id: "reports", label: "보고서 관리" },
+    ],
   },
 ];
 
