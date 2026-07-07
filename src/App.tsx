@@ -36,6 +36,8 @@ const ZoneDetailPage = lazy(() => import("@desktop/pages/monitoring/ZoneDetailPa
 // SettingsPage: 데스크탑 자체 페이지 (R1, R6). FE 의 SettingsPage 는 import 안 함.
 // FE 의 leaf 컴포넌트/hook 은 `@/features/settings` 에서 자유롭게 import.
 const SettingsPage = lazy(() => import("@desktop/pages/settings/SettingsPage"));
+// 리포트 앱 — 보고서 관리(설정에서 분리한 독립 페이지, Figma 기획 반영).
+const ReportsPage = lazy(() => import("@desktop/pages/reports/ReportsPage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -139,6 +141,17 @@ const App = () => (
                     <Suspense fallback={<PageLoader />}>
                       {/* 데스크탑 자체 SettingsPage — DashboardHeader 없음, h-full w-full */}
                       <SettingsPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              {/* 리포트 앱 — 보고서 관리(설정에서 분리). 로그인 필요(회사 스코프). */}
+              <Route
+                path="/reports"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <ReportsPage />
                     </Suspense>
                   </ProtectedRoute>
                 }

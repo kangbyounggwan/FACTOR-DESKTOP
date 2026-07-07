@@ -45,7 +45,6 @@ import {
   TeamSectionDesktop,
   AssignedEquipmentSectionDesktop,
   NotificationsSectionDesktop,
-  ReportsSectionDesktop,
 } from "@desktop/features/settings";
 import { ApiConnectionsContainer } from "@desktop/features/api-catalog";
 
@@ -300,11 +299,6 @@ export default function SettingsPage() {
             <div className="h-full px-6 py-8">
               <ApiConnectionsContainer />
             </div>
-          ) : activeSection === "reports" ? (
-            /* 보고서 관리 — 이력 탭의 마스터-디테일 뷰어(F12)가 전체 폭을
-               쓰도록 api 섹션처럼 full-width 분기. 내부에서 자체 SimpleBar
-               + max-w 래핑 처리. */
-            <ReportsSectionDesktop />
           ) : (
             <SimpleBar className="h-full">
               <div className="px-10 py-8 mx-auto max-w-[860px]">
