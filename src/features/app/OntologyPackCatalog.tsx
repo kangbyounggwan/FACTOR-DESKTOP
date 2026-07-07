@@ -162,7 +162,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
                     }}
                   >
                     <Download className="w-3.5 h-3.5" />
-                    다운로드
+                    설치
                   </Button>
                 )}
               </div>
@@ -199,7 +199,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
     />
   );
 
-  // ── APP 스토어 임베드 섹션 (다운로드 → 백단 이관). 설치 가능 팩 0 = 통째로 숨김 ──
+  // ── APP 스토어 임베드 섹션 (설치 = 회사 워크스페이스 활성화). 설치 가능 팩 0 = 통째로 숨김 ──
   if (embedded) {
     if (!loading && available.length === 0) return null;
     return (
@@ -207,7 +207,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
         <header className="mb-4">
           <h2 className="text-base font-semibold tracking-tight">설치형 플러그인</h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            다운로드하면 백엔드에 이관되어 회사·계정에 등록됩니다 (webview "지금 열기"와 별개).
+            설치하면 회사 워크스페이스에 활성화되어 AI 질의·뷰어에 사용됩니다.
           </p>
         </header>
         {errors}
@@ -224,7 +224,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
         <header className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight">온톨로지 플러그인</h1>
           <p className="text-xs text-muted-foreground mt-1.5">
-            회사 온톨로지 팩을 다운로드해 그래프 뷰어로 탐색합니다. 설치 시 이관 동의가 필요합니다.
+            회사 온톨로지 팩을 설치해 그래프 뷰어로 탐색합니다. 설치 시 이관 동의가 필요합니다.
           </p>
         </header>
         {errors}
