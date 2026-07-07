@@ -9,6 +9,7 @@ import {
   Search,
   Settings,
   Network,
+  FileText,
   MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
@@ -41,6 +42,14 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
     });
   }, [navigate, requireAuth]);
 
+  // 리포트: 회사 스코프(수신자/이력)라 로그인 필요 (설정과 동일 UX).
+  const handleReports = useCallback(() => {
+    requireAuth(() => navigate("/reports"), {
+      title: "리포트 사용에는 로그인이 필요합니다",
+      description: "로그인하면 소속 회사의 리포트 생성·이력·수신자를 관리할 수 있습니다.",
+    });
+  }, [navigate, requireAuth]);
+
   return (
     <nav className="px-2 pt-1 pb-1 flex flex-col gap-0.5">
       <MenuItem icon={Plus} label="새 대화" onClick={onStartNew} />
@@ -50,6 +59,7 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
         onClick={onSearch}
         disabled={!onSearch}
       />
+      <MenuItem icon={FileText} label="리포트" onClick={handleReports} />
       <MenuItem icon={Network} label="온톨로지 플러그인" onClick={handleOntology} />
       <MenuItem icon={Settings} label="설정" onClick={handleSettings} />
       <MenuItem icon={MoreHorizontal} label="더보기" disabled />
