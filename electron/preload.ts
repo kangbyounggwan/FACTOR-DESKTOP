@@ -33,6 +33,8 @@ contextBridge.exposeInMainWorld('electron', {
     version: () => ipcRenderer.invoke('app:version'),
     // 멀티 윈도우 — 동일 앱의 새 OS 창 열기.
     openNewWindow: () => ipcRenderer.invoke('window:openNew'),
+    // 앱 백엔드 "실행 가능(준비)" 여부 probe — AppDetailView 지금열기/다운로드 게이트.
+    probeReady: (url: string) => ipcRenderer.invoke('app:probeReady', url),
   },
   shell: {
     openExternal: (url: string) => ipcRenderer.invoke('shell:openExternal', url),

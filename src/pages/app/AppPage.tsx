@@ -30,6 +30,7 @@ import {
   DesktopAppChatPanel,
   AppChatConversationBar,
   OntologyPackCatalog,
+  useAppRunnable,
 } from "@desktop/features/app";
 import { electron } from "@desktop/lib/electron";
 
@@ -128,6 +129,15 @@ function AiPanelResizeHandle({
 export default function AppPage() {
   const s = useAppPageState();
   const [aiPanelWidth, setAiPanelWidth] = useAiPanelWidth();
+
+  // 상세 뷰 앱의 "실행 가능(백단 이관/준비)" 여부 — 지금열기 vs 다운로드 게이트.
+  // hook 은 조건부 호출 금지라 최상위에서(비-detail 모드면 url=null → 게이트 없음).
+  const viewingUrl = s.viewing
+    ? s.viewing.kind === "catalog"
+      ? s.viewing.app.url
+      : s.viewing.entry.url
+    : null;
+  const { runnable, checking, recheck } = useAppRunnable(viewingUrl);
 
   // ──────────── 1. webview (멀티 탭) ────────────
   if (s.mode === "tabs") {
@@ -277,6 +287,10 @@ export default function AppPage() {
           onAddToFavorites={s.handleDetailAddToFavorites}
           onEdit={s.handleDetailEdit}
           onRemove={s.handleDetailRemove}
+          runnable={runnable}
+          checkingRunnable={checking}
+          // 미준비(백단 미이관) 앱의 "다운로드" — 백엔드가 준비됐는지 재확인(이관되면 지금열기로 전환).
+          onDownload={runnable === false ? recheck : undefined}
         />
         <AddAppUrlDialog
           open={s.addOpen}

@@ -32,6 +32,8 @@ import {
   CheckCircle2,
   Globe,
   FolderOpen,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -50,6 +52,19 @@ interface Props {
   onAddToFavorites?: () => void;
   onEdit?: () => void;
   onRemove?: () => void;
+  /**
+   * 앱의 백엔드 로직이 실행 가능(백단 이관/준비)한가.
+   *  - true  → "지금 열기" (webview)
+   *  - false → "다운로드" (백단 이관 필요 — onDownload)
+   *  - undefined → 게이트 없음(외부 URL 앱): 항상 "지금 열기"
+   */
+  runnable?: boolean;
+  /** runnable 판정(백엔드 probe) 진행 중 — 버튼 잠깐 비활성. */
+  checkingRunnable?: boolean;
+  /** "다운로드" 클릭 — 백단 이관 트리거. runnable===false 일 때만 노출. */
+  onDownload?: () => void;
+  /** 다운로드(이관) 진행 중. */
+  downloading?: boolean;
 }
 
 export function AppDetailView({
@@ -59,6 +74,10 @@ export function AppDetailView({
   onAddToFavorites,
   onEdit,
   onRemove,
+  runnable,
+  checkingRunnable,
+  onDownload,
+  downloading,
 }: Props) {
   const { name, url, description, iconUrl, category, tags } = useMemo(() => {
     if (source.kind === "catalog") {
@@ -131,15 +150,37 @@ export function AppDetailView({
                 )}
               </div>
 
-              {/* CTA — primary 강조 */}
+              {/* CTA — primary 강조. 백엔드 앱은 실행 가능(백단 이관) 시에만 "지금 열기",
+                  아니면 "다운로드". 외부 URL 앱(runnable===undefined)은 항상 "지금 열기". */}
               <div className="flex flex-wrap items-center gap-2 pb-2">
-                <Button
-                  onClick={onOpen}
-                  className="h-11 px-7 gap-2 text-sm font-medium"
-                >
-                  <ExternalLink className="w-4 h-4" />
-                  지금 열기
-                </Button>
+                {checkingRunnable ? (
+                  <Button disabled className="h-11 px-7 gap-2 text-sm font-medium">
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    확인 중
+                  </Button>
+                ) : runnable === false && onDownload ? (
+                  <Button
+                    onClick={onDownload}
+                    disabled={downloading}
+                    className="h-11 px-7 gap-2 text-sm font-medium"
+                    title="백엔드에 로직이 아직 이관되지 않았습니다 — 다운로드로 이관합니다."
+                  >
+                    {downloading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Download className="w-4 h-4" />
+                    )}
+                    다운로드
+                  </Button>
+                ) : (
+                  <Button
+                    onClick={onOpen}
+                    className="h-11 px-7 gap-2 text-sm font-medium"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    지금 열기
+                  </Button>
+                )}
 
                 {source.kind === "catalog" && !source.alreadyInstalled && onAddToFavorites && (
                   <Button

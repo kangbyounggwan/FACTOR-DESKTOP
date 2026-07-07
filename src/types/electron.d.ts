@@ -63,11 +63,21 @@ export interface RemotePluginInstall {
   updated_at: string;
 }
 
+/** 앱 백엔드 "실행 가능(백단 이관/준비)" 여부 — AppDetailView 지금열기/다운로드 게이트. */
+export interface AppReadiness {
+  /** 백엔드 준비-게이트 대상인가(FACTOR 백엔드 앱). false=외부앱(게이트 없음, 항상 지금열기). */
+  gated: boolean;
+  /** gated 일 때 백엔드가 실행 가능한 상태인가. */
+  ready: boolean;
+}
+
 export interface DesktopElectronAPI {
   app: {
     version: () => Promise<string>;
     /** 멀티 윈도우 — 동일 앱의 새 OS 창(독립 탭 상태, 세션 공유) 열기. */
     openNewWindow: () => Promise<void>;
+    /** 앱 URL 의 백엔드 준비 여부 probe (main 프로세스, CORS 회피). */
+    probeReady: (url: string) => Promise<AppReadiness>;
   };
   shell: {
     openExternal: (url: string) => Promise<void>;
