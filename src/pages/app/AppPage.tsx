@@ -29,6 +29,7 @@ import {
   LauncherTabView,
   DesktopAppChatPanel,
   AppChatConversationBar,
+  OntologyPackCatalog,
 } from "@desktop/features/app";
 import { electron } from "@desktop/lib/electron";
 
@@ -349,6 +350,10 @@ export default function AppPage() {
               ))}
             </div>
           </section>
+
+          {/* 설치형 플러그인 — "다운로드" 시 백엔드에 이관(DB 추적). URL 앱의 "지금 열기(webview)"와 구분.
+              설치 가능 팩이 없으면 컴포넌트가 스스로 숨긴다(빈 섹션 방지). */}
+          <OntologyPackCatalog embedded />
 
           {/* 구분선 */}
           <div className="border-t border-border/40 my-8" />

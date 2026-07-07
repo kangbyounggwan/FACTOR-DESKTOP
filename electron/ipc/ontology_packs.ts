@@ -64,11 +64,11 @@ function assertAdapter(adapterType: unknown): asserts adapterType is string {
   }
 }
 
-async function fetchWithTimeout(url: string): Promise<Response> {
+async function fetchWithTimeout(url: string, init: RequestInit = {}): Promise<Response> {
   const ctrl = new AbortController();
   const t = setTimeout(() => ctrl.abort(), FETCH_TIMEOUT_MS);
   try {
-    return await fetch(url, { signal: ctrl.signal, redirect: 'error' });
+    return await fetch(url, { ...init, signal: ctrl.signal, redirect: 'error' });
   } finally {
     clearTimeout(t);
   }
@@ -144,6 +144,16 @@ async function handleInstall(adapterType: string, userId: string): Promise<Insta
     if (localSum !== headerSum) throw new Error('CHECKSUM_MISMATCH');
   }
 
+  // ── 백단 이관 기록 (DB 추적) — 로컬 저장 前. 이게 "다운로드=백단 이관"의 핵심.
+  //   실패 시 throw → 로컬에도 아무것도 안 남김(설치 = 백엔드 기록 성공이 조건).
+  //   plugin_id 경로 세그먼트는 pack 다운로드와 동일 규칙(adapter_type==plugin_id 관례).
+  const recUrl =
+    `${backendBase()}${API_PREFIX}/plugins/${encodeURIComponent(adapterType)}/install` +
+    `?user_id=${encodeURIComponent(userId)}`;
+  const rec = await fetchWithTimeout(recUrl, { method: 'POST' });
+  if (rec.status === 403 || rec.status === 404) throw new Error('NO_ACCESS');
+  if (!rec.ok) throw new Error(`BACKEND_RECORD_FAILED:${rec.status}`);
+
   // ── atomic 저장 (로그인 계정별 디렉터리 — 다른 아이디와 공유 안 됨) ──
   const dir = userPacksDir(userId);
   await fs.mkdir(dir, { recursive: true });
@@ -185,6 +195,35 @@ async function handleListInstalled(userId: string): Promise<InstalledPack[]> {
   return out;
 }
 
+/** GET /installs — 백엔드 설치 이력(테넌트 스코프, DB 추적). 기기 간 설치상태 동기화 근거. */
+async function handleInstallsRemote(userId: string): Promise<unknown> {
+  assertUserId(userId);
+  const url = `${backendBase()}${API_PREFIX}/installs?user_id=${encodeURIComponent(userId)}`;
+  const res = await fetchWithTimeout(url);
+  if (!res.ok) throw new Error(`installs 조회 실패: HTTP ${res.status}`);
+  const json = await res.json();
+  return json?.installs ?? [];
+}
+
+/** DELETE /plugins/<adapter>/install — 백엔드 soft-remove(status=removed) + 로컬 팩 삭제. */
+async function handleUninstall(adapterType: string, userId: string): Promise<{ ok: boolean }> {
+  assertAdapter(adapterType);
+  assertUserId(userId);
+  const url =
+    `${backendBase()}${API_PREFIX}/plugins/${encodeURIComponent(adapterType)}/install` +
+    `?user_id=${encodeURIComponent(userId)}`;
+  const res = await fetchWithTimeout(url, { method: 'DELETE' });
+  if (!res.ok && res.status !== 404) throw new Error(`uninstall 실패: HTTP ${res.status}`);
+  // 로컬 캐시 파일 제거 (있으면). 백엔드 기록이 SoT, 로컬은 뷰어 캐시.
+  const dir = userPacksDir(userId);
+  const dest = path.resolve(dir, `${adapterType}.json`);
+  if (dest.startsWith(dir + path.sep)) {
+    await fs.rm(dest, { force: true }).catch(() => {});
+  }
+  log.info('[ontology] uninstalled adapter=%s', adapterType);
+  return { ok: true };
+}
+
 function assertUserId(userId: unknown): asserts userId is string {
   // S3 가 UUID 검증하지만 클라도 최소 형식 체크(빈 값/타입).
   if (typeof userId !== 'string' || userId.length < 8 || userId.length > 64) {
@@ -199,5 +238,11 @@ export function registerOntologyPacksIpc(): void {
   );
   ipcMain.handle('ontology:listInstalled', (_e, userId: string) =>
     handleListInstalled(userId),
+  );
+  ipcMain.handle('ontology:installsRemote', (_e, userId: string) =>
+    handleInstallsRemote(userId),
+  );
+  ipcMain.handle('ontology:uninstall', (_e, adapterType: string, userId: string) =>
+    handleUninstall(adapterType, userId),
   );
 }

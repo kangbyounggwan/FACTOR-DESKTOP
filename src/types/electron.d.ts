@@ -47,6 +47,22 @@ export interface InstalledOntologyPack {
   installedAt: number;
 }
 
+/** S4 — 백엔드 plugin_installs row (테넌트 스코프 설치 이력, DB 추적). */
+export interface RemotePluginInstall {
+  id: string;
+  company_id: string;
+  user_id: string | null;
+  plugin_id: string;
+  plugin_type: string;
+  adapter_type: string | null;
+  version: string | null;
+  checksum: string | null;
+  status: 'active' | 'removed' | 'failed';
+  manifest: Record<string, unknown>;
+  installed_at: string;
+  updated_at: string;
+}
+
 export interface DesktopElectronAPI {
   app: {
     version: () => Promise<string>;
@@ -123,6 +139,10 @@ export interface DesktopElectronAPI {
       userId: string,
     ) => Promise<InstalledOntologyPack>;
     listInstalled: (userId: string) => Promise<InstalledOntologyPack[]>;
+    /** 백엔드 설치 이력(테넌트 스코프, DB 추적) — 기기 간 설치상태 동기화. */
+    installsRemote: (userId: string) => Promise<RemotePluginInstall[]>;
+    /** 설치 제거 — 백엔드 soft-remove(status=removed) + 로컬 팩 삭제. */
+    uninstall: (adapterType: string, userId: string) => Promise<{ ok: boolean }>;
   };
 }
 

@@ -123,6 +123,10 @@ contextBridge.exposeInMainWorld('electron', {
       ipcRenderer.invoke('ontology:install', adapterType, userId),
     listInstalled: (userId: string) =>
       ipcRenderer.invoke('ontology:listInstalled', userId),
+    installsRemote: (userId: string) =>
+      ipcRenderer.invoke('ontology:installsRemote', userId),
+    uninstall: (adapterType: string, userId: string) =>
+      ipcRenderer.invoke('ontology:uninstall', adapterType, userId),
   },
   // APP 탭 webview 확대/축소 — main 이 Ctrl+휠/키보드 줌 처리 후 broadcast.
   // renderer 의 TabBar 줌 % 표시가 이 이벤트로 동기화된다.
