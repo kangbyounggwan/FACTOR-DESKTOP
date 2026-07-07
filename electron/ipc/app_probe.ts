@@ -52,10 +52,10 @@ async function handleProbeReady(rawUrl: unknown): Promise<AppReadiness> {
 
   // ── FACTOR 백엔드 앱: 앱별 준비 endpoint probe ──
   // 리포트 앱: FE(리포트 페이지)가 의존하는 백엔드 로직이 살아있어야 실행 가능.
-  //   현 FE 경로 /api/chat/report-plugin 준비 여부로 판정(미준비면 "서버 미활성" 배너 대신 다운로드 노출).
-  //   ※ FE 를 /api/reports/v1(report-service)로 repoint 하면 probe 대상도 그쪽으로 교체.
+  //   FE 가 report-service(/api/reports/v1)로 repoint 됨(anomaly PR #5 머지) → probe 도 그쪽.
+  //   /templates 는 무인증 200 → 200이면 준비(지금열기), 404/미배포면 다운로드.
   if (u.pathname.startsWith('/reports')) {
-    return { gated: true, ready: await probe(`${API_BASE}/api/chat/report-plugin/templates`) };
+    return { gated: true, ready: await probe(`${API_BASE}/api/reports/v1/templates`) };
   }
 
   // 기타 FACTOR 앱: 페이지 자체 도달성으로 준비 판정(기본).
