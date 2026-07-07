@@ -13,6 +13,7 @@ import {
 import { registerSettingsIpc } from './ipc/settings';
 import { registerLinkIpc } from './ipc/link';
 import { registerOntologyPacksIpc } from './ipc/ontology_packs';
+import { registerAppProbeIpc } from './ipc/app_probe';
 import { setupSentryMain } from './sentry';
 
 // ── Section 03 — Sentry main init (가장 먼저, 다른 import 들의 throw 도 캐치) ──
@@ -171,6 +172,7 @@ ipcMain.handle('chatPopup:close', () => {
 registerSettingsIpc();
 registerLinkIpc();
 registerOntologyPacksIpc();
+registerAppProbeIpc();
 
 // ── APP 탭 webview 확대/축소 ─────────────────────────────────────────
 // Ctrl+휠 / Ctrl+(+/-/0) 은 webview 게스트 프로세스로 들어가는 입력이라

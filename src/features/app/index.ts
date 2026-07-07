@@ -34,3 +34,6 @@ export { OntologyPackCatalog } from "./OntologyPackCatalog";
 export { OntologyWebView } from "./OntologyWebView";
 export { OntologyTransferConsentDialog } from "./OntologyTransferConsentDialog";
 export { useOntologyPacks } from "./useOntologyPacks";
+// 앱 실행가능(백단 이관) 게이트 — AppDetailView 지금열기/다운로드
+export { useAppRunnable } from "./useAppRunnable";
+export type { UseAppRunnable } from "./useAppRunnable";
