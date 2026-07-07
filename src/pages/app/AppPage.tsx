@@ -351,8 +351,8 @@ export default function AppPage() {
             </div>
           </section>
 
-          {/* 설치형 플러그인 — "다운로드" 시 백엔드에 이관(DB 추적). URL 앱의 "지금 열기(webview)"와 구분.
-              설치 가능 팩이 없으면 컴포넌트가 스스로 숨긴다(빈 섹션 방지). */}
+          {/* 설치형 플러그인 — "설치" 시 회사 워크스페이스에 활성화(plugin_installs 테넌트 스코프).
+              단일 공유 백엔드라 "백단 이관"이 아니라 회사별 활성화 개념. 설치 가능 팩 0 = 자동 숨김. */}
           <OntologyPackCatalog embedded />
 
           {/* 구분선 */}
