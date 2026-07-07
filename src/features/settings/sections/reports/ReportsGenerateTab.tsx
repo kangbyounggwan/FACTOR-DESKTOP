@@ -1,9 +1,10 @@
 /**
  * 보고서 관리 — [생성] 탭.
  *
- * AI 리포트 생성 요청: 페르소나 선택 + 섹션 미리보기(templates) + (선택)요청 텍스트 +
- * 포맷 → POST /generate. 성공 시 run_id 로 뷰어(폴링)를 열어 진행 상황을 보여준다.
- * (백엔드 계약: generate 202+run_id → GET /runs/{id} 폴링 = useReportRun.)
+ * AI 리포트 생성(정형 폼): 페르소나 + 기간 + 포맷 → POST /generate. 성공 시 run_id 로
+ * 뷰어(폴링)를 열어 진행 상황을 보여준다. (백엔드 계약: 202+run_id → GET /runs/{id} 폴링.)
+ * PoC 는 정형 컨트롤만 — 자유 텍스트/대상 라인 지정은 후속(사용자 의견 반영). 기간을 반드시
+ * 전송한다(미전송 시 백엔드가 '어제'로 고정되던 문제 해소).
  */
 import { memo, useMemo, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
@@ -29,6 +30,41 @@ const PERSONA_DESC: Record<Persona, string> = {
 
 const ALL_FORMATS: ReportFormat[] = ["pdf", "html", "pptx"];
 
+type PeriodKey = "yesterday" | "today" | "this_week" | "last_week";
+const PERIODS: { key: PeriodKey; label: string }[] = [
+  { key: "yesterday", label: "어제" },
+  { key: "today", label: "오늘" },
+  { key: "this_week", label: "이번 주" },
+  { key: "last_week", label: "지난 주" },
+];
+
+const pad = (n: number) => String(n).padStart(2, "0");
+const iso = (d: Date) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+/** 선택 기간 → [startDate, endDate] ISO. 로컬(≈KST) 기준 계산 — 백엔드가 tenant tz 로 재해석. */
+function periodRange(key: PeriodKey): [string, string] {
+  const base = new Date();
+  base.setHours(0, 0, 0, 0);
+  const mondayOffset = (base.getDay() + 6) % 7; // 월요일=0
+  if (key === "today") return [iso(base), iso(base)];
+  if (key === "yesterday") {
+    const y = new Date(base);
+    y.setDate(base.getDate() - 1);
+    return [iso(y), iso(y)];
+  }
+  if (key === "this_week") {
+    const mon = new Date(base);
+    mon.setDate(base.getDate() - mondayOffset);
+    return [iso(mon), iso(base)];
+  }
+  // last_week
+  const mon = new Date(base);
+  mon.setDate(base.getDate() - mondayOffset - 7);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  return [iso(mon), iso(sun)];
+}
+
 export const ReportsGenerateTab = memo(function ReportsGenerateTab({
   onOpenRun,
 }: Props) {
@@ -37,7 +73,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
   const generateMutation = useGenerateReport();
 
   const [persona, setPersona] = useState<Persona>("executive");
-  const [requestText, setRequestText] = useState("");
+  const [period, setPeriod] = useState<PeriodKey>("yesterday");
   const [formats, setFormats] = useState<ReportFormat[]>(["pdf"]);
 
   const tpl = templatesQuery.data?.[persona];
@@ -57,7 +93,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
       return;
     }
     generateMutation.mutate(
-      { persona, request_text: requestText.trim() || null, formats },
+      { persona, period: periodRange(period), formats },
       {
         onSuccess: (res) => {
           toast({
@@ -138,21 +174,34 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
         )}
       </section>
 
-      {/* ── 요청 내용(선택) ── */}
+      {/* ── 기간 ── */}
       <section className="space-y-2.5">
         <SectionLabel>
-          요청 내용
+          기간
           <span className="ml-1.5 text-muted-foreground/50 normal-case tracking-normal font-normal">
-            · 선택 — 특정 라인·관점을 자연어로
+            · {periodRange(period)[0]} ~ {periodRange(period)[1]}
           </span>
         </SectionLabel>
-        <textarea
-          value={requestText}
-          onChange={(e) => setRequestText(e.target.value)}
-          rows={3}
-          placeholder="예: 어제 3공장 C10B 라인 위주로, 설비 비가동 원인 중심으로"
-          className="w-full rounded-lg border border-border/40 bg-foreground/[0.02] px-3.5 py-2.5 text-[12px] text-foreground placeholder:text-muted-foreground/40 resize-none focus:outline-none focus:border-primary/50 transition-colors"
-        />
+        <div className="flex items-center gap-2">
+          {PERIODS.map((p) => {
+            const on = period === p.key;
+            return (
+              <button
+                key={p.key}
+                type="button"
+                onClick={() => setPeriod(p.key)}
+                className={cn(
+                  "px-3.5 py-1.5 rounded-md text-[11.5px] font-medium border transition-colors",
+                  on
+                    ? "border-primary/60 bg-primary/[0.08] text-foreground"
+                    : "border-border/40 bg-foreground/[0.02] text-foreground/55 hover:text-foreground/85",
+                )}
+              >
+                {p.label}
+              </button>
+            );
+          })}
+        </div>
       </section>
 
       {/* ── 출력 포맷 ── */}
