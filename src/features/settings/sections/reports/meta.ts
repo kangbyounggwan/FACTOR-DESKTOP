@@ -7,6 +7,8 @@
  *                  running·queued=진행 중(노랑) partial=부분(주황)
  */
 
+import { describeCron } from "@/features/reports";
+
 import type {
   Persona,
   PersonaTemplate,
@@ -88,56 +90,23 @@ export function startOfWeek(now = new Date()): Date {
   return d;
 }
 
-// ── cron 헬퍼 — "분 시 * * *" 형태의 단순 케이스만 사람 친화 라벨 ──────────
+// ── cron 라벨 헬퍼 — 공유 빌더(@/features/reports)의 describeCron 재사용 ──────────
+// cron 생성/파싱 SoT 는 CronScheduleBuilder 로 단일화. 여기선 표시 라벨만 파생한다
+// (매일/매주/매월 지원, 그 외는 raw/"커스텀").
 
-export type CronMode = "daily" | "weekly" | "custom";
-
-export interface ParsedCron {
-  mode: CronMode;
-  /** "HH:MM" — daily/weekly 에서만 의미 */
-  time: string;
-  /** 0(일)~6(토) — weekly 에서만 의미 */
-  weekday: number;
-  raw: string;
-}
-
-export function parseCron(cron: string): ParsedCron {
-  const fallback: ParsedCron = { mode: "custom", time: "08:00", weekday: 1, raw: cron };
-  const parts = cron.trim().split(/\s+/);
-  if (parts.length !== 5) return fallback;
-  const [min, hour, dom, mon, dow] = parts;
-  if (!/^\d{1,2}$/.test(min) || !/^\d{1,2}$/.test(hour)) return fallback;
-  if (dom !== "*" || mon !== "*") return fallback;
-  const time = `${pad2(Number(hour))}:${pad2(Number(min))}`;
-  if (dow === "*") return { mode: "daily", time, weekday: 1, raw: cron };
-  if (/^[0-6]$/.test(dow)) {
-    return { mode: "weekly", time, weekday: Number(dow), raw: cron };
-  }
-  return fallback;
-}
-
-export function buildCron(mode: CronMode, time: string, weekday: number): string {
-  const m = /^(\d{1,2}):(\d{1,2})$/.exec(time.trim());
-  const hh = m ? Number(m[1]) : 8;
-  const mm = m ? Number(m[2]) : 0;
-  if (mode === "weekly") return `${mm} ${hh} * * ${weekday}`;
-  return `${mm} ${hh} * * *`;
-}
-
-/** cron → "매일 08:10" / "매주 월 08:00" / raw cron. */
+/** cron → "매일 08:10" / "매주 월요일 08:00" / "매월 15일 09:30" / raw cron. */
 export function cronToLabel(cron: string | null | undefined): string {
   if (!cron) return "미설정";
-  const p = parseCron(cron);
-  if (p.mode === "daily") return `매일 ${p.time}`;
-  if (p.mode === "weekly") return `매주 ${WEEKDAY_KO[p.weekday]} ${p.time}`;
-  return cron;
+  return describeCron(cron) ?? cron;
 }
 
-/** 주기 칩 — "일일" / "주간" / "커스텀". */
+/** 주기 칩 — "일일" / "주간" / "월간" / "커스텀". */
 export function cronCycleLabel(cron: string | null | undefined): string | null {
   if (!cron) return null;
-  const p = parseCron(cron);
-  if (p.mode === "daily") return "일일";
-  if (p.mode === "weekly") return "주간";
+  const d = describeCron(cron);
+  if (!d) return "커스텀";
+  if (d.startsWith("매일")) return "일일";
+  if (d.startsWith("매주")) return "주간";
+  if (d.startsWith("매월")) return "월간";
   return "커스텀";
 }
