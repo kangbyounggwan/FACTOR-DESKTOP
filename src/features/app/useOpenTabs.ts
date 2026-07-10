@@ -1,5 +1,5 @@
 /**
- * useOpenTabs — APP 모드의 열린 탭 관리 (Zustand, 영속화 X).
+ * useOpenTabs — APP 모드의 열린 탭 관리 (Zustand, localStorage 영속화 O).
  *
  * Linear / Chrome 같은 멀티 탭 UX:
  *  - 여러 URL 을 동시에 webview 로 열어둠
@@ -7,13 +7,16 @@
  *  - + 버튼 = 새 탭 (APP STORE 홈으로 이동)
  *  - X 버튼 = 탭 닫기, 모든 탭 닫으면 home
  *
- * 영속화 X — 앱 재실행 시 빈 상태로 시작. 추후 옵션.
+ * 영속화 O (persist) — 새로고침(렌더러 리로드)/앱 재실행 시 열린 탭·활성 탭을 복원.
+ *   미영속 시 새로고침마다 tabs=[] → 홈(APP 카탈로그)으로 튕기던 문제 해결.
+ *   transient 한 isLoading 은 저장하지 않는다(복원 시 spinner 영구화 방지).
  *
  * 각 OpenTab 은 useAppUrls 의 AppUrlEntry 를 참조 (urlEntryId).
  * 즐겨찾기 entry 가 삭제되면 해당 탭은 별도 처리 (활성 탭 → 닫기, 비활성 → drop).
  */
 
 import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 export interface OpenTab {
   /** uuid (탭 식별자, urlEntryId 와 다름 — 같은 URL 의 두 탭도 허용) */
@@ -62,7 +65,9 @@ interface OpenTabsState {
   setLoading: (tabId: string, isLoading: boolean) => void;
 }
 
-export const useOpenTabs = create<OpenTabsState>((set, get) => ({
+export const useOpenTabs = create<OpenTabsState>()(
+  persist(
+    (set, get) => ({
   tabs: [],
   activeTabId: null,
 
@@ -182,4 +187,14 @@ export const useOpenTabs = create<OpenTabsState>((set, get) => ({
       ),
     }));
   },
-}));
+    }),
+    {
+      name: "factor-app-open-tabs",
+      // 데이터만 저장 — 액션 제외, isLoading(transient) 제거해 복원 시 spinner 잔존 방지.
+      partialize: (s) => ({
+        tabs: s.tabs.map(({ isLoading: _isLoading, ...t }) => t),
+        activeTabId: s.activeTabId,
+      }),
+    },
+  ),
+);
