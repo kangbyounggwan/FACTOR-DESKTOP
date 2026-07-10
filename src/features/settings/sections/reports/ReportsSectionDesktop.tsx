@@ -17,14 +17,16 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 import { ReportsFormatsTab } from "./ReportsFormatsTab";
+import { ReportsGenerateTab } from "./ReportsGenerateTab";
 import { ReportsHistoryTab } from "./ReportsHistoryTab";
 import { ReportsGeneralTab } from "./ReportsGeneralTab";
 import { ReportsRecipientsTab } from "./ReportsRecipientsTab";
 import { ReportViewerPanel } from "./ReportViewerPanel";
 
-type ReportsTab = "history" | "recipients" | "formats" | "general";
+type ReportsTab = "generate" | "history" | "recipients" | "formats" | "general";
 
 const TABS: { id: ReportsTab; label: string }[] = [
+  { id: "generate", label: "생성" },
   { id: "history", label: "이력" },
   { id: "recipients", label: "수신자" },
   { id: "formats", label: "포맷" },
@@ -32,7 +34,7 @@ const TABS: { id: ReportsTab; label: string }[] = [
 ];
 
 export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
-  const [tab, setTab] = useState<ReportsTab>("history");
+  const [tab, setTab] = useState<ReportsTab>("generate");
   const [viewerRunId, setViewerRunId] = useState<string | null>(null);
   const [addRecipientOpen, setAddRecipientOpen] = useState(false);
 
@@ -56,7 +58,7 @@ export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
             보고서 관리
           </h2>
           <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
-            임원 리포트 자동 생성·발송 — 이력 · 수신자 · 포맷 관리
+            AI 리포트 생성 · 발송 — 생성 · 이력 · 수신자 · 포맷 관리
           </p>
         </header>
 
@@ -104,6 +106,7 @@ export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
         </div>
 
         {/* ── 탭 콘텐츠 ── */}
+        {tab === "generate" && <ReportsGenerateTab onOpenRun={setViewerRunId} />}
         {tab === "history" && <ReportsHistoryTab onOpenRun={setViewerRunId} />}
         {tab === "recipients" && (
           <ReportsRecipientsTab

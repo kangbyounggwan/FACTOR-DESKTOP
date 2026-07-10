@@ -24,14 +24,8 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { CronScheduleBuilder } from "@/features/reports";
 import {
   Tooltip,
   TooltipContent,
@@ -47,12 +41,7 @@ import type {
   ReportSchedule,
 } from "@desktop/api/reports";
 
-import {
-  buildCron,
-  parseCron,
-  templateDisplayName,
-  type CronMode,
-} from "./meta";
+import { templateDisplayName } from "./meta";
 import {
   useCreateReportSchedule,
   useDeleteReportSchedule,
@@ -70,8 +59,6 @@ const SECTION_TOGGLES: { label: string; defaultOn: boolean }[] = [
 ];
 
 const FORMAT_OPTIONS: ReportFormat[] = ["pdf", "html", "pptx"];
-
-const WEEKDAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
 
 interface Props {
   open: boolean;
@@ -95,10 +82,7 @@ export function TemplateDialog({
   const patchMutation = usePatchReportSchedule();
   const deleteMutation = useDeleteReportSchedule();
 
-  const [mode, setMode] = useState<CronMode>("daily");
-  const [time, setTime] = useState("08:10");
-  const [weekday, setWeekday] = useState(1);
-  const [customCron, setCustomCron] = useState("");
+  const [cron, setCron] = useState("10 8 * * *");
   const [formats, setFormats] = useState<ReportFormat[]>(["pdf"]);
 
   const isPending =
@@ -108,19 +92,12 @@ export function TemplateDialog({
   useEffect(() => {
     if (!open) return;
     if (schedule) {
-      const p = parseCron(schedule.cron);
-      setMode(p.mode);
-      setTime(p.time);
-      setWeekday(p.weekday);
-      setCustomCron(schedule.cron);
+      setCron(schedule.cron);
       setFormats(
         schedule.formats.length > 0 ? [...schedule.formats] : ["pdf"],
       );
     } else {
-      setMode("daily");
-      setTime("08:10");
-      setWeekday(1);
-      setCustomCron("10 8 * * *");
+      setCron("10 8 * * *");
       setFormats(
         (template?.default_formats?.filter((f): f is ReportFormat =>
           (FORMAT_OPTIONS as string[]).includes(f),
@@ -135,25 +112,12 @@ export function TemplateDialog({
     );
   };
 
-  const resolveCron = (): string | null => {
-    if (mode === "custom") {
-      const c = customCron.trim();
-      if (c.split(/\s+/).length !== 5) return null;
-      return c;
-    }
-    if (!/^\d{1,2}:\d{1,2}$/.test(time.trim())) return null;
-    return buildCron(mode, time, weekday);
-  };
-
   const handleSave = () => {
-    const cron = resolveCron();
-    if (!cron) {
+    const c = cron.trim();
+    if (c.split(/\s+/).length !== 5) {
       toast({
-        title: "발송 시각 오류",
-        description:
-          mode === "custom"
-            ? "cron 은 5개 필드여야 합니다. (예: 10 8 * * *)"
-            : "시각은 HH:MM 형식으로 입력하세요. (예: 08:10)",
+        title: "발송 주기 오류",
+        description: "cron 은 5개 필드여야 합니다. (예: 10 8 * * *)",
         variant: "destructive",
       });
       return;
@@ -181,9 +145,9 @@ export function TemplateDialog({
         }),
     };
     if (schedule) {
-      patchMutation.mutate({ id: schedule.id, body: { cron, formats } }, opts);
+      patchMutation.mutate({ id: schedule.id, body: { cron: c, formats } }, opts);
     } else {
-      createMutation.mutate({ cron, persona, formats }, opts);
+      createMutation.mutate({ cron: c, persona, formats }, opts);
     }
   };
 
@@ -231,62 +195,12 @@ export function TemplateDialog({
             />
           </div>
 
-          {/* 유형(주기) + 발송 시각 */}
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1.5">
-              <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
-                유형
-              </Label>
-              <Select value={mode} onValueChange={(v) => setMode(v as CronMode)}>
-                <SelectTrigger className="h-9 text-[11.5px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="daily">일일</SelectItem>
-                  <SelectItem value="weekly">주간</SelectItem>
-                  <SelectItem value="custom">커스텀 (cron)</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1.5">
-              <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
-                발송 시각
-              </Label>
-              {mode === "custom" ? (
-                <Input
-                  value={customCron}
-                  onChange={(e) => setCustomCron(e.target.value)}
-                  placeholder="10 8 * * *"
-                  className="h-9 text-[11.5px] font-mono"
-                />
-              ) : (
-                <div className="flex items-center gap-2">
-                  {mode === "weekly" && (
-                    <Select
-                      value={String(weekday)}
-                      onValueChange={(v) => setWeekday(Number(v))}
-                    >
-                      <SelectTrigger className="h-9 text-[11.5px] w-[76px] flex-shrink-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {WEEKDAY_KO.map((d, i) => (
-                          <SelectItem key={d} value={String(i)}>
-                            {d}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  )}
-                  <Input
-                    value={time}
-                    onChange={(e) => setTime(e.target.value)}
-                    placeholder="08:10"
-                    className="h-9 text-[11.5px] font-mono"
-                  />
-                </div>
-              )}
-            </div>
+          {/* 발송 주기 — 캘린더 연동 빌더 (매일/매주/매월/직접) */}
+          <div className="space-y-1.5">
+            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+              발송 주기
+            </Label>
+            <CronScheduleBuilder value={cron} onChange={setCron} />
           </div>
 
           {/* 포맷 */}
