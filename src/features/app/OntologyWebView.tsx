@@ -4,7 +4,7 @@
  * S1 의 app:// custom protocol + host-lock partition(persist:factor-ontology) 위에서 동작.
  * 뷰어는 ?pack=<adapter> 로 자족적으로 app://packs/<adapter>.json 을 fetch (host IPC 없음).
  *
- * ⚠️ R5: FE 공유 컴포넌트 WebViewFrame 을 수정하거나 app:// 분기 prop 을 넣지 않는다.
+ * ⚠️ R5: 공유 webview 컴포넌트에 app:// 분기 prop 을 넣지 않는다.
  *    이 컴포넌트는 desktop 소유의 app:// 전용 별도 webview.
  */
 import { isDesktop } from "@desktop/lib/electron";
@@ -33,7 +33,7 @@ export function OntologyWebView({ adapterType, userId }: Props) {
     );
   }
 
-  // <webview> 는 JSX intrinsic 이 없어 createElement 우회 (WebViewFrame 과 동일 패턴)
+  // <webview> 는 JSX intrinsic 이 없어 createElement 우회 (WebViewTabs 와 동일 패턴)
   const WebviewTag = "webview" as unknown as React.FC<
     React.HTMLAttributes<HTMLElement> & {
       src?: string;

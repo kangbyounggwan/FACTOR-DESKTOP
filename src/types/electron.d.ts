@@ -27,7 +27,7 @@ export interface LinkMetadata {
   error?: string;
 }
 
-export interface DesktopSettings {
+interface DesktopSettings {
   /** 로그인 user_id 별 즐겨찾기 버킷 (계정 격리). */
   appUrlsByUser: Record<string, AppUrlEntry[]>;
 }
@@ -48,7 +48,7 @@ export interface InstalledOntologyPack {
 }
 
 /** S4 — 백엔드 plugin_installs row (테넌트 스코프 설치 이력, DB 추적). */
-export interface RemotePluginInstall {
+interface RemotePluginInstall {
   id: string;
   company_id: string;
   user_id: string | null;
@@ -64,14 +64,14 @@ export interface RemotePluginInstall {
 }
 
 /** 앱 백엔드 "실행 가능(백단 이관/준비)" 여부 — AppDetailView 지금열기/다운로드 게이트. */
-export interface AppReadiness {
+interface AppReadiness {
   /** 백엔드 준비-게이트 대상인가(FACTOR 백엔드 앱). false=외부앱(게이트 없음, 항상 지금열기). */
   gated: boolean;
   /** gated 일 때 백엔드가 실행 가능한 상태인가. */
   ready: boolean;
 }
 
-export interface DesktopElectronAPI {
+interface DesktopElectronAPI {
   app: {
     version: () => Promise<string>;
     /** 멀티 윈도우 — 동일 앱의 새 OS 창(독립 탭 상태, 세션 공유) 열기. */

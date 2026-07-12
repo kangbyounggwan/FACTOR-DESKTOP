@@ -11,8 +11,8 @@ const BASE_URL =
 
 const ROOT = `${BASE_URL.replace(/\/$/, "")}/api/api-catalog`;
 
-export type CostTier = "low" | "tier_a" | "tier_b" | "tier_c" | "high";
-export type ModifiedKind = "manual" | "auto" | null;
+type CostTier = "low" | "tier_a" | "tier_b" | "tier_c" | "high";
+type ModifiedKind = "manual" | "auto" | null;
 
 export interface ApiCatalogEntry {
   method_name: string;
@@ -38,7 +38,7 @@ export interface ApiCatalogEntry {
   last_modified_note: string | null;
 }
 
-export interface ApiCatalogListResponse {
+interface ApiCatalogListResponse {
   items: ApiCatalogEntry[];
   total: number;
   domains: string[];
@@ -103,10 +103,6 @@ export function listApiCatalog(params: {
   if (params.onlyCurated) q.set("only_curated", "true");
   const qs = q.toString();
   return request(`${ROOT}${qs ? `?${qs}` : ""}`);
-}
-
-export function getApiCatalogEntry(methodName: string): Promise<ApiCatalogEntry> {
-  return request(`${ROOT}/${encodeURIComponent(methodName)}`);
 }
 
 export function updateApiCatalogEntry(

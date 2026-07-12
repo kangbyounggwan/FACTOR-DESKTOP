@@ -40,7 +40,7 @@ function packsDir(): string {
 }
 
 /** user_id → 저장 버킷 키. settings.userKey / OntologyWebView 의 scope 와 동일 규칙이어야 함. */
-export function userScopeKey(userId: unknown): string {
+function userScopeKey(userId: unknown): string {
   const k = String(userId ?? '')
     .toLowerCase()
     .replace(/[^a-z0-9-]/g, '')

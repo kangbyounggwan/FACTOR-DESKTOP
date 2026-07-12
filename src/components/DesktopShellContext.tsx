@@ -10,7 +10,7 @@
 import { createContext, useContext } from "react";
 import type { UseAIChatReturn } from "@/features/monitoring/hooks/useAIChat";
 
-export interface RequireAuthOptions {
+interface RequireAuthOptions {
   /** 모달 제목 */
   title?: string;
   /** 모달 설명 */

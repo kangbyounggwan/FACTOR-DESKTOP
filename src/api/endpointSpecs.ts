@@ -10,7 +10,7 @@ const BASE_URL =
 
 const ROOT = `${BASE_URL.replace(/\/$/, "")}/api/endpoint-specs`;
 
-export type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
+type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 export interface EndpointSpec {
   id: string;
@@ -32,25 +32,10 @@ export interface EndpointSpec {
   updated_at: string;
 }
 
-export interface EndpointSpecListResponse {
+interface EndpointSpecListResponse {
   items: EndpointSpec[];
   total: number;
   adapter_types: string[];
-}
-
-export interface EndpointSpecUpdate {
-  http_method?: HttpMethod;
-  path_template?: string;
-  query_params?: Record<string, string>;
-  body_template?: Record<string, unknown> | null;
-  response_path?: string | null;
-  parameter_schema?: Record<string, unknown>;
-  pagination?: Record<string, unknown>;
-  cache_policy?: Record<string, unknown>;
-  timeout_ms?: number;
-  is_read_only?: boolean;
-  enabled?: boolean;
-  notes?: string | null;
 }
 
 async function request<T>(input: string, init?: RequestInit): Promise<T> {
@@ -91,17 +76,6 @@ export function listEndpointSpecs(params: {
 }
 
 // adapter_type 은 호출자가 회사에서 해석해 명시 전달 — 벤더 리터럴 기본값 없음(멀티테넌트).
-export function updateEndpointSpec(
-  methodName: string,
-  patch: EndpointSpecUpdate,
-  adapterType: string,
-): Promise<EndpointSpec> {
-  return request(
-    `${ROOT}/${encodeURIComponent(methodName)}?adapter_type=${encodeURIComponent(adapterType)}`,
-    { method: "PATCH", body: JSON.stringify(patch) },
-  );
-}
-
 export function toggleEndpointSpec(
   methodName: string,
   adapterType: string,

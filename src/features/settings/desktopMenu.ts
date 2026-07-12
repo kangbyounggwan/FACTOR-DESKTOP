@@ -14,7 +14,7 @@ import type { MenuSection } from "@/features/settings";
 // reports 는 설정에서 분리 → 독립 /reports 페이지(리포트 앱). 여기선 제외.
 export type DesktopMenuSection = MenuSection | "api" | "general";
 
-export interface DesktopMenuGroup {
+interface DesktopMenuGroup {
   /** 섹션 헤더 (uppercase tiny). null 이면 헤더 없이 그냥 리스트. */
   label: string | null;
   items: { id: DesktopMenuSection; label: string }[];

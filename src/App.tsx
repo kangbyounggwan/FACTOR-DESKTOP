@@ -2,8 +2,8 @@
  * factor-desktop App.tsx
  *
  * 데스크탑 EXE 전용 라우팅. 모든 페이지를 DesktopShell로 wrap.
- * - FE(anomaly-eye-monitor)의 페이지를 alias `@/...`로 import.
- * - 데스크탑 전용 페이지(Chat, App)는 `@desktop/...`로 import.
+ * - 페이지는 전부 데스크탑 자체(`@desktop/pages/...`) — FE 페이지 import 금지 (R1/R2).
+ * - FE(anomaly-eye-monitor)의 leaf 컴포넌트/hook/유틸만 alias `@/...`로 import.
  *
  * Note: FE의 라우트(/equipment/:id, /digital-twin, /history, /carbon 등)는
  * 현재 데스크탑 셰에서 노출하지 않음 (Phase 0 범위 외). 필요 시 추가.

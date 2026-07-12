@@ -9,7 +9,7 @@
  *  5. SVG globe 아이콘 (최종 fallback)
  *
  * 각 단계에서 img 로딩 실패(onError) 시 자동으로 다음 source 로 전환.
- * AppCard / UrlCard / AddressBar 등에서 재사용.
+ * AppCard / UrlCard / TabBar 등에서 재사용.
  */
 
 import { useMemo, useState } from "react";

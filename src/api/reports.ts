@@ -1,9 +1,9 @@
 /**
  * factor-desktop 자체 API client — report-plugin 의 /api/reports/v1.
  *
- * 컨벤션은 dataSchedules.ts 준수 (BASE_URL env → ROOT, 타입 = 백엔드 1:1,
- * request<T> 헬퍼). 차이점: 모든 요청에 supabase 세션 access_token 을
- * `Authorization: Bearer` 로 첨부 — 백엔드는 Principal 필수 (legacy 불허).
+ * 컨벤션: BASE_URL env → ROOT, 타입 = 백엔드 1:1, request<T> 헬퍼.
+ * 모든 요청에 supabase 세션 access_token 을 `Authorization: Bearer` 로
+ * 첨부 — 백엔드는 Principal 필수 (legacy 불허).
  *
  * 응답 shape 은 report-plugin/backend_router.py · service.py · core/models.py
  * (RunRecord/record_run/ScheduleCreate/SchedulePatch) 를 미러.
@@ -25,7 +25,7 @@ export type ReportFormat = "pdf" | "html" | "pptx";
 export type RunStatus = "queued" | "running" | "succeeded" | "partial" | "failed";
 export type SectionStatus = "ok" | "partial" | "failed" | "skipped";
 
-export interface SectionSpec {
+interface SectionSpec {
   key: string;
   heading: string;
   goal: string;
@@ -45,15 +45,15 @@ export interface PersonaTemplate {
 }
 
 /** GET /templates — 페르소나 정의 (정적 코드 데이터) */
-export type TemplatesResponse = Record<Persona, PersonaTemplate>;
+type TemplatesResponse = Record<Persona, PersonaTemplate>;
 
-export interface PlannedSection {
+interface PlannedSection {
   spec: SectionSpec;
   calls: unknown[];
   skipped_reason: string | null;
 }
 
-export interface ReportPlan {
+interface ReportPlan {
   persona: Persona;
   title: string;
   period: [string, string];
@@ -61,7 +61,7 @@ export interface ReportPlan {
   sections: PlannedSection[];
 }
 
-export interface SectionResult {
+interface SectionResult {
   key: string;
   status: SectionStatus;
   data: Record<string, unknown>;
@@ -95,7 +95,7 @@ export interface ReportSection {
   data: unknown;
 }
 
-export interface ReportData {
+interface ReportData {
   title: string;
   subtitle: string | null;
   generated_at: string;
@@ -103,7 +103,7 @@ export interface ReportData {
   summary: string | null;
 }
 
-export interface RunDetail {
+interface RunDetail {
   run: ReportRun;
   /** fmt → 1시간 서명 URL ("local:" 산출물은 제외됨) */
   download: Partial<Record<ReportFormat, string>>;
@@ -117,7 +117,7 @@ export interface GenerateRequest {
   formats?: ReportFormat[];
 }
 
-export interface GenerateResponse {
+interface GenerateResponse {
   run_id: string;
   status: "queued";
 }
@@ -170,7 +170,7 @@ async function authHeader(): Promise<Record<string, string>> {
   return { Authorization: `Bearer ${token}` };
 }
 
-export class ReportApiError extends Error {
+class ReportApiError extends Error {
   status: number;
   constructor(status: number, message: string) {
     super(message);
@@ -190,7 +190,7 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
     },
   });
   if (!res.ok) {
-    // body stream 은 한 번만 소비 가능 — text() 로 받고 JSON 시도 (dataSchedules.ts 관례).
+    // body stream 은 한 번만 소비 가능 — text() 로 받고 JSON 시도.
     let detail = "";
     try {
       const raw = await res.text();
