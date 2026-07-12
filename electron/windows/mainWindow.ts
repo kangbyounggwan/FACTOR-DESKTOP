@@ -2,6 +2,7 @@ import { BrowserWindow, session, shell } from 'electron';
 import path from 'path';
 import fs from 'fs';
 import log from 'electron-log';
+import { ONTOLOGY_PARTITION } from '../ontology_protocol';
 
 interface Opts {
   isDev: boolean;
@@ -12,8 +13,8 @@ interface Opts {
 const WEBVIEW_PARTITION = 'persist:factor-apps';
 // 온톨로지 뷰어 전용 partition — 외부 MES(persist:factor-apps)와 격리.
 // app:// handler 도 이 partition session 에만 등록(ontology_protocol.ts) → 외부
-// 사이트는 app:// 자체를 모름(2중 격리).
-const ONTOLOGY_PARTITION = 'persist:factor-ontology';
+// 사이트는 app:// 자체를 모름(2중 격리). 값은 ontology_protocol.ts 의
+// ONTOLOGY_PARTITION 단일 소스에서 import (drift 방지).
 
 function isOntologyAppUrl(parsed: URL): boolean {
   // app:// 는 host 가 ontology|packs 일 때만 허용(무조건 app: 허용 금지).

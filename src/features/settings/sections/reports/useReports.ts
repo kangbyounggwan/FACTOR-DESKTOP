@@ -35,7 +35,7 @@ import {
 // 타입드 클라이언트의 테이블명 유니온을 우회하기 위해 untyped 로 좁혀 사용.
 const sb = supabase as unknown as SupabaseClient;
 
-export const REPORT_KEYS = {
+const REPORT_KEYS = {
   all: ["reports"] as const,
   runs: ["reports", "runs"] as const,
   run: (id: string) => ["reports", "run", id] as const,
@@ -161,7 +161,7 @@ export interface ReportRecipient {
   updated_at: string;
 }
 
-export interface RecipientInput {
+interface RecipientInput {
   name: string;
   email: string;
   role: string;

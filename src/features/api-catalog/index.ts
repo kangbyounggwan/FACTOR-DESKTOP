@@ -10,7 +10,6 @@ export {
 } from "./useApiCatalog";
 export {
   useEndpointSpecsList,
-  useUpdateEndpointSpec,
   useToggleEndpointSpec,
   type EndpointSpec,
 } from "./useEndpointSpecs";

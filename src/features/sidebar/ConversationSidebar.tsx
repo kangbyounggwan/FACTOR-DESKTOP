@@ -40,14 +40,14 @@ import { GuestEmpty } from "./GuestEmpty";
 // 3개 탭(CHAT / DASHBOARD / APP) 중 DASHBOARD가 가장 길어 폭의 하한을 결정.
 // 실측: 296px 미만에서는 text-[12px] semibold라도 "DASHBOA…"로 잘림.
 // 기본은 여유 있게 320px로 둠.
-export const SIDEBAR_MIN_WIDTH = 296;
-export const SIDEBAR_MAX_WIDTH = 480;
+const SIDEBAR_MIN_WIDTH = 296;
+const SIDEBAR_MAX_WIDTH = 480;
 export const SIDEBAR_DEFAULT_WIDTH = 320;
 /**
  * 드래그 중 raw mouseX 가 이 값 이하로 내려가면 사이드바를 자동 접음.
  * (SIDEBAR_MIN_WIDTH 보다 더 좁히려는 시도 = "닫고 싶다" 의 신호로 해석)
  */
-export const SIDEBAR_COLLAPSE_THRESHOLD = 220;
+const SIDEBAR_COLLAPSE_THRESHOLD = 220;
 
 interface Props {
   onSelect: (conversationId: string) => void;

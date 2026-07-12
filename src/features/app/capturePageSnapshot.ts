@@ -16,18 +16,18 @@
  *  - 5초 timeout
  */
 
-export interface PageMeta {
+interface PageMeta {
   description?: string;
   ogTitle?: string;
 }
 
-export interface DataElement {
+interface DataElement {
   tag: string;
   attrs: Record<string, string>;
   text: string;
 }
 
-export interface TableSnapshot {
+interface TableSnapshot {
   caption?: string;
   headers: string[];
   rowCount: number;

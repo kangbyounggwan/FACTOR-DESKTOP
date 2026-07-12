@@ -2,8 +2,8 @@
  * WebViewTabs — 모든 열린 탭의 webview 를 동시에 mount.
  *
  * 활성 탭은 visible, 비활성 탭은 `display: none` 으로 숨김 (state 유지).
- * 각 탭의 webview ref 를 외부 ref map 으로 노출 — AddressBar 의
- * goBack/reload, AI 패널의 capturePageSnapshot 이 활성 탭의 ref 를 가져다 쓸 수 있음.
+ * 각 탭의 webview ref 를 외부 ref map 으로 노출 — 탭 네비게이션(goBack/reload),
+ * AI 패널의 capturePageSnapshot 이 활성 탭의 ref 를 가져다 쓸 수 있음.
  *
  * Linear / Chrome 같은 탭 UX 의 핵심 — webview 를 unmount 하면 state (로그인,
  * scroll, navigation history) 가 사라지므로 항상 mount 유지.

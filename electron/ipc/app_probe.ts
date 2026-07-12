@@ -28,7 +28,7 @@ async function probe(url: string): Promise<boolean> {
   }
 }
 
-export interface AppReadiness {
+interface AppReadiness {
   /** 이 앱이 백엔드 준비-게이트 대상인가(FACTOR 백엔드 앱). false=외부앱(게이트 없음). */
   gated: boolean;
   /** gated 일 때 백엔드가 실행 가능한 상태인가. */

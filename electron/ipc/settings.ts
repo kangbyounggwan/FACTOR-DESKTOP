@@ -1,7 +1,7 @@
 import { ipcMain } from 'electron';
 import Store from 'electron-store';
 
-export interface AppUrlEntry {
+interface AppUrlEntry {
   id: string;
   name: string;
   url: string;
@@ -10,7 +10,7 @@ export interface AppUrlEntry {
   description?: string;
 }
 
-export interface DesktopSettings {
+interface DesktopSettings {
   /** 로그인 user_id 별 즐겨찾기 버킷. 다른 아이디로 로그인 시 공유 안 됨(계정 격리). */
   appUrlsByUser: Record<string, AppUrlEntry[]>;
   // 이후 확장: autostart, kioskMode, updateChannel, backend URLs 등
@@ -157,5 +157,3 @@ export function registerSettingsIpc(): void {
     },
   );
 }
-
-export { store as settingsStore };

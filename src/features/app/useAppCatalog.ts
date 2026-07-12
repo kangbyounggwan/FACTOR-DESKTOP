@@ -24,7 +24,7 @@ export interface CatalogApp {
   tags: string[];
 }
 
-export interface CatalogCategory {
+interface CatalogCategory {
   key: string; // app.category 값
   label: string; // 표시명 (category_label || category)
   apps: CatalogApp[];

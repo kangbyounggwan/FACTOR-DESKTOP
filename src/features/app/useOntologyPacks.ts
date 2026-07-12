@@ -21,7 +21,7 @@ async function currentUserId(): Promise<string | null> {
   return data.session?.user?.id ?? null;
 }
 
-export interface UseOntologyPacks {
+interface UseOntologyPacks {
   available: OntologyAdapter[];
   installed: InstalledOntologyPack[];
   installedSet: Set<string>;

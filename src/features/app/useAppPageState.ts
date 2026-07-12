@@ -45,7 +45,7 @@ import { useDesktopShell } from "@desktop/components/DesktopShellContext";
 import { electron } from "@desktop/lib/electron";
 import type { AppUrlEntry } from "@desktop/types/electron";
 
-export type AppPageMode = "tabs" | "detail" | "empty" | "home";
+type AppPageMode = "tabs" | "detail" | "empty" | "home";
 
 // ── webview 확대/축소 ──────────────────────────────────────────────────
 // Chrome 과 같은 프리셋 단계. Ctrl+휠/Ctrl+± (main process 처리) 는 ±10% 씩.
@@ -134,7 +134,7 @@ function isAiScreenEligible(url: string | null | undefined): boolean {
   }
 }
 
-export interface UseAppPageStateReturn {
+interface UseAppPageStateReturn {
   // urls
   urls: AppUrlEntry[];
   loading: boolean;

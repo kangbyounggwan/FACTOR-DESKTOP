@@ -24,7 +24,7 @@ factor-desktop/
 │   ├── components/           # DesktopShell, DesktopTopBar, DesktopAuthWidget 등
 │   ├── features/
 │   │   ├── sidebar/          # ConversationSidebar, SidebarMenu (CHAT 탭 사이드바)
-│   │   └── app/              # AppPage, WebViewFrame (APP 탭 — 임의 URL webview)
+│   │   └── app/              # WebViewTabs, TabBar, AppCatalog (APP 탭 — 탭 기반 webview)
 │   ├── pages/                # 데스크탑 자체 페이지 (FE 페이지 import 금지)
 │   │   ├── chat/             # ChatPage — FE 의 AIChatPanelView 호스팅
 │   │   ├── app/              # AppPage

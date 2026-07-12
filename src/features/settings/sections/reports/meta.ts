@@ -39,7 +39,7 @@ export function runDisplayName(run: ReportRun): string {
   return run.plan?.title || `${PERSONA_LABEL[run.persona]} 리포트`;
 }
 
-export interface StatusMeta {
+interface StatusMeta {
   label: string;
   dot: string; // dot 색
   text: string; // 라벨 텍스트 색

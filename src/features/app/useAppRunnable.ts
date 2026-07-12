@@ -11,7 +11,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { isDesktop } from "@desktop/lib/electron";
 
-export interface UseAppRunnable {
+interface UseAppRunnable {
   /** undefined=게이트없음(항상 열기), true=준비됨(열기), false=미준비(다운로드). */
   runnable: boolean | undefined;
   /** probe 진행 중. */
