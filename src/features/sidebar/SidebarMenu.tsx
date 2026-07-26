@@ -10,7 +10,6 @@ import {
   Settings,
   Network,
   FileText,
-  MoreHorizontal,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -53,16 +52,12 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
   return (
     <nav className="px-2 pt-1 pb-1 flex flex-col gap-0.5">
       <MenuItem icon={Plus} label="새 대화" onClick={onStartNew} />
-      <MenuItem
-        icon={Search}
-        label="검색"
-        onClick={onSearch}
-        disabled={!onSearch}
-      />
+      {/* 검색은 핸들러가 주입될 때만 노출. 상시 회색 버튼은 처음 쓰는 사람에게
+          "앱이 고장났나?" 로 읽힌다 — 못 쓰는 기능은 비활성이 아니라 부재. */}
+      {onSearch && <MenuItem icon={Search} label="검색" onClick={onSearch} />}
       <MenuItem icon={FileText} label="리포트" onClick={handleReports} />
       <MenuItem icon={Network} label="온톨로지 플러그인" onClick={handleOntology} />
       <MenuItem icon={Settings} label="설정" onClick={handleSettings} />
-      <MenuItem icon={MoreHorizontal} label="더보기" disabled />
     </nav>
   );
 }

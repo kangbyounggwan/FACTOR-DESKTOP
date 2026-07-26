@@ -85,12 +85,10 @@ export function DesktopTopBar({
           label="새 대화"
           onClick={onNewChat}
         />
-        <ToolbarButton
-          icon={Search}
-          label="검색"
-          onClick={onSearch}
-          disabled={!onSearch}
-        />
+        {/* 핸들러 주입 시에만 노출 — 상시 비활성 버튼은 고장으로 읽힌다. */}
+        {onSearch && (
+          <ToolbarButton icon={Search} label="검색" onClick={onSearch} />
+        )}
 
         {/* 분리자 */}
         <div className="w-px h-5 bg-border/60 mx-1" />
