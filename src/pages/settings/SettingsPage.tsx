@@ -174,16 +174,25 @@ export default function SettingsPage() {
     );
   };
 
+  // 저장 실패를 알린다 — 이전엔 onError 가 없어 실패해도 무음이라
+  // "설정한 줄 알고 나갔다가 나중에 안 된 걸 발견"하는 경로였다 (UX 감사).
+  const notifySaveError = (e: unknown) =>
+    toast({
+      title: "설정을 저장하지 못했습니다",
+      description: e instanceof Error ? e.message : "잠시 후 다시 시도해 주세요.",
+      variant: "destructive",
+    });
+
   const handleToggleEquipment = (equipmentId: string) => {
     const isCurrentlyAssigned = assignedEquipmentIds.includes(equipmentId);
-    toggleAssignedEquipmentMutation.mutate({
-      equipmentId,
-      assigned: !isCurrentlyAssigned,
-    });
+    toggleAssignedEquipmentMutation.mutate(
+      { equipmentId, assigned: !isCurrentlyAssigned },
+      { onError: notifySaveError },
+    );
   };
 
   const handleNotificationToggle = (key: keyof NotificationSettings, value: boolean) => {
-    toggleNotificationMutation.mutate({ key, value });
+    toggleNotificationMutation.mutate({ key, value }, { onError: notifySaveError });
   };
 
   const activeLabel =
@@ -269,13 +278,13 @@ export default function SettingsPage() {
           </button>
 
           <div className="flex items-baseline gap-2 min-w-0">
-            <h1 className="text-[17px] font-semibold tracking-tight text-foreground">
+            <h1 className="ui-fs-lg font-semibold tracking-tight text-foreground">
               설정
             </h1>
             {activeLabel && (
               <>
-                <span className="text-foreground/25 text-[12px]">/</span>
-                <span className="text-[11.5px] text-foreground/65 font-medium tracking-tight truncate">
+                <span className="text-foreground/25 text-xs">/</span>
+                <span className="ui-fs-xs text-foreground/65 font-medium tracking-tight truncate">
                   {activeLabel}
                 </span>
               </>

@@ -113,10 +113,10 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
       <header className="space-y-4">
         <div className="flex items-baseline justify-between gap-4">
           <div>
-            <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
+            <h2 className="ui-h2">
               팀 관리
             </h2>
-            <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
+            <p className="ui-caption mt-1 leading-relaxed">
               팀원 권한과 담당 설비. 소속 부서:{" "}
               <span className="text-foreground/80 font-medium">
                 {department || "미설정"}
@@ -147,7 +147,7 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
             placeholder="이름 또는 이메일 검색…"
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-9 pr-9 h-9 text-[12px] bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]"
+            className="pl-9 pr-9 h-9 text-xs bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]"
           />
           {search && (
             <button
@@ -162,7 +162,7 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
         </div>
 
         <div className="ml-auto flex items-center gap-3">
-          <span className="text-[12px] text-foreground/45 font-mono tabular-nums">
+          <span className="text-xs text-foreground/45 font-mono tabular-nums">
             {filtered.length}
             <span className="text-foreground/30 mx-1">/</span>
             {stats.total}
@@ -170,7 +170,7 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
-              <Button size="sm" className="h-9 px-3 text-[11.5px]">
+              <Button size="sm" className="h-9 px-3 ui-fs-xs">
                 <UserPlus className="h-3.5 w-3.5 mr-1.5" />
                 팀원 초대
               </Button>
@@ -184,7 +184,7 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
               </DialogHeader>
               <div className="space-y-4 py-2">
                 <div className="space-y-1.5">
-                  <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+                  <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
                     이메일 주소
                   </Label>
                   <Input
@@ -192,18 +192,18 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
                     placeholder="email@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="h-9 text-[11.5px] font-mono"
+                    className="h-9 ui-fs-xs font-mono"
                   />
                 </div>
                 <div className="space-y-1.5">
-                  <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+                  <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
                     권한
                   </Label>
                   <Select
                     value={role}
                     onValueChange={(v) => setRole(v as UserRole)}
                   >
-                    <SelectTrigger className="h-9 text-[11.5px]">
+                    <SelectTrigger className="h-9 ui-fs-xs">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -281,15 +281,15 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
                       <div className="flex items-center gap-3 min-w-0">
                         <Avatar className="h-8 w-8 flex-shrink-0 ring-1 ring-border/40">
                           <AvatarImage src={m.avatar_url || ""} />
-                          <AvatarFallback className="text-[11.5px] bg-foreground/[0.06] text-foreground/75 font-medium">
+                          <AvatarFallback className="ui-fs-xs bg-foreground/[0.06] text-foreground/75 font-medium">
                             {(m.full_name || "??").slice(0, 2)}
                           </AvatarFallback>
                         </Avatar>
                         <div className="min-w-0">
-                          <div className="text-[11.5px] text-foreground font-medium tracking-tight truncate">
+                          <div className="ui-fs-xs text-foreground font-medium tracking-tight truncate">
                             {m.full_name || "이름 없음"}
                           </div>
-                          <div className="text-[11.5px] font-mono text-foreground/55 truncate">
+                          <div className="ui-fs-xs font-mono text-foreground/55 truncate">
                             {m.email || "—"}
                           </div>
                         </div>
@@ -303,7 +303,7 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
                             ROLE_DOT[rn],
                           )}
                         />
-                        <span className="text-[11.5px] text-foreground/80">
+                        <span className="ui-fs-xs text-foreground/80">
                           {m.role_info?.display_name ||
                             roleConfig[rn]?.label ||
                             "—"}
@@ -314,25 +314,25 @@ export const TeamSectionDesktop = memo(function TeamSectionDesktop({
                       {m.status === "active" ? (
                         <div className="flex items-center gap-1.5">
                           <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 shadow-[0_0_0_3px_rgba(52,211,153,0.15)]" />
-                          <span className="text-[11.5px] text-emerald-300">
+                          <span className="ui-fs-xs text-emerald-300">
                             활성
                           </span>
                         </div>
                       ) : (
                         <div className="flex items-center gap-1.5">
                           <span className="h-1.5 w-1.5 rounded-full bg-amber-400" />
-                          <span className="text-[11.5px] text-amber-300">
+                          <span className="ui-fs-xs text-amber-300">
                             대기중
                           </span>
                         </div>
                       )}
                     </td>
                     <td className="px-4 py-2.5 text-center">
-                      <span className="font-mono tabular-nums text-[12px] text-foreground/85">
+                      <span className="font-mono tabular-nums text-xs text-foreground/85">
                         {m.equipmentCount}
                       </span>
                     </td>
-                    <td className="px-4 py-2.5 text-[11.5px] font-mono tabular-nums text-foreground/55">
+                    <td className="px-4 py-2.5 ui-fs-xs font-mono tabular-nums text-foreground/55">
                       {formatDate(m.created_at)}
                     </td>
                   </tr>
@@ -359,13 +359,13 @@ function Stat({
 }) {
   return (
     <div className="bg-foreground/[0.025] px-4 py-3">
-      <div className="text-[12px] uppercase tracking-[0.14em] text-muted-foreground/65 font-medium">
+      <div className="text-xs uppercase tracking-[0.14em] text-muted-foreground/65 font-medium">
         {label}
       </div>
       <div className="mt-1.5">
         <span
           className={cn(
-            "text-[22px] font-semibold tabular-nums leading-none tracking-tight",
+            "ui-fs-xl font-semibold tabular-nums leading-none tracking-tight",
             tint ?? "text-foreground",
           )}
         >
@@ -386,7 +386,7 @@ function ColHeader({
   return (
     <th
       className={cn(
-        "px-4 py-2 text-[12px] uppercase tracking-[0.14em] text-muted-foreground/65 font-medium",
+        "px-4 py-2 text-xs uppercase tracking-[0.14em] text-muted-foreground/65 font-medium",
         align === "center" ? "text-center" : "text-left",
       )}
     >
@@ -418,10 +418,10 @@ function SkeletonRows() {
 function EmptyState({ search }: { search: string }) {
   return (
     <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-12 text-center">
-      <p className="text-[12px] text-foreground/65">
+      <p className="text-xs text-foreground/65">
         {search ? "검색 결과가 없습니다." : "팀원이 없습니다."}
       </p>
-      <p className="text-[11.5px] text-muted-foreground/60 mt-1">
+      <p className="ui-fs-xs text-muted-foreground/60 mt-1">
         {search
           ? "다른 이름 또는 이메일로 검색해 보세요."
           : "우측 상단에서 팀원을 초대해 보세요."}

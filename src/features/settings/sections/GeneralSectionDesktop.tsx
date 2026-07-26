@@ -44,10 +44,10 @@ export const GeneralSectionDesktop = memo(function GeneralSectionDesktop() {
     <div className="space-y-8">
       {/* ── 페이지 헤더 ── */}
       <header>
-        <h2 className="text-[18px] font-semibold tracking-tight text-foreground">
+        <h2 className="ui-h2">
           일반
         </h2>
-        <p className="text-[13.5px] text-muted-foreground mt-1 leading-relaxed">
+        <p className="ui-fs-sm text-muted-foreground mt-1 leading-relaxed">
           앱 전체에 적용되는 환경 설정. 현재 적용된 모드:{" "}
           <span className="text-foreground/80 font-medium">
             {resolved === "dark" ? "다크" : "라이트"}
@@ -97,14 +97,14 @@ export const GeneralSectionDesktop = memo(function GeneralSectionDesktop() {
                   />
                   <span
                     className={cn(
-                      "text-[13.5px] font-medium tracking-tight",
+                      "ui-fs-sm font-medium tracking-tight",
                       active ? "text-foreground" : "text-foreground/85",
                     )}
                   >
                     {opt.label}
                   </span>
                 </div>
-                <p className="text-[12px] text-muted-foreground/75 leading-snug">
+                <p className="text-xs text-muted-foreground/75 leading-snug">
                   {opt.description}
                 </p>
               </button>
@@ -134,19 +134,19 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex items-baseline gap-3 pb-2 border-b border-border/30">
-        <span className="text-[11px] font-mono tabular-nums text-foreground/35">
+        <span className="ui-fs-xs font-mono tabular-nums text-foreground/35">
           {index}
         </span>
         <div className="flex-1">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-muted-foreground/65 font-medium">
+          <div className="ui-fs-xs uppercase tracking-[0.16em] text-muted-foreground/65 font-medium">
             {eyebrow}
           </div>
-          <h3 className="text-[14px] font-medium text-foreground mt-0.5 tracking-tight">
+          <h3 className="text-sm font-medium text-foreground mt-0.5 tracking-tight">
             {title}
           </h3>
         </div>
         {hint && (
-          <span className="text-[12px] text-muted-foreground/60">{hint}</span>
+          <span className="text-xs text-muted-foreground/60">{hint}</span>
         )}
       </div>
       <div className="pt-1">{children}</div>

@@ -16,6 +16,7 @@ import {
   Search,
   ArrowLeft,
   ArrowRight,
+  Globe,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,6 +42,10 @@ interface Props {
   onBack?: () => void;
   /** 중앙 타이틀 (없으면 "FACTOR DESKTOP") */
   title?: string;
+  /** 🌐 웹 연결 — 챗 옆에 웹 렌더러 패널 토글. 미지정 시 버튼 숨김 */
+  onToggleWeb?: () => void;
+  /** 웹 패널이 열려 있는지 (버튼 활성 표시) */
+  webPanelOpen?: boolean;
 }
 
 export function DesktopTopBar({
@@ -49,6 +54,8 @@ export function DesktopTopBar({
   onSearch,
   onBack,
   title = "FACTOR DESKTOP",
+  onToggleWeb,
+  webPanelOpen,
 }: Props) {
   const navigate = useNavigate();
 
@@ -101,9 +108,21 @@ export function DesktopTopBar({
       </div>
 
       {/* 중앙 — drag region, 타이틀 표시 */}
-      <div className="flex-1 text-center text-[12px] text-muted-foreground/60 font-medium tracking-wider">
+      <div className="flex-1 text-center text-xs text-muted-foreground/60 font-medium tracking-wider">
         {title}
       </div>
+
+      {/* 우측 액션 — 웹 연결(챗 옆 웹 렌더러 토글) */}
+      {onToggleWeb && (
+        <div className="flex items-center gap-0.5 px-2">
+          <ToolbarButton
+            icon={Globe}
+            label={webPanelOpen ? "웹 패널 닫기" : "웹 연결"}
+            onClick={onToggleWeb}
+            active={webPanelOpen}
+          />
+        </div>
+      )}
 
       {/* Windows: 우측 native controls 자리 */}
       {!isMacPlatform && (
@@ -118,11 +137,14 @@ function ToolbarButton({
   label,
   onClick,
   disabled,
+  active,
 }: {
   icon: typeof Menu;
   label: string;
   onClick?: () => void;
   disabled?: boolean;
+  /** 토글 버튼의 켜짐 상태 — 강조 표시 */
+  active?: boolean;
 }) {
   return (
     <button
@@ -131,11 +153,14 @@ function ToolbarButton({
       disabled={disabled || !onClick}
       title={label}
       aria-label={label}
+      aria-pressed={active}
       className={cn(
         "h-8 w-8 flex items-center justify-center rounded-md transition-colors",
         disabled || !onClick
           ? "text-muted-foreground/40 cursor-not-allowed"
-          : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]",
+          : active
+            ? "text-primary bg-primary/10 hover:bg-primary/15"
+            : "text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06]",
       )}
       style={{
         // @ts-expect-error -webkit-app-region

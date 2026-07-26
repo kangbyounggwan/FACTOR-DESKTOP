@@ -6,7 +6,7 @@ import { History } from "lucide-react";
 
 export function GuestEmpty() {
   return (
-    <div className="text-[12px] text-muted-foreground py-8 text-center px-4 space-y-2">
+    <div className="ui-caption py-8 text-center px-4 space-y-2">
       <History className="h-5 w-5 mx-auto opacity-30" />
       <p className="leading-relaxed">
         대화 이력은

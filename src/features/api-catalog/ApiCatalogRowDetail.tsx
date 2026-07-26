@@ -154,7 +154,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
       <div className="flex items-start justify-between gap-6">
         <div className="space-y-2 min-w-0 flex-1">
           <div className="flex items-center gap-2.5">
-            <code className="text-[17px] font-mono font-semibold text-foreground tracking-tight break-all">
+            <code className="ui-h2 font-mono break-all">
               {entry.method_name}
             </code>
             <button
@@ -172,7 +172,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
           </div>
 
           {/* meta line */}
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-[12px] font-mono text-foreground/55">
+          <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-mono text-foreground/55">
             {isManual ? (
               <span className="inline-flex items-center gap-1.5">
                 <span className="h-1 w-1 rounded-full bg-amber-400" />
@@ -214,7 +214,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
               size="sm"
               onClick={handleReset}
               disabled={pending}
-              className="text-[11.5px] h-8 px-2.5 text-foreground/65 hover:text-foreground"
+              className="ui-fs-xs h-8 px-2.5 text-foreground/65 hover:text-foreground"
             >
               <RotateCcw className="h-3 w-3 mr-1.5" />
               자동 복귀
@@ -223,7 +223,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
           <button
             type="button"
             onClick={onClose}
-            className="text-[11.5px] text-foreground/55 hover:text-foreground transition-colors px-2.5 py-1.5 rounded hover:bg-foreground/[0.04]"
+            className="ui-fs-xs text-foreground/55 hover:text-foreground transition-colors px-2.5 py-1.5 rounded hover:bg-foreground/[0.04]"
           >
             접기
           </button>
@@ -232,14 +232,14 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
 
       {/* ════ HTTP 경로 — 강조 카드 ═════════════════════════════════ */}
       <div className="rounded-lg bg-foreground/[0.04] border border-border/30 px-4 py-3">
-        <div className="text-[11.5px] uppercase tracking-[0.16em] text-muted-foreground/65 font-medium mb-1.5">
+        <div className="ui-fs-xs uppercase tracking-[0.16em] text-muted-foreground/65 font-medium mb-1.5">
           HTTP 경로
         </div>
         {entry.path_template ? (
           <div className="flex items-center gap-2.5 flex-wrap">
             <span
               className={cn(
-                "inline-flex items-center px-1.5 py-0.5 rounded text-[12px] font-mono font-semibold tracking-wide",
+                "inline-flex items-center px-1.5 py-0.5 rounded text-xs font-mono font-semibold tracking-wide",
                 entry.http_method === "GET"
                   ? "bg-emerald-500/[0.12] text-emerald-300"
                   : entry.http_method === "POST"
@@ -249,12 +249,12 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
             >
               {entry.http_method ?? "GET"}
             </span>
-            <code className="text-[12px] font-mono text-emerald-400/90 break-all">
+            <code className="text-xs font-mono text-emerald-400/90 break-all">
               {entry.path_template}
             </code>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-[12px] text-foreground/55">
+          <div className="flex items-center gap-2 text-xs text-foreground/55">
             <span className="h-1.5 w-1.5 rounded-full bg-foreground/30" />
             <span>path 미시드</span>
             <span className="text-foreground/35 font-mono">
@@ -301,7 +301,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
             <Input
               value={form.domain}
               onChange={(e) => setForm({ ...form, domain: e.target.value })}
-              className="bg-foreground/[0.03] border-border/40 focus-visible:bg-foreground/[0.05] font-mono text-[11.5px]"
+              className="bg-foreground/[0.03] border-border/40 focus-visible:bg-foreground/[0.05] font-mono ui-fs-xs"
             />
           </FieldRow>
           <FieldRow label="우선순위 (cost_tier)">
@@ -317,7 +317,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
                   <SelectItem key={o.value} value={o.value}>
                     <span className="inline-flex items-center gap-2">
                       <span className={cn("h-1.5 w-1.5 rounded-full", o.dot)} />
-                      <span className="font-mono text-[12px]">{o.label}</span>
+                      <span className="font-mono text-xs">{o.label}</span>
                     </span>
                   </SelectItem>
                 ))}
@@ -344,7 +344,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
             />
           </FieldRow>
         </div>
-        <p className="text-[11.5px] text-foreground/45 mt-3 leading-relaxed">
+        <p className="ui-fs-xs text-foreground/45 mt-3 leading-relaxed">
           새 스케쥴 다이얼로그가 이 권장값을 default 로 채움 (회사 override
           가능). 빈 값 = 폴링 부적절.
         </p>
@@ -355,10 +355,10 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
       <Section eyebrow="03" title="플래그">
         <div className="flex items-center justify-between gap-4 rounded-md bg-foreground/[0.035] border border-border/30 px-4 py-3">
           <div className="space-y-0.5 min-w-0">
-            <Label className="text-[11.5px] text-foreground font-medium">
+            <Label className="ui-fs-xs text-foreground font-medium">
               핵심 카탈로그
             </Label>
-            <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+            <p className="ui-caption leading-relaxed">
               켜두면 LLM 카드 / NLU 가 우선 노출. 정렬 시 위쪽으로.
             </p>
           </div>
@@ -371,7 +371,7 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
 
       {/* ════ FOOTER — 저장 / 취소 ═════════════════════════════════ */}
       <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/30">
-        <div className="text-[11.5px] text-foreground/40 font-mono">
+        <div className="ui-fs-xs text-foreground/40 font-mono">
           저장하면{" "}
           <span className="text-amber-300/85">last_modified_kind=manual</span>{" "}
           로 마킹됩니다
@@ -381,14 +381,14 @@ export function ApiCatalogRowDetail({ entry, onClose }: Props) {
             variant="ghost"
             onClick={onClose}
             disabled={pending}
-            className="h-8 px-3 text-[11.5px]"
+            className="h-8 px-3 ui-fs-xs"
           >
             취소
           </Button>
           <Button
             onClick={handleSave}
             disabled={pending}
-            className="h-8 px-4 text-[11.5px] font-medium"
+            className="h-8 px-4 ui-fs-xs font-medium"
           >
             {pending ? "저장 중…" : "저장"}
           </Button>
@@ -414,14 +414,14 @@ function Section({
   return (
     <section className="space-y-4">
       <div className="flex items-baseline gap-3 pb-2 border-b border-border/30">
-        <span className="text-[12px] font-mono tabular-nums text-foreground/35 tracking-wider">
+        <span className="text-xs font-mono tabular-nums text-foreground/35 tracking-wider">
           {eyebrow}
         </span>
-        <h3 className="text-[12px] font-semibold text-foreground tracking-tight">
+        <h3 className="text-xs font-semibold text-foreground tracking-tight">
           {title}
         </h3>
         {hint && (
-          <span className="text-[11.5px] text-muted-foreground/75 ml-auto">
+          <span className="ui-fs-xs text-muted-foreground/75 ml-auto">
             {hint}
           </span>
         )}
@@ -447,14 +447,14 @@ function FieldRow({
       <div className="flex items-baseline justify-between">
         <Label
           className={cn(
-            "text-[11.5px] font-medium tracking-tight",
+            "ui-fs-xs font-medium tracking-tight",
             accent ? "text-amber-300" : "text-foreground/85",
           )}
         >
           {label}
         </Label>
         {hint && (
-          <span className="text-[11.5px] text-foreground/45 font-normal">
+          <span className="ui-fs-xs text-foreground/45 font-normal">
             {hint}
           </span>
         )}

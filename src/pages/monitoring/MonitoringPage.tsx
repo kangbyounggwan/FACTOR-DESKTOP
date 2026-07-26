@@ -14,6 +14,7 @@
  */
 
 import { useEffect } from "react";
+import { Loader2, AlertTriangle } from "lucide-react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useLineMonitoringContext } from "@/features/monitoring/context/LineMonitoringContext";
 import { LineViewLayout } from "@/features/monitoring/components/line-view/line-view/LineViewLayout";
@@ -24,7 +25,8 @@ import {
 } from "@/features/monitoring/components/line-view/states";
 
 export default function MonitoringPage() {
-  const { selectedLineId, lines, selectLine } = useLineMonitoringContext();
+  const { selectedLineId, lines, selectLine, linesLoading, linesError } =
+    useLineMonitoringContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -53,7 +55,26 @@ export default function MonitoringPage() {
   return (
     <div className="h-full w-full min-h-0 flex flex-col relative overflow-hidden">
       <div className="absolute inset-0 flex overflow-hidden p-4">
-        {!line ? (
+        {/* 로딩·에러·빈 상태 분리 — 이전엔 셋 다 "존을 선택하세요"로 보여
+            데이터가 없는 건지 안 온 건지 구분할 수 없었다 (UX 감사). */}
+        {linesLoading && !line ? (
+          <div className="flex-1 flex items-center justify-center">
+            <div className="flex items-center gap-2 ui-caption">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              라인 정보를 불러오는 중…
+            </div>
+          </div>
+        ) : linesError ? (
+          <div className="flex-1 flex items-center justify-center p-6">
+            <div className="ui-panel p-6 text-center max-w-sm">
+              <AlertTriangle className="h-5 w-5 text-destructive mx-auto mb-2" />
+              <p className="ui-h3 mb-1">라인 정보를 불러오지 못했습니다</p>
+              <p className="ui-caption">
+                네트워크 상태를 확인한 뒤 새로고침해 주세요.
+              </p>
+            </div>
+          </div>
+        ) : !line ? (
           <EmptyLineState />
         ) : !line.zones || line.zones.length === 0 ? (
           <NoZoneState lineName={line.name} />

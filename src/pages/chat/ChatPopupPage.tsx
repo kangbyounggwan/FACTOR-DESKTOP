@@ -50,7 +50,7 @@ export default function ChatPopupPage() {
         <Bot className="h-4 w-4 flex-shrink-0 text-primary" />
         <span className="text-xs font-semibold text-foreground/90">FACTOR AI</span>
         <span
-          className="rounded border border-primary/20 bg-primary/10 px-1.5 py-px text-[10px] text-primary"
+          className="rounded border border-primary/20 bg-primary/10 px-1.5 py-px ui-fs-2xs text-primary"
           title="질문 시 본 창에서 보고 있는 화면을 자동으로 컨텍스트로 첨부합니다."
         >
           화면 인식
@@ -58,7 +58,7 @@ export default function ChatPopupPage() {
 
         <div className="ml-auto flex items-center gap-2" style={NO_DRAG}>
           <label className="flex items-center gap-1.5" title="창 투명도">
-            <span className="text-[10px] text-muted-foreground">투명도</span>
+            <span className="ui-fs-2xs text-muted-foreground">투명도</span>
             <input
               type="range"
               min={20}
@@ -67,7 +67,7 @@ export default function ChatPopupPage() {
               onChange={(e) => applyOpacity(Number(e.target.value))}
               className="h-1 w-20 cursor-pointer accent-primary"
             />
-            <span className="w-8 text-right text-[10px] tabular-nums text-muted-foreground">
+            <span className="w-8 text-right ui-fs-2xs tabular-nums text-muted-foreground">
               {opacity}%
             </span>
           </label>

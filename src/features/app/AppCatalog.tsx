@@ -112,7 +112,7 @@ export function AppCatalog({ onPick, onCustomAdd, installedUrls }: Props) {
               <section key={cat.key}>
                 <div className="flex items-baseline justify-between mb-3">
                   <h2 className="text-sm font-semibold text-foreground/90">{cat.label}</h2>
-                  <span className="text-[10px] text-muted-foreground">{cat.apps.length}개</span>
+                  <span className="ui-fs-2xs text-muted-foreground">{cat.apps.length}개</span>
                 </div>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
                   {cat.apps.map((app) => (
@@ -148,7 +148,7 @@ function FeaturedRow({
     <section>
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-sm font-semibold text-foreground/90">추천</h2>
-        <span className="text-[10px] text-muted-foreground">{apps.length}개</span>
+        <span className="ui-fs-2xs text-muted-foreground">{apps.length}개</span>
       </div>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
         {apps.map((app) => (
@@ -206,7 +206,7 @@ function AppCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-medium text-sm text-foreground line-clamp-2 leading-tight break-words">{app.name}</div>
-          <div className="text-[11px] text-muted-foreground truncate">{host}</div>
+          <div className="ui-fs-xs text-muted-foreground truncate">{host}</div>
         </div>
       </div>
 
@@ -218,11 +218,11 @@ function AppCard({
       {/* 액션 (하단 고정) */}
       <div className="flex items-center justify-end mt-auto">
         {installed ? (
-          <span className="text-[11px] text-muted-foreground px-2.5 py-1 rounded-md bg-muted/40">
+          <span className="ui-fs-xs text-muted-foreground px-2.5 py-1 rounded-md bg-muted/40">
             추가됨
           </span>
         ) : (
-          <span className="text-[11px] text-primary px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
+          <span className="ui-fs-xs text-primary px-2.5 py-1 rounded-md bg-primary/10 border border-primary/20 group-hover:bg-primary/20 transition-colors">
             자세히 보기
           </span>
         )}

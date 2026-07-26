@@ -191,7 +191,7 @@ export function TabBar({
           onClick={onZoomReset}
           title="원래 크기로 (Ctrl+0)"
           className={cn(
-            "h-7 min-w-[44px] px-1 rounded-md text-[11px] font-medium tabular-nums",
+            "h-7 min-w-[44px] px-1 rounded-md ui-fs-xs font-medium tabular-nums",
             "transition-colors hover:bg-foreground/[0.04]",
             zoomPercent === 100
               ? "text-muted-foreground"
@@ -350,7 +350,7 @@ function Tab({
               {/* name — 컨테이너의 text-color 상속 (활성은 foreground, 비활성은 muted) */}
               <span
                 className={cn(
-                  "flex-1 text-[11.5px] truncate leading-tight",
+                  "flex-1 ui-fs-xs truncate leading-tight",
                   isActive && "font-medium",
                 )}
               >
@@ -381,13 +381,13 @@ function Tab({
           {/* hover tooltip — URL */}
           <TooltipContent side="bottom" align="start" className="max-w-[320px]">
             <div className="flex flex-col gap-0.5">
-              <span className="text-[12px] font-medium leading-snug">
+              <span className="text-xs font-medium leading-snug">
                 {label}
               </span>
-              <span className="text-[10.5px] text-muted-foreground font-mono break-all">
+              <span className="ui-fs-2xs text-muted-foreground font-mono break-all">
                 {isLauncher ? "앱 선택 화면" : (entry?.url ?? "(닫힌 즐겨찾기)")}
               </span>
-              <span className="text-[10px] text-muted-foreground/70 mt-1">
+              <span className="ui-fs-2xs text-muted-foreground/70 mt-1">
                 가운데 클릭 = 닫기 · 우클릭 = 메뉴
               </span>
             </div>

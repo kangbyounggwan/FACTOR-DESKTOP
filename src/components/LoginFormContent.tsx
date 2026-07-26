@@ -167,7 +167,7 @@ export function LoginFormContent({
             <button
               type="button"
               onClick={handleForgotPassword}
-              className="text-[10px] text-muted-foreground hover:text-primary transition-colors"
+              className="ui-fs-2xs text-muted-foreground hover:text-primary transition-colors"
             >
               비밀번호 잊음?
             </button>

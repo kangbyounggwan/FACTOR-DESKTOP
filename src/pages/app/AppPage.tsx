@@ -34,6 +34,7 @@ import {
 } from "@desktop/features/app";
 import { electron } from "@desktop/lib/electron";
 
+
 // AI 패널 폭 — 기본을 키우고(480) 드래그로 320~760 사이 조절, localStorage 영속.
 const AI_PANEL_MIN = 320;
 const AI_PANEL_MAX = 760;
@@ -222,7 +223,7 @@ export default function AppPage() {
                   <MessageSquare className="w-3.5 h-3.5 text-primary" />
                   <span>AI 어시스턴트</span>
                   <span
-                    className="text-[10px] text-primary px-1.5 py-px rounded bg-primary/10 border border-primary/20"
+                    className="ui-fs-2xs text-primary px-1.5 py-px rounded bg-primary/10 border border-primary/20"
                     title="질문 시 현재 보고 있는 페이지의 본문 텍스트를 자동으로 컨텍스트로 첨부합니다."
                   >
                     페이지 인식 중

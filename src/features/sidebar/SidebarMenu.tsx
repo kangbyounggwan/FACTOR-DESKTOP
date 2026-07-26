@@ -84,7 +84,7 @@ function MenuItem({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[12px] text-left",
+        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs text-left",
         "transition-colors",
         disabled
           ? "text-muted-foreground/40 cursor-not-allowed"

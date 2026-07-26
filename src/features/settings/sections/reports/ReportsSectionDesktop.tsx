@@ -54,10 +54,10 @@ export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
       <div className="px-10 py-8 mx-auto max-w-[860px] space-y-6">
         {/* ── 헤더 ── */}
         <header>
-          <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
+          <h2 className="ui-h2">
             보고서 관리
           </h2>
-          <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
+          <p className="ui-caption mt-1 leading-relaxed">
             AI 리포트 생성 · 발송 — 생성 · 이력 · 수신자 · 포맷 관리
           </p>
         </header>
@@ -73,7 +73,7 @@ export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
                   type="button"
                   onClick={() => setTab(t.id)}
                   className={cn(
-                    "relative px-3 py-1.5 rounded-md text-[12px] font-medium tracking-tight transition-colors",
+                    "relative px-3 py-1.5 rounded-md text-xs font-medium tracking-tight transition-colors",
                     active
                       ? "text-foreground bg-foreground/[0.05]"
                       : "text-foreground/55 hover:text-foreground/80",
@@ -96,7 +96,7 @@ export const ReportsSectionDesktop = memo(function ReportsSectionDesktop() {
           {tab === "recipients" && (
             <Button
               size="sm"
-              className="h-9 px-3 text-[11.5px] flex-shrink-0"
+              className="h-9 px-3 ui-fs-xs flex-shrink-0"
               onClick={() => setAddRecipientOpen(true)}
             >
               <Plus className="h-3.5 w-3.5 mr-1.5" />

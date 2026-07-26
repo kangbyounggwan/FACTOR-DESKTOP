@@ -94,27 +94,27 @@ export default function ZoneDetailPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1.5 rounded-md border border-border/50 bg-foreground/[0.04] px-2.5 py-1.5 text-[12.5px] text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
+            className="flex items-center gap-1.5 rounded-md border border-border/50 bg-foreground/[0.04] px-2.5 py-1.5 ui-fs-sm text-muted-foreground hover:text-foreground hover:border-primary/40 transition-colors"
             aria-label="이전 화면으로"
           >
             <ArrowLeft className="h-4 w-4" />
             뒤로
           </button>
           <div className="min-w-0 flex-1">
-            <div className="text-[11px] font-mono uppercase tracking-[0.14em] text-muted-foreground/65">
+            <div className="ui-fs-xs font-mono uppercase tracking-[0.14em] text-muted-foreground/65">
               FACTOR_AGENT / ZONE-VIEW / LINE-DETAIL
             </div>
             <div className="mt-1 flex items-center gap-2.5 flex-wrap">
-              <h1 className="truncate text-[22px] font-semibold tracking-tight text-foreground">
+              <h1 className="truncate ui-fs-xl font-semibold tracking-tight text-foreground">
                 {zoneName}
               </h1>
               {zoneCode && (
-                <span className="inline-flex items-center rounded-md border border-border/50 bg-foreground/[0.04] px-1.5 py-0.5 font-mono text-[11.5px] tabular-nums text-foreground/65">
+                <span className="inline-flex items-center rounded-md border border-border/50 bg-foreground/[0.04] px-1.5 py-0.5 font-mono ui-fs-xs tabular-nums text-foreground/65">
                   LINE {zoneCode}
                 </span>
               )}
               {line?.name && zone && (
-                <span className="text-[12px] text-muted-foreground/65 truncate">
+                <span className="text-xs text-muted-foreground/65 truncate">
                   · {line.name}
                 </span>
               )}

@@ -130,7 +130,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">{a.name ?? a.adapter_type}</div>
-                  <div className="text-[11px] text-muted-foreground truncate">
+                  <div className="ui-fs-xs text-muted-foreground truncate">
                     {a.adapter_type}{a.version ? ` · v${a.version}` : ""}
                   </div>
                 </div>
@@ -139,7 +139,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
               <div className="mt-auto">
                 {installed ? (
                   <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 text-[11px] text-emerald-500">
+                    <span className="inline-flex items-center gap-1 ui-fs-xs text-emerald-500">
                       <CheckCircle2 className="w-3.5 h-3.5" />
                       설치됨
                     </span>

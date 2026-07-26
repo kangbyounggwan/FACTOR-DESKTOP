@@ -147,19 +147,19 @@ export function RecipientDialog({ open, onOpenChange, recipient }: Props) {
 
         <div className="space-y-4 py-2">
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               이름
             </Label>
             <Input
               placeholder="홍길동"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="h-9 text-[11.5px]"
+              className="h-9 ui-fs-xs"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               이메일
             </Label>
             <Input
@@ -167,16 +167,16 @@ export function RecipientDialog({ open, onOpenChange, recipient }: Props) {
               placeholder="name@seohan.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="h-9 text-[11.5px] font-mono"
+              className="h-9 ui-fs-xs font-mono"
             />
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               역할
             </Label>
             <Select value={role} onValueChange={setRole}>
-              <SelectTrigger className="h-9 text-[11.5px]">
+              <SelectTrigger className="h-9 ui-fs-xs">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -190,7 +190,7 @@ export function RecipientDialog({ open, onOpenChange, recipient }: Props) {
           </div>
 
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               구독 템플릿
             </Label>
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -203,7 +203,7 @@ export function RecipientDialog({ open, onOpenChange, recipient }: Props) {
                     onClick={() => toggleTemplate(p)}
                     aria-pressed={selected}
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors",
+                      "px-2.5 py-1 rounded-full ui-fs-xs font-medium border transition-colors",
                       selected
                         ? "bg-primary text-primary-foreground border-transparent"
                         : "bg-foreground/[0.04] text-foreground/70 border-border/50 hover:bg-foreground/[0.07]",

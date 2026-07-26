@@ -7,7 +7,7 @@
  * - requireAuth: 보호된 액션을 게스트 차단 모달로 게이팅
  */
 
-import { createContext, useContext } from "react";
+import { createContext, useContext, type MutableRefObject } from "react";
 import type { UseAIChatReturn } from "@/features/monitoring/hooks/useAIChat";
 
 interface RequireAuthOptions {
@@ -31,6 +31,17 @@ export interface DesktopShellContextValue {
    * useEffect 로 mount 시 등록 + unmount 시 null 로 해제.
    */
   setBackHandler: (handler: (() => boolean) | null) => void;
+  /**
+   * 웹 연결 패널 — 챗 화면 옆 웹 렌더러(ChatWebView) 표시 여부.
+   * 상단바 🌐 버튼이 토글하고 ChatPage 가 소비한다. (Tier 2 Phase A)
+   */
+  webPanelOpen: boolean;
+  setWebPanelOpen: (open: boolean) => void;
+  /**
+   * 열린 웹 패널의 활성 webview element ref.
+   * AI 웹제어(ref 스냅샷 → click/type)의 대상. 패널이 닫혀 있으면 null.
+   */
+  webviewRef: MutableRefObject<HTMLElement | null>;
 }
 
 export const DesktopShellContext = createContext<DesktopShellContextValue | null>(null);

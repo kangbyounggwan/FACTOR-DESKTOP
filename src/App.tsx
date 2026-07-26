@@ -25,6 +25,7 @@ import { AuthProvider, ProtectedRoute } from "@/features/auth";
 // 자유롭게 import 하되, **페이지 레이아웃은 데스크탑 책임**.
 import { DesktopShell } from "@desktop/components/DesktopShell";
 import { UpdateBanner } from "@desktop/components/UpdateBanner";
+import { ErrorBoundary } from "@desktop/components/ErrorBoundary";
 import ChatPage from "@desktop/pages/chat/ChatPage";
 const ChatPopupPage = lazy(() => import("@desktop/pages/chat/ChatPopupPage"));
 import LoginPage from "@desktop/pages/auth/LoginPage";
@@ -75,9 +76,11 @@ const App = () => (
             <Route
               path="/chat-popup"
               element={
-                <Suspense fallback={<PageLoader />}>
-                  <ChatPopupPage />
-                </Suspense>
+                <ErrorBoundary label="채팅 팝업">
+                  <Suspense fallback={<PageLoader />}>
+                    <ChatPopupPage />
+                  </Suspense>
+                </ErrorBoundary>
               }
             />
 
@@ -85,7 +88,12 @@ const App = () => (
             <Route
               element={
                 <DesktopShell>
-                  <Outlet />
+                  {/* 렌더 예외 시 본문만 대체 — 셸(상단바/사이드바)은 유지되어
+                      사용자가 다른 화면으로 탈출할 수 있다. (UX 감사: 이전엔
+                      ErrorBoundary 0개라 예외 1건에 전체 백화면) */}
+                  <ErrorBoundary>
+                    <Outlet />
+                  </ErrorBoundary>
                 </DesktopShell>
               }
             >

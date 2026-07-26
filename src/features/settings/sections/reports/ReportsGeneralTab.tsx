@@ -89,7 +89,7 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
   if (settingsQuery.isError) {
     return (
       <div className="rounded-lg border border-red-500/30 bg-red-500/[0.04] px-4 py-3">
-        <p className="text-[11.5px] text-red-300">
+        <p className="ui-caption ui-tone-bad">
           설정을 불러오지 못했습니다:{" "}
           {settingsQuery.error instanceof Error
             ? settingsQuery.error.message
@@ -136,7 +136,7 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
 
   return (
     <div className="max-w-[520px] space-y-6">
-      <p className="text-[11.5px] text-muted-foreground leading-relaxed">
+      <p className="ui-caption leading-relaxed">
         회사 리포트 표현 설정입니다. 이 값은 리포트 생성·발송 시 백엔드가 사용합니다
         (시간대 = 스케줄 해석·기준일, 언어 = 리포트 문구). 저장하지 않으면 기본값(UTC ·
         English · PDF)이 적용됩니다.
@@ -145,7 +145,7 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
       {/* 시간대 */}
       <Field label="시간대 (Timezone)" hint="스케줄 cron 과 '어제' 기준일 해석에 사용">
         <Select value={form.timezone} onValueChange={(v) => set("timezone", v)}>
-          <SelectTrigger className="h-9 text-[12.5px]">
+          <SelectTrigger className="h-9 ui-fs-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -153,7 +153,7 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
               ? TIMEZONES
               : [form.timezone, ...TIMEZONES]
             ).map((tz) => (
-              <SelectItem key={tz} value={tz} className="text-[12.5px]">
+              <SelectItem key={tz} value={tz} className="ui-fs-sm">
                 {tz}
               </SelectItem>
             ))}
@@ -164,12 +164,12 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
       {/* 언어 */}
       <Field label="언어 (Locale)" hint="리포트 본문·프롬프트 언어">
         <Select value={form.locale} onValueChange={(v) => set("locale", v)}>
-          <SelectTrigger className="h-9 text-[12.5px]">
+          <SelectTrigger className="h-9 ui-fs-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {LOCALES.map((l) => (
-              <SelectItem key={l.value} value={l.value} className="text-[12.5px]">
+              <SelectItem key={l.value} value={l.value} className="ui-fs-sm">
                 {l.label}
               </SelectItem>
             ))}
@@ -183,15 +183,15 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
           value={form.default_persona}
           onValueChange={(v) => set("default_persona", v as Persona | "none")}
         >
-          <SelectTrigger className="h-9 text-[12.5px]">
+          <SelectTrigger className="h-9 ui-fs-sm">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none" className="text-[12.5px]">
+            <SelectItem value="none" className="ui-fs-sm">
               지정 안 함
             </SelectItem>
             {PERSONAS_ORDER.map((p) => (
-              <SelectItem key={p} value={p} className="text-[12.5px]">
+              <SelectItem key={p} value={p} className="ui-fs-sm">
                 {PERSONA_LABEL[p]}
               </SelectItem>
             ))}
@@ -205,7 +205,7 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
           {FORMATS.map((fmt) => (
             <label
               key={fmt}
-              className="flex items-center gap-2 text-[12.5px] text-foreground/80"
+              className="flex items-center gap-2 ui-fs-sm text-foreground/80"
             >
               <Switch
                 checked={form.default_formats.includes(fmt)}
@@ -223,14 +223,14 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
           value={form.brandingName}
           onChange={(e) => set("brandingName", e.target.value)}
           placeholder="예: 우리회사"
-          className="h-9 text-[12.5px]"
+          className="h-9 ui-fs-sm"
         />
       </Field>
 
       <div className="flex items-center gap-3 pt-2">
         <Button
           size="sm"
-          className="h-9 px-4 text-[12px]"
+          className="h-9 px-4 text-xs"
           disabled={!dirty || putSettings.isPending}
           onClick={onSave}
         >
@@ -239,7 +239,7 @@ export const ReportsGeneralTab = memo(function ReportsGeneralTab() {
         {dirty && (
           <button
             type="button"
-            className="text-[11.5px] text-foreground/50 hover:text-foreground/75"
+            className="ui-fs-xs text-foreground/50 hover:text-foreground/75"
             onClick={() => initial && setForm(initial)}
           >
             되돌리기
@@ -261,8 +261,8 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label className="text-[12px] font-medium text-foreground/85">{label}</Label>
-      {hint && <p className="text-[11px] text-muted-foreground/70">{hint}</p>}
+      <Label className="text-xs font-medium text-foreground/85">{label}</Label>
+      {hint && <p className="ui-fs-xs text-muted-foreground/70">{hint}</p>}
       {children}
     </div>
   );

@@ -50,7 +50,7 @@ export function UrlCard({ entry, onClick, onEdit, onRemove }: Props) {
             <p className="font-medium text-sm text-foreground line-clamp-2 leading-tight break-words group-hover:text-primary transition-colors">
               {entry.name}
             </p>
-            <p className="text-[11px] text-muted-foreground truncate">{host}</p>
+            <p className="ui-fs-xs text-muted-foreground truncate">{host}</p>
           </div>
         </div>
 

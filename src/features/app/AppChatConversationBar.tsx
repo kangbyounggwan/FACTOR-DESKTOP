@@ -94,7 +94,7 @@ export function AppChatConversationBar({ chat }: Props) {
         className="w-full flex items-center gap-2 px-3 py-2 text-left hover:bg-foreground/[0.04] transition-colors"
       >
         <History className="h-3.5 w-3.5 flex-shrink-0 text-muted-foreground/70" />
-        <span className="flex-1 min-w-0 truncate text-[12px] font-medium text-foreground/85">
+        <span className="flex-1 min-w-0 truncate text-xs font-medium text-foreground/85">
           {currentTitle}
         </span>
         {open ? (
@@ -113,7 +113,7 @@ export function AppChatConversationBar({ chat }: Props) {
               onClick={handleNew}
               className={cn(
                 "inline-flex flex-shrink-0 items-center gap-1.5 h-7 px-2.5 rounded-md",
-                "text-[11.5px] font-medium tracking-tight",
+                "ui-fs-xs font-medium tracking-tight",
                 "bg-primary/10 border border-primary/30 text-primary",
                 "hover:bg-primary/15 transition-colors",
               )}
@@ -123,7 +123,7 @@ export function AppChatConversationBar({ chat }: Props) {
             </button>
 
             {recent.length === 0 ? (
-              <span className="px-1.5 text-[11px] text-muted-foreground/70">
+              <span className="px-1.5 ui-fs-xs text-muted-foreground/70">
                 {isAuthenticated ? "이전 대화 없음" : "로그인 후 표시"}
               </span>
             ) : (
@@ -135,7 +135,7 @@ export function AppChatConversationBar({ chat }: Props) {
                   title={getConversationTitle(it)}
                   className={cn(
                     "group inline-flex max-w-[160px] flex-shrink-0 items-center gap-1.5 h-7 px-2.5 rounded-md",
-                    "text-[11.5px] tracking-tight",
+                    "ui-fs-xs tracking-tight",
                     "bg-foreground/[0.04] border border-border/40 text-foreground/75",
                     "hover:bg-foreground/[0.07] hover:border-border/60 hover:text-foreground",
                     "transition-colors",

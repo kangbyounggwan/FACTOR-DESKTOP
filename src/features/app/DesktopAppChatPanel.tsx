@@ -101,7 +101,7 @@ function DesktopAppChatSplash({
           </div>
         </div>
 
-        <div className="mt-3 flex items-start gap-2 text-[11px] leading-relaxed text-muted-foreground">
+        <div className="mt-3 flex items-start gap-2 ui-fs-xs leading-relaxed text-muted-foreground">
           <Cable className="mt-0.5 h-3 w-3 flex-shrink-0 text-emerald-500" />
           <span>현재 페이지 인식은 허용된 FACTOR 도메인에서만 자동 첨부됩니다.</span>
         </div>
