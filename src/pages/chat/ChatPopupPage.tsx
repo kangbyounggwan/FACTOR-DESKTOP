@@ -58,7 +58,7 @@ export default function ChatPopupPage() {
 
         <div className="ml-auto flex items-center gap-2" style={NO_DRAG}>
           <label className="flex items-center gap-1.5" title="창 투명도">
-            <span className="ui-fs-2xs text-muted-foreground">투명도</span>
+            <span className="ui-micro">투명도</span>
             <input
               type="range"
               min={20}
@@ -67,7 +67,7 @@ export default function ChatPopupPage() {
               onChange={(e) => applyOpacity(Number(e.target.value))}
               className="h-1 w-20 cursor-pointer accent-primary"
             />
-            <span className="w-8 text-right ui-fs-2xs tabular-nums text-muted-foreground">
+            <span className="w-8 text-right ui-micro tabular-nums">
               {opacity}%
             </span>
           </label>

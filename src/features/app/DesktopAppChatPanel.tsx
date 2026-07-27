@@ -61,7 +61,7 @@ function DesktopAppChatSplash({
               <div className="text-sm font-semibold text-foreground">
                 한국어로 자유롭게 물어보세요
               </div>
-              <p className="text-xs leading-relaxed text-muted-foreground">
+              <p className="ui-caption leading-relaxed">
                 현재 열려 있는 페이지를 참고해 설비 상태, 알람, 생산 지표를 답변합니다.
               </p>
             </div>
@@ -101,7 +101,7 @@ function DesktopAppChatSplash({
           </div>
         </div>
 
-        <div className="mt-3 flex items-start gap-2 ui-fs-xs leading-relaxed text-muted-foreground">
+        <div className="mt-3 flex items-start gap-2 ui-micro leading-relaxed">
           <Cable className="mt-0.5 h-3 w-3 flex-shrink-0 text-emerald-500" />
           <span>현재 페이지 인식은 허용된 FACTOR 도메인에서만 자동 첨부됩니다.</span>
         </div>

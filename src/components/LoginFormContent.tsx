@@ -132,7 +132,7 @@ export function LoginFormContent({
           >
             {title}
           </h3>
-          <p className="text-xs text-muted-foreground leading-relaxed max-w-[260px]">
+          <p className="ui-caption leading-relaxed max-w-[260px]">
             {description}
           </p>
         </div>
@@ -167,7 +167,7 @@ export function LoginFormContent({
             <button
               type="button"
               onClick={handleForgotPassword}
-              className="ui-fs-2xs text-muted-foreground hover:text-primary transition-colors"
+              className="ui-micro hover:text-primary transition-colors"
             >
               비밀번호 잊음?
             </button>

@@ -217,7 +217,7 @@ export function AddAppUrlDialog({
                 <RefreshCw className={cn("w-3.5 h-3.5", fetching && "animate-spin")} />
               </Button>
             </div>
-            <p className="ui-fs-2xs text-muted-foreground">
+            <p className="ui-micro">
               http(s) 생략 시 https:// 자동 추가. URL 입력 후 클릭 밖으로 나가면 자동 추출.
             </p>
           </div>
@@ -243,11 +243,11 @@ export function AddAppUrlDialog({
                 <div className="text-xs font-medium truncate">
                   {name || <span className="text-muted-foreground/60">제목</span>}
                 </div>
-                <div className="ui-fs-2xs text-muted-foreground truncate font-mono mt-0.5">
+                <div className="ui-micro truncate font-mono mt-0.5">
                   {host}
                 </div>
                 {description && (
-                  <div className="ui-fs-2xs text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                  <div className="ui-micro line-clamp-2 mt-1 leading-relaxed">
                     {description}
                   </div>
                 )}

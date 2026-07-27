@@ -215,7 +215,7 @@ function Section({
           </h3>
         </div>
         {hint && (
-          <span className="text-xs text-muted-foreground/60">{hint}</span>
+          <span className="ui-caption text-muted-foreground/60">{hint}</span>
         )}
       </div>
       <div className="space-y-4 pt-1">{children}</div>
@@ -283,7 +283,7 @@ function Field({
         )}
       />
       {hint && (
-        <p className="ui-fs-xs text-muted-foreground/55">{hint}</p>
+        <p className="ui-micro text-muted-foreground/55">{hint}</p>
       )}
     </div>
   );

@@ -50,12 +50,12 @@ export function UrlCard({ entry, onClick, onEdit, onRemove }: Props) {
             <p className="font-medium text-sm text-foreground line-clamp-2 leading-tight break-words group-hover:text-primary transition-colors">
               {entry.name}
             </p>
-            <p className="ui-fs-xs text-muted-foreground truncate">{host}</p>
+            <p className="ui-micro truncate">{host}</p>
           </div>
         </div>
 
         {/* 설명 (2줄 고정 영역, 비어 있어도 같은 높이) */}
-        <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
+        <p className="ui-caption leading-relaxed line-clamp-2 min-h-[2.5rem]">
           {entry.description ?? ""}
         </p>
       </button>

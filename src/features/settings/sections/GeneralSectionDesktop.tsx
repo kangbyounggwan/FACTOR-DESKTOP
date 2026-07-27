@@ -104,7 +104,7 @@ export const GeneralSectionDesktop = memo(function GeneralSectionDesktop() {
                     {opt.label}
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground/75 leading-snug">
+                <p className="ui-caption text-muted-foreground/75 leading-snug">
                   {opt.description}
                 </p>
               </button>
@@ -146,7 +146,7 @@ function Section({
           </h3>
         </div>
         {hint && (
-          <span className="text-xs text-muted-foreground/60">{hint}</span>
+          <span className="ui-caption text-muted-foreground/60">{hint}</span>
         )}
       </div>
       <div className="pt-1">{children}</div>

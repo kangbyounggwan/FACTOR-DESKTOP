@@ -18,7 +18,8 @@
     "dev:electron": "concurrently -k -n vite,electron -c blue,green \"npm:dev\" \"npm:_wait-electron\"",
     "preview:electron": "npm run build && npm run _build-electron && electron .",
     "build:electron": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder",
-    "release": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder --publish always"
+    "release": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder --publish always",
+    "typecheck": "tsc -b --pretty false"
   },
   "build": {
     "appId": "com.factor.desktop",

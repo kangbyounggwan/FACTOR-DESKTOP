@@ -52,7 +52,7 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
             ? templatesQuery.error.message
             : String(templatesQuery.error)}
         </p>
-        <p className="ui-fs-xs text-muted-foreground/60 mt-1">
+        <p className="ui-micro text-muted-foreground/60 mt-1">
           리포트 서비스(VITE_REPORT_SERVICE_URL) 연결과 로그인 상태를 확인하세요.
         </p>
       </div>

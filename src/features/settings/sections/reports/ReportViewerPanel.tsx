@@ -193,7 +193,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
               {/* 헤더: 제목 + 메타 + 액션 */}
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="min-w-0">
-                  <div className="ui-fs-xs text-muted-foreground/70 tracking-tight mb-1">
+                  <div className="ui-micro text-muted-foreground/70 tracking-tight mb-1">
                     설정 / 보고서 관리 <span className="mx-0.5">›</span>{" "}
                     <span className="text-foreground/60">{runDisplayName(run)}</span>
                   </div>
@@ -326,7 +326,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                               {s.content}
                             </p>
                           ) : (
-                            <p className="ui-fs-xs text-muted-foreground/70">
+                            <p className="ui-micro text-muted-foreground/70">
                               {SECTION_TYPE_LABEL[s.type] ?? s.type} 데이터 —
                               전체 내용은 PDF에서 확인하세요.
                             </p>
@@ -390,7 +390,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                         PDF 다운로드
                       </Button>
                       {!detail?.download.pdf && (
-                        <p className="ui-fs-xs text-muted-foreground/60 mt-2">
+                        <p className="ui-micro text-muted-foreground/60 mt-2">
                           {run.status === "queued" || run.status === "running"
                             ? "리포트 생성 중 — 완료되면 다운로드할 수 있습니다."
                             : "다운로드 가능한 PDF 산출물이 없습니다."}
@@ -413,7 +413,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                     </div>
                   )}
 
-                  <p className="ui-fs-2xs text-muted-foreground/55">
+                  <p className="ui-micro text-muted-foreground/55">
                     ※ 본 분석은 AI 기반 데이터 해석 결과로 참고용입니다.
                   </p>
                 </div>
@@ -435,7 +435,7 @@ function MetaCell({
 }) {
   return (
     <div className="rounded-lg border border-border/40 bg-foreground/[0.025] px-3.5 py-2.5">
-      <div className="ui-fs-2xs text-muted-foreground/70 font-medium tracking-tight">
+      <div className="ui-micro text-muted-foreground/70 font-medium tracking-tight">
         {label}
       </div>
       <div className="mt-1 ui-fs-sm font-medium tabular-nums text-foreground">

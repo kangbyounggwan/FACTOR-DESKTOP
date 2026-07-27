@@ -384,10 +384,10 @@ function Tab({
               <span className="text-xs font-medium leading-snug">
                 {label}
               </span>
-              <span className="ui-fs-2xs text-muted-foreground font-mono break-all">
+              <span className="ui-micro font-mono break-all">
                 {isLauncher ? "앱 선택 화면" : (entry?.url ?? "(닫힌 즐겨찾기)")}
               </span>
-              <span className="ui-fs-2xs text-muted-foreground/70 mt-1">
+              <span className="ui-micro text-muted-foreground/70 mt-1">
                 가운데 클릭 = 닫기 · 우클릭 = 메뉴
               </span>
             </div>

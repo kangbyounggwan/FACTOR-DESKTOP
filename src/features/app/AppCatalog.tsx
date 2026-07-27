@@ -68,7 +68,7 @@ export function AppCatalog({ onPick, onCustomAdd, installedUrls }: Props) {
           <div className="flex items-start justify-between gap-4">
             <div>
               <h1 className="text-2xl font-semibold tracking-tight">APP STORE</h1>
-              <p className="text-xs text-muted-foreground mt-1.5">
+              <p className="ui-caption mt-1.5">
                 추천 앱을 한 번 클릭으로 즐겨찾기에 추가하세요. 외부 브라우저 전환 없이 데스크탑 안에서 바로 열립니다.
               </p>
             </div>
@@ -112,7 +112,7 @@ export function AppCatalog({ onPick, onCustomAdd, installedUrls }: Props) {
               <section key={cat.key}>
                 <div className="flex items-baseline justify-between mb-3">
                   <h2 className="text-sm font-semibold text-foreground/90">{cat.label}</h2>
-                  <span className="ui-fs-2xs text-muted-foreground">{cat.apps.length}개</span>
+                  <span className="ui-micro">{cat.apps.length}개</span>
                 </div>
                 <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
                   {cat.apps.map((app) => (
@@ -148,7 +148,7 @@ function FeaturedRow({
     <section>
       <div className="flex items-baseline justify-between mb-3">
         <h2 className="text-sm font-semibold text-foreground/90">추천</h2>
-        <span className="ui-fs-2xs text-muted-foreground">{apps.length}개</span>
+        <span className="ui-micro">{apps.length}개</span>
       </div>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-3">
         {apps.map((app) => (
@@ -206,19 +206,19 @@ function AppCard({
         </div>
         <div className="flex-1 min-w-0">
           <div className="font-medium text-sm text-foreground line-clamp-2 leading-tight break-words">{app.name}</div>
-          <div className="ui-fs-xs text-muted-foreground truncate">{host}</div>
+          <div className="ui-micro truncate">{host}</div>
         </div>
       </div>
 
       {/* 설명 (2 줄 고정 영역 — 비어있어도 같은 공간) */}
-      <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2 min-h-[2.5rem]">
+      <p className="ui-caption leading-relaxed line-clamp-2 min-h-[2.5rem]">
         {app.description ?? ""}
       </p>
 
       {/* 액션 (하단 고정) */}
       <div className="flex items-center justify-end mt-auto">
         {installed ? (
-          <span className="ui-fs-xs text-muted-foreground px-2.5 py-1 rounded-md bg-muted/40">
+          <span className="ui-micro px-2.5 py-1 rounded-md bg-muted/40">
             추가됨
           </span>
         ) : (
@@ -247,7 +247,7 @@ function ErrorState({ message }: { message: string }) {
     <div className="flex flex-col items-center justify-center py-20 text-center gap-2">
       <AlertCircle className="w-8 h-8 text-destructive/70" />
       <p className="text-sm text-foreground">카탈로그를 불러올 수 없습니다</p>
-      <p className="text-xs text-muted-foreground max-w-md">{message}</p>
+      <p className="ui-caption max-w-md">{message}</p>
     </div>
   );
 }
@@ -259,14 +259,14 @@ function EmptyState({ query }: { query: string }) {
       {query ? (
         <>
           <p className="text-sm text-foreground">검색 결과 없음</p>
-          <p className="text-xs text-muted-foreground">
+          <p className="ui-caption">
             <span className="text-foreground">"{query}"</span> 와 일치하는 앱이 없습니다.
           </p>
         </>
       ) : (
         <>
           <p className="text-sm text-foreground">카탈로그가 비어있습니다</p>
-          <p className="text-xs text-muted-foreground">관리자에게 문의하세요.</p>
+          <p className="ui-caption">관리자에게 문의하세요.</p>
         </>
       )}
     </div>

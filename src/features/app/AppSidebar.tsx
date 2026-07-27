@@ -191,7 +191,7 @@ function AppRow({
           <p className="ui-fs-sm font-medium truncate leading-tight">
             {entry.name}
           </p>
-          <p className="ui-fs-2xs text-muted-foreground/80 truncate font-mono leading-tight mt-0.5">
+          <p className="ui-micro text-muted-foreground/80 truncate font-mono leading-tight mt-0.5">
             {host}
           </p>
         </div>
@@ -228,7 +228,7 @@ function AppRow({
 
 function LoadingState() {
   return (
-    <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
+    <div className="flex items-center justify-center py-8 ui-caption">
       <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
       불러오는 중
     </div>
@@ -245,7 +245,7 @@ function EmptyState({
       <div className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 border border-primary/20">
         <Globe className="w-4 h-4 text-primary" />
       </div>
-      <p className="ui-fs-xs text-muted-foreground leading-relaxed">
+      <p className="ui-micro leading-relaxed">
         자주 쓰는 서비스를
         <br />
         한 곳에 모아 두세요

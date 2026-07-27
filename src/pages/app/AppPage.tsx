@@ -339,7 +339,7 @@ export default function AppPage() {
                 <h2 className="text-base font-semibold tracking-tight">
                   내 앱
                 </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="ui-caption mt-0.5">
                   {s.urls.length}개의 즐겨찾기
                 </p>
               </div>

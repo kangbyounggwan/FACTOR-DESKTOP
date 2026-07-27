@@ -421,7 +421,7 @@ function Section({
           {title}
         </h3>
         {hint && (
-          <span className="ui-fs-xs text-muted-foreground/75 ml-auto">
+          <span className="ui-micro text-muted-foreground/75 ml-auto">
             {hint}
           </span>
         )}

@@ -114,7 +114,7 @@ export default function ZoneDetailPage() {
                 </span>
               )}
               {line?.name && zone && (
-                <span className="text-xs text-muted-foreground/65 truncate">
+                <span className="ui-caption text-muted-foreground/65 truncate">
                   · {line.name}
                 </span>
               )}

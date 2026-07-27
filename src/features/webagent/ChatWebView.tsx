@@ -168,7 +168,7 @@ export function ChatWebView({
             key={s.url}
             type="button"
             onClick={() => go(s.url)}
-            className="ui-fs-xs px-2 py-0.5 rounded text-muted-foreground hover:text-foreground hover:bg-foreground/[0.06] transition-colors flex items-center gap-1"
+            className="ui-micro px-2 py-0.5 rounded hover:text-foreground hover:bg-foreground/[0.06] transition-colors flex items-center gap-1"
           >
             <ExternalLink className="w-3 h-3" />
             {s.label}

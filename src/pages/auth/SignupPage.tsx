@@ -26,7 +26,7 @@ export default function SignupPage() {
           </div>
           <div className="space-y-1">
             <h3 className="text-lg font-semibold text-foreground">회원가입</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed max-w-[300px]">
+            <p className="ui-caption leading-relaxed max-w-[300px]">
               FACTOR 데스크탑 계정은 본부 관리자가 초대 링크로 발급합니다.
             </p>
           </div>

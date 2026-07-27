@@ -168,7 +168,7 @@ export function TemplateDialog({
     });
   };
 
-  const handleEnterKey = useSubmitOnEnter(handleSubmit, { enabled: !isPending });
+  const handleEnterKey = useSubmitOnEnter(handleSave, { enabled: !isPending });
 
 
   return (
@@ -177,7 +177,7 @@ export function TemplateDialog({
         <DialogHeader>
           <DialogTitle className="flex items-baseline gap-2.5">
             템플릿 편집
-            <span className="ui-fs-xs font-normal text-muted-foreground">
+            <span className="ui-micro font-normal">
               {templateDisplayName(persona, template)}
             </span>
           </DialogTitle>
@@ -280,7 +280,7 @@ export function TemplateDialog({
                   </span>
                 ))
               ) : (
-                <span className="ui-fs-xs text-muted-foreground/70">
+                <span className="ui-micro text-muted-foreground/70">
                   구독 수신자 없음 — [수신자] 탭에서 구독 템플릿을 지정하세요.
                 </span>
               )}

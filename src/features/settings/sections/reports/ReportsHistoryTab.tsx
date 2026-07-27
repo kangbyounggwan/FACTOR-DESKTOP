@@ -271,7 +271,7 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-lg border border-border/40 bg-foreground/[0.025] px-4 py-3">
-      <div className="ui-fs-xs text-muted-foreground/70 font-medium tracking-tight">
+      <div className="ui-micro text-muted-foreground/70 font-medium tracking-tight">
         {label}
       </div>
       <div
@@ -316,7 +316,7 @@ function EmptyState() {
   return (
     <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-12 text-center">
       <p className="text-xs text-foreground/65">생성된 리포트가 없습니다.</p>
-      <p className="ui-fs-xs text-muted-foreground/60 mt-1">
+      <p className="ui-micro text-muted-foreground/60 mt-1">
         [포맷] 탭에서 발송 예약을 설정하면 자동으로 생성됩니다.
       </p>
     </div>
@@ -329,7 +329,7 @@ function ErrorBox({ message }: { message: string }) {
       <p className="ui-caption ui-tone-bad">
         이력을 불러오지 못했습니다: {message}
       </p>
-      <p className="ui-fs-xs text-muted-foreground/60 mt-1">
+      <p className="ui-micro text-muted-foreground/60 mt-1">
         리포트 서비스(VITE_REPORT_SERVICE_URL) 연결과 로그인 상태를 확인하세요.
       </p>
     </div>

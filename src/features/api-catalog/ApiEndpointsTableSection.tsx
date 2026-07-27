@@ -444,7 +444,7 @@ function SpecDetail({ spec, onClose }: { spec: EndpointSpec; onClose: () => void
           <code className="block ui-h2 font-mono">
             {spec.method_name}
           </code>
-          <div className="text-xs text-muted-foreground font-mono">
+          <div className="ui-caption font-mono">
             adapter:{" "}
             <span className="text-foreground/75">{spec.adapter_type}</span>
             <span className="mx-2 text-foreground/30">·</span>

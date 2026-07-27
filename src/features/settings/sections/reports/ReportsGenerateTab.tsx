@@ -157,9 +157,9 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
           </span>
         </SectionLabel>
         {templatesQuery.isLoading ? (
-          <div className="ui-fs-xs text-muted-foreground/60">불러오는 중…</div>
+          <div className="ui-micro text-muted-foreground/60">불러오는 중…</div>
         ) : sections.length === 0 ? (
-          <div className="ui-fs-xs text-muted-foreground/60">섹션 정보 없음</div>
+          <div className="ui-micro text-muted-foreground/60">섹션 정보 없음</div>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {sections.map((s) => (
@@ -243,7 +243,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
           )}
           리포트 생성
         </Button>
-        <p className="ui-fs-xs text-muted-foreground/55 leading-relaxed">
+        <p className="ui-micro text-muted-foreground/55 leading-relaxed">
           AI가 MES 데이터를 수집·분석해 리포트를 생성합니다.
         </p>
       </div>

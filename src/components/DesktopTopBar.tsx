@@ -106,7 +106,7 @@ export function DesktopTopBar({
       </div>
 
       {/* 중앙 — drag region, 타이틀 표시 */}
-      <div className="flex-1 text-center text-xs text-muted-foreground/60 font-medium tracking-wider">
+      <div className="flex-1 text-center ui-caption text-muted-foreground/60 font-medium tracking-wider">
         {title}
       </div>
 

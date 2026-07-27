@@ -66,7 +66,7 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
       ) : recipients.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-12 text-center">
           <p className="text-xs text-foreground/65">수신자가 없습니다.</p>
-          <p className="ui-fs-xs text-muted-foreground/60 mt-1">
+          <p className="ui-micro text-muted-foreground/60 mt-1">
             우측 상단 [＋ 수신자 추가]로 리포트 수신자를 등록하세요.
           </p>
         </div>

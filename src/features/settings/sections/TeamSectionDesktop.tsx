@@ -421,7 +421,7 @@ function EmptyState({ search }: { search: string }) {
       <p className="text-xs text-foreground/65">
         {search ? "검색 결과가 없습니다." : "팀원이 없습니다."}
       </p>
-      <p className="ui-fs-xs text-muted-foreground/60 mt-1">
+      <p className="ui-micro text-muted-foreground/60 mt-1">
         {search
           ? "다른 이름 또는 이메일로 검색해 보세요."
           : "우측 상단에서 팀원을 초대해 보세요."}

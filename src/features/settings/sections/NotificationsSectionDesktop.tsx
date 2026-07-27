@@ -171,7 +171,7 @@ function Section({
           </h3>
         </div>
         {hint && (
-          <span className="text-xs text-muted-foreground/60">{hint}</span>
+          <span className="ui-caption text-muted-foreground/60">{hint}</span>
         )}
       </div>
       <div className="rounded-lg bg-foreground/[0.025] border border-border/40 overflow-hidden">
@@ -220,7 +220,7 @@ function ItemList({
                 <div className="ui-fs-xs text-foreground font-medium tracking-tight">
                   {item.title}
                 </div>
-                <div className="text-xs text-muted-foreground/75 mt-0.5">
+                <div className="ui-caption text-muted-foreground/75 mt-0.5">
                   {item.description}
                 </div>
               </div>

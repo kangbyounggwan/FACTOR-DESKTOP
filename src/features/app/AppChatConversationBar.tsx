@@ -123,7 +123,7 @@ export function AppChatConversationBar({ chat }: Props) {
             </button>
 
             {recent.length === 0 ? (
-              <span className="px-1.5 ui-fs-xs text-muted-foreground/70">
+              <span className="px-1.5 ui-micro text-muted-foreground/70">
                 {isAuthenticated ? "이전 대화 없음" : "로그인 후 표시"}
               </span>
             ) : (

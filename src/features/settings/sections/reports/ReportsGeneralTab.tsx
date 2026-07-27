@@ -262,7 +262,7 @@ function Field({
   return (
     <div className="space-y-1.5">
       <Label className="text-xs font-medium text-foreground/85">{label}</Label>
-      {hint && <p className="ui-fs-xs text-muted-foreground/70">{hint}</p>}
+      {hint && <p className="ui-micro text-muted-foreground/70">{hint}</p>}
       {children}
     </div>
   );

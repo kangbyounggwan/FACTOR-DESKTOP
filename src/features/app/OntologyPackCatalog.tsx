@@ -130,7 +130,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="font-medium text-sm truncate">{a.name ?? a.adapter_type}</div>
-                  <div className="ui-fs-xs text-muted-foreground truncate">
+                  <div className="ui-micro truncate">
                     {a.adapter_type}{a.version ? ` · v${a.version}` : ""}
                   </div>
                 </div>
@@ -206,7 +206,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
       <section className="mb-10">
         <header className="mb-4">
           <h2 className="text-base font-semibold tracking-tight">설치형 플러그인</h2>
-          <p className="text-xs text-muted-foreground mt-0.5">
+          <p className="ui-caption mt-0.5">
             설치하면 회사 워크스페이스에 활성화되어 AI 질의·뷰어에 사용됩니다.
           </p>
         </header>
@@ -223,7 +223,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
       <div className="px-8 py-8 max-w-5xl mx-auto">
         <header className="mb-6">
           <h1 className="text-2xl font-semibold tracking-tight">온톨로지 플러그인</h1>
-          <p className="text-xs text-muted-foreground mt-1.5">
+          <p className="ui-caption mt-1.5">
             회사 온톨로지 팩을 설치해 그래프 뷰어로 탐색합니다. 설치 시 이관 동의가 필요합니다.
           </p>
         </header>
@@ -248,7 +248,7 @@ function Empty({
     <div className="flex flex-col items-center justify-center py-20 text-center gap-2">
       {icon}
       <p className="text-sm text-foreground">{title}</p>
-      <p className="text-xs text-muted-foreground max-w-md">{desc}</p>
+      <p className="ui-caption max-w-md">{desc}</p>
     </div>
   );
 }
