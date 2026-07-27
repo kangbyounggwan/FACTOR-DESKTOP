@@ -10,6 +10,7 @@
  *     "연동 예정" 툴팁 (매출 포함)
  *   · 수신 그룹 칩 = report_recipients 역할 목록 (read-only)
  */
+import { useSubmitOnEnter } from "@/hooks/useSubmitOnEnter";
 import { useEffect, useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 
@@ -167,9 +168,12 @@ export function TemplateDialog({
     });
   };
 
+  const handleEnterKey = useSubmitOnEnter(handleSubmit, { enabled: !isPending });
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[520px]">
+      <DialogContent onKeyDown={handleEnterKey} className="max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="flex items-baseline gap-2.5">
             템플릿 편집

@@ -4,6 +4,7 @@
  * 이름 / 이메일 / 역할(select) / 구독 템플릿 칩 다중선택 / [취소][추가|저장].
  * 편집 모드에선 좌측에 [삭제]. subscribed_templates 는 persona 키 배열로 저장.
  */
+import { useSubmitOnEnter } from "@/hooks/useSubmitOnEnter";
 import { useEffect, useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 
@@ -135,9 +136,12 @@ export function RecipientDialog({ open, onOpenChange, recipient }: Props) {
     });
   };
 
+  const handleEnterKey = useSubmitOnEnter(handleSubmit, { enabled: !isPending });
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[440px]">
+      <DialogContent onKeyDown={handleEnterKey} className="max-w-[440px]">
         <DialogHeader>
           <DialogTitle>{isEdit ? "수신자 편집" : "수신자 추가"}</DialogTitle>
           <DialogDescription>
