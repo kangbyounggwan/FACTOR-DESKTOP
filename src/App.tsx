@@ -39,6 +39,9 @@ const ZoneDetailPage = lazy(() => import("@desktop/pages/monitoring/ZoneDetailPa
 const SettingsPage = lazy(() => import("@desktop/pages/settings/SettingsPage"));
 // 리포트 앱 — 보고서 관리(설정에서 분리한 독립 페이지, Figma 기획 반영).
 const ReportsPage = lazy(() => import("@desktop/pages/reports/ReportsPage"));
+// 가공 부하 이상탐지 — 플릿 현황/설비 상세 (Figma DATUM v2 B1/B2, leaf 는 FE 공유).
+const AnomalyFleetPage = lazy(() => import("@desktop/pages/anomaly/AnomalyFleetPage"));
+const AnomalyMachinePage = lazy(() => import("@desktop/pages/anomaly/AnomalyMachinePage"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -160,6 +163,27 @@ const App = () => (
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoader />}>
                       <ReportsPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              {/* 가공 부하 이상탐지 — 플릿 현황 / 설비 상세. 로그인 필요(설비 데이터). */}
+              <Route
+                path="/anomaly"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <AnomalyFleetPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/anomaly/:machineId"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <AnomalyMachinePage />
                     </Suspense>
                   </ProtectedRoute>
                 }
