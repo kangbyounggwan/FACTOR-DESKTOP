@@ -27,6 +27,17 @@ export default defineConfig(() => ({
         path.resolve(__dirname, "../anomaly-eye-monitor"),
       ],
     },
+    proxy: {
+      // 이상탐지 model-server(anomaly-plugin :8002) — 서버에 CORS 미들웨어가
+      // 없어 렌더러 직접 fetch 불가 → dev 는 vite 프록시 경유.
+      // 사용법: .env.local 에 VITE_ANOMALY_API_URL=/anomaly-api
+      // (패키징 빌드는 file:// 라 프록시 없음 — 절대 URL + 서버 CORS 필요, 후속)
+      "/anomaly-api": {
+        target: process.env.ANOMALY_PROXY_TARGET ?? "http://127.0.0.1:8002",
+        changeOrigin: true,
+        rewrite: (p) => p.replace(/^\/anomaly-api/, ""),
+      },
+    },
   },
   plugins: [react()],
   resolve: {
