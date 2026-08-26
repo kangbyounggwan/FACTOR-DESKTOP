@@ -10,3 +10,5 @@ release
 # auto-bump-version 스크립트 stamp — 빌드별 소스 해시 추적용 (로컬)
 .build-stamp.json
 _build_log.txt
+.gstack/
+release2/
