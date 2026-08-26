@@ -136,7 +136,7 @@ export function AppDetailView({
                 </div>
                 {source.kind === "catalog" && category && (
                   <div className="flex items-center gap-2 pt-1">
-                    <span className="inline-flex items-center gap-1.5 text-xs text-muted-foreground px-2.5 py-1 rounded-md bg-muted/40 border border-border/40">
+                    <span className="inline-flex items-center gap-1.5 ui-caption px-2.5 py-1 rounded-md bg-muted/40 border border-border/40">
                       <FolderOpen className="w-3 h-3" />
                       {category}
                     </span>
@@ -256,7 +256,7 @@ export function AppDetailView({
                     {tags.map((tag) => (
                       <span
                         key={tag}
-                        className="inline-flex items-center gap-1 text-xs text-muted-foreground px-2.5 py-1 rounded-md bg-muted/40 border border-border/40"
+                        className="inline-flex items-center gap-1 ui-caption px-2.5 py-1 rounded-md bg-muted/40 border border-border/40"
                       >
                         <Tag className="w-2.5 h-2.5" />
                         {tag}
@@ -317,7 +317,7 @@ export function AppDetailView({
                   <ExternalLink className="w-4 h-4 text-primary" />
                   <h3 className="text-sm font-semibold">데스크탑에서 바로 실행</h3>
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="ui-caption leading-relaxed">
                   외부 브라우저 전환 없이 데스크탑 안에서 바로 열립니다. 데스크탑 셸의
                   탭/사이드바를 그대로 유지한 상태로 작업 가능.
                 </p>

@@ -45,15 +45,15 @@ export function ConversationRow({ item, active, onClick }: Props) {
                 active ? "bg-primary" : "bg-muted-foreground/30",
               )}
             />
-            <span className="flex-1 text-[12px] leading-snug line-clamp-2 break-words">
+            <span className="flex-1 text-xs leading-snug line-clamp-2 break-words">
               {title}
             </span>
           </button>
         </TooltipTrigger>
         <TooltipContent side="right" align="start" className="max-w-[260px]">
           <div className="flex flex-col gap-0.5">
-            <span className="text-[12px] font-medium leading-snug">{title}</span>
-            <span className="text-[12px] text-muted-foreground">
+            <span className="text-xs font-medium leading-snug">{title}</span>
+            <span className="ui-caption">
               {formatLocalDateTime(item.updated_at)} · {item.message_count}건 ·{" "}
               {formatRelativeTime(item.updated_at)}
             </span>

@@ -10,6 +10,7 @@
  *     "연동 예정" 툴팁 (매출 포함)
  *   · 수신 그룹 칩 = report_recipients 역할 목록 (read-only)
  */
+import { useSubmitOnEnter } from "@/hooks/useSubmitOnEnter";
 import { useEffect, useState } from "react";
 import { Loader2, Trash2 } from "lucide-react";
 
@@ -167,13 +168,16 @@ export function TemplateDialog({
     });
   };
 
+  const handleEnterKey = useSubmitOnEnter(handleSave, { enabled: !isPending });
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[520px]">
+      <DialogContent onKeyDown={handleEnterKey} className="max-w-[520px]">
         <DialogHeader>
           <DialogTitle className="flex items-baseline gap-2.5">
             템플릿 편집
-            <span className="text-[11.5px] font-normal text-muted-foreground">
+            <span className="ui-micro font-normal">
               {templateDisplayName(persona, template)}
             </span>
           </DialogTitle>
@@ -185,19 +189,19 @@ export function TemplateDialog({
         <div className="space-y-4 py-2">
           {/* 템플릿명 — 코드 고정 (read-only) */}
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               템플릿명
             </Label>
             <Input
               value={templateDisplayName(persona, template)}
               disabled
-              className="h-9 text-[11.5px]"
+              className="h-9 ui-fs-xs"
             />
           </div>
 
           {/* 발송 주기 — 캘린더 연동 빌더 (매일/매주/매월/직접) */}
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               발송 주기
             </Label>
             <CronScheduleBuilder value={cron} onChange={setCron} />
@@ -205,7 +209,7 @@ export function TemplateDialog({
 
           {/* 포맷 */}
           <div className="space-y-1.5">
-            <Label className="text-[11.5px] text-foreground/85 font-medium tracking-tight">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
               포맷
             </Label>
             <div className="flex items-center gap-1.5">
@@ -218,7 +222,7 @@ export function TemplateDialog({
                     onClick={() => toggleFormat(f)}
                     aria-pressed={selected}
                     className={cn(
-                      "px-2.5 py-1 rounded-full text-[11px] font-medium uppercase border transition-colors",
+                      "px-2.5 py-1 rounded-full ui-fs-xs font-medium uppercase border transition-colors",
                       selected
                         ? "bg-primary text-primary-foreground border-transparent"
                         : "bg-foreground/[0.04] text-foreground/70 border-border/50 hover:bg-foreground/[0.07]",
@@ -233,7 +237,7 @@ export function TemplateDialog({
 
           {/* 섹션 구성 — 백엔드 미지원, disabled + 연동 예정 툴팁 */}
           <div className="space-y-2">
-            <p className="text-[11.5px] text-primary font-medium tracking-tight">
+            <p className="ui-fs-xs text-primary font-medium tracking-tight">
               섹션 구성
             </p>
             <div className="grid grid-cols-2 gap-x-6 gap-y-2.5">
@@ -241,7 +245,7 @@ export function TemplateDialog({
                 <Tooltip key={s.label}>
                   <TooltipTrigger asChild>
                     <div className="flex items-center justify-between gap-2 cursor-not-allowed">
-                      <span className="text-[11.5px] text-foreground/60">
+                      <span className="ui-fs-xs text-foreground/60">
                         {s.label}
                       </span>
                       <Switch
@@ -252,7 +256,7 @@ export function TemplateDialog({
                       />
                     </div>
                   </TooltipTrigger>
-                  <TooltipContent side="top" className="text-[11px]">
+                  <TooltipContent side="top" className="ui-fs-xs">
                     연동 예정
                   </TooltipContent>
                 </Tooltip>
@@ -262,7 +266,7 @@ export function TemplateDialog({
 
           {/* 수신 그룹 — report_recipients 역할 목록 (read-only) */}
           <div className="space-y-2">
-            <p className="text-[11.5px] text-primary font-medium tracking-tight">
+            <p className="ui-fs-xs text-primary font-medium tracking-tight">
               수신 그룹
             </p>
             <div className="flex items-center gap-1.5 flex-wrap">
@@ -270,13 +274,13 @@ export function TemplateDialog({
                 recipientRoles.map((r) => (
                   <span
                     key={r}
-                    className="px-2.5 py-1 rounded-full text-[11px] font-medium bg-primary/15 text-primary border border-primary/30"
+                    className="px-2.5 py-1 rounded-full ui-fs-xs font-medium bg-primary/15 text-primary border border-primary/30"
                   >
                     {r}
                   </span>
                 ))
               ) : (
-                <span className="text-[11px] text-muted-foreground/70">
+                <span className="ui-micro text-muted-foreground/70">
                   구독 수신자 없음 — [수신자] 탭에서 구독 템플릿을 지정하세요.
                 </span>
               )}

@@ -136,10 +136,10 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
                     : "border-border/40 bg-foreground/[0.02] hover:border-border/70",
                 )}
               >
-                <div className="text-[13px] font-semibold tracking-tight text-foreground">
+                <div className="ui-fs-sm font-semibold tracking-tight text-foreground">
                   {PERSONA_LABEL[p]}
                 </div>
-                <div className="mt-1 text-[10.5px] leading-relaxed text-muted-foreground/70">
+                <div className="mt-1 ui-fs-2xs leading-relaxed text-muted-foreground/70">
                   {PERSONA_DESC[p]}
                 </div>
               </button>
@@ -157,15 +157,15 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
           </span>
         </SectionLabel>
         {templatesQuery.isLoading ? (
-          <div className="text-[11.5px] text-muted-foreground/60">불러오는 중…</div>
+          <div className="ui-micro text-muted-foreground/60">불러오는 중…</div>
         ) : sections.length === 0 ? (
-          <div className="text-[11.5px] text-muted-foreground/60">섹션 정보 없음</div>
+          <div className="ui-micro text-muted-foreground/60">섹션 정보 없음</div>
         ) : (
           <div className="flex flex-wrap gap-1.5">
             {sections.map((s) => (
               <span
                 key={s.key}
-                className="px-2.5 py-1 rounded-md text-[11px] bg-foreground/[0.04] border border-border/40 text-foreground/75"
+                className="px-2.5 py-1 rounded-md ui-fs-xs bg-foreground/[0.04] border border-border/40 text-foreground/75"
               >
                 {s.heading}
               </span>
@@ -191,7 +191,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
                 type="button"
                 onClick={() => setPeriod(p.key)}
                 className={cn(
-                  "px-3.5 py-1.5 rounded-md text-[11.5px] font-medium border transition-colors",
+                  "px-3.5 py-1.5 rounded-md ui-fs-xs font-medium border transition-colors",
                   on
                     ? "border-primary/60 bg-primary/[0.08] text-foreground"
                     : "border-border/40 bg-foreground/[0.02] text-foreground/55 hover:text-foreground/85",
@@ -216,7 +216,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
                 type="button"
                 onClick={() => toggleFormat(f)}
                 className={cn(
-                  "px-3 py-1.5 rounded-md text-[11.5px] uppercase tracking-wide font-medium border transition-colors",
+                  "px-3 py-1.5 rounded-md ui-fs-xs uppercase tracking-wide font-medium border transition-colors",
                   on
                     ? "border-primary/60 bg-primary/[0.08] text-foreground"
                     : "border-border/40 bg-foreground/[0.02] text-foreground/50 hover:text-foreground/80",
@@ -234,7 +234,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
         <Button
           onClick={handleGenerate}
           disabled={generateMutation.isPending}
-          className="h-10 px-5 text-[12.5px]"
+          className="h-10 px-5 ui-fs-sm"
         >
           {generateMutation.isPending ? (
             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -243,7 +243,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
           )}
           리포트 생성
         </Button>
-        <p className="text-[11px] text-muted-foreground/55 leading-relaxed">
+        <p className="ui-micro text-muted-foreground/55 leading-relaxed">
           AI가 MES 데이터를 수집·분석해 리포트를 생성합니다.
         </p>
       </div>
@@ -253,7 +253,7 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground/65 font-medium">
+    <div className="ui-fs-xs uppercase tracking-[0.12em] text-muted-foreground/65 font-medium">
       {children}
     </div>
   );

@@ -10,7 +10,7 @@ import {
   Settings,
   Network,
   FileText,
-  MoreHorizontal,
+  Activity,
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -50,19 +50,24 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
     });
   }, [navigate, requireAuth]);
 
+  // 이상탐지: 설비 데이터 스코프라 로그인 필요 (설정과 동일 UX).
+  const handleAnomaly = useCallback(() => {
+    requireAuth(() => navigate("/anomaly"), {
+      title: "이상탐지 사용에는 로그인이 필요합니다",
+      description: "로그인하면 가공 부하 이상탐지 플릿 현황을 볼 수 있습니다.",
+    });
+  }, [navigate, requireAuth]);
+
   return (
     <nav className="px-2 pt-1 pb-1 flex flex-col gap-0.5">
       <MenuItem icon={Plus} label="새 대화" onClick={onStartNew} />
-      <MenuItem
-        icon={Search}
-        label="검색"
-        onClick={onSearch}
-        disabled={!onSearch}
-      />
+      {/* 검색은 핸들러가 주입될 때만 노출. 상시 회색 버튼은 처음 쓰는 사람에게
+          "앱이 고장났나?" 로 읽힌다 — 못 쓰는 기능은 비활성이 아니라 부재. */}
+      {onSearch && <MenuItem icon={Search} label="검색" onClick={onSearch} />}
+      <MenuItem icon={Activity} label="이상탐지" onClick={handleAnomaly} />
       <MenuItem icon={FileText} label="리포트" onClick={handleReports} />
       <MenuItem icon={Network} label="온톨로지 플러그인" onClick={handleOntology} />
       <MenuItem icon={Settings} label="설정" onClick={handleSettings} />
-      <MenuItem icon={MoreHorizontal} label="더보기" disabled />
     </nav>
   );
 }
@@ -84,7 +89,7 @@ function MenuItem({
       onClick={onClick}
       disabled={disabled}
       className={cn(
-        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[12px] text-left",
+        "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-xs text-left",
         "transition-colors",
         disabled
           ? "text-muted-foreground/40 cursor-not-allowed"

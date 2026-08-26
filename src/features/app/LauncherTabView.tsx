@@ -51,7 +51,7 @@ export function LauncherTabView({
                   <LayoutGrid className="w-4 h-4 text-primary" />
                   새 탭에서 열기
                 </h2>
-                <p className="text-xs text-muted-foreground mt-0.5">
+                <p className="ui-caption mt-0.5">
                   앱을 클릭하면 이 탭에서 바로 열립니다
                 </p>
               </div>

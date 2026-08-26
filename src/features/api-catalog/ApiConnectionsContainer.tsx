@@ -68,7 +68,7 @@ export function ApiConnectionsContainer() {
           ⚠ SimpleBar 외부에 위치 → 스크롤 시 고정 (사용자 요청 v0.0.68). */}
       <aside className="w-[176px] flex-shrink-0 flex flex-col">
         <div className="px-1 mb-3 flex items-baseline justify-between">
-          <span className="text-[12px] uppercase tracking-[0.16em] text-muted-foreground/60 font-medium">
+          <span className="text-xs uppercase tracking-[0.16em] text-muted-foreground/60 font-medium">
             데이터 연결
           </span>
         </div>
@@ -112,7 +112,7 @@ export function ApiConnectionsContainer() {
                   />
                   <span
                     className={cn(
-                      "text-[12px] font-medium tracking-tight",
+                      "text-xs font-medium tracking-tight",
                       active ? "text-foreground" : "text-foreground/80",
                     )}
                   >
@@ -121,7 +121,7 @@ export function ApiConnectionsContainer() {
                   {count !== null && (
                     <span
                       className={cn(
-                        "ml-auto text-[12px] font-mono tabular-nums px-1.5 py-0.5 rounded",
+                        "ml-auto text-xs font-mono tabular-nums px-1.5 py-0.5 rounded",
                         active
                           ? "text-foreground/85 bg-foreground/[0.06]"
                           : "text-foreground/40 bg-foreground/[0.03]",
@@ -133,7 +133,7 @@ export function ApiConnectionsContainer() {
                 </div>
                 <div
                   className={cn(
-                    "text-[11.5px] mt-0.5 transition-colors leading-tight",
+                    "ui-fs-xs mt-0.5 transition-colors leading-tight",
                     active ? "text-muted-foreground" : "text-muted-foreground/65",
                   )}
                 >
@@ -146,9 +146,9 @@ export function ApiConnectionsContainer() {
 
         {/* footer hint */}
         <div className="mt-auto pt-6 px-1">
-          <div className="text-[12px] text-foreground/35 leading-relaxed">
+          <div className="text-xs text-foreground/35 leading-relaxed">
             Method 메타와 API 명세는 같은{" "}
-            <code className="font-mono text-[12px] text-foreground/60">
+            <code className="font-mono text-xs text-foreground/60">
               method_name
             </code>
             을 키로 join 됩니다.

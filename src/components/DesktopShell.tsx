@@ -42,6 +42,9 @@ export function DesktopShell({ children }: { children: ReactNode }) {
 
   const [sidebarWidth, setSidebarWidth] = useState(SIDEBAR_DEFAULT_WIDTH);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  // 웹 연결 패널 (챗 옆 웹 렌더러) — 상단바 🌐 토글, ChatPage 가 렌더 (Tier 2 Phase A)
+  const [webPanelOpen, setWebPanelOpen] = useState(false);
+  const webviewRef = useRef<HTMLElement | null>(null);
 
   const [authDialogOpen, setAuthDialogOpen] = useState(false);
   const pendingActionRef = useRef<(() => void) | null>(null);
@@ -140,8 +143,11 @@ export function DesktopShell({ children }: { children: ReactNode }) {
       setSidebarWidth,
       requireAuth,
       setBackHandler,
+      webPanelOpen,
+      setWebPanelOpen,
+      webviewRef,
     }),
-    [chat, sidebarCollapsed, sidebarWidth, requireAuth, setBackHandler],
+    [chat, sidebarCollapsed, sidebarWidth, requireAuth, setBackHandler, webPanelOpen],
   );
 
   return (
@@ -151,6 +157,9 @@ export function DesktopShell({ children }: { children: ReactNode }) {
           onToggleSidebar={() => setSidebarCollapsed((c) => !c)}
           onNewChat={handleStartNew}
           onBack={handleShellBack}
+          // 웹 연결은 챗 화면에서만 — 다른 페이지(APP 은 자체 탭 webview 보유)엔 숨김
+          onToggleWeb={isOnChat ? () => setWebPanelOpen((o) => !o) : undefined}
+          webPanelOpen={webPanelOpen}
         />
 
         {(() => {

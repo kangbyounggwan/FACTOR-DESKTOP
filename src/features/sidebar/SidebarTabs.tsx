@@ -72,7 +72,7 @@ function Tab({
       title={label}
       className={cn(
         "flex-1 min-w-0 flex items-center justify-center gap-1 px-1 py-1.5 rounded-md",
-        "text-[11px] font-semibold transition-all overflow-hidden",
+        "ui-fs-xs font-semibold transition-all overflow-hidden",
         active
           ? "bg-background text-primary shadow-sm"
           : "text-muted-foreground hover:text-foreground hover:bg-background/40",

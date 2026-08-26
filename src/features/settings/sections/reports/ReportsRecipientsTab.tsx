@@ -56,7 +56,7 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
         <SkeletonRows />
       ) : recipientsQuery.isError ? (
         <div className="rounded-lg border border-red-500/30 bg-red-500/[0.04] px-4 py-3">
-          <p className="text-[11.5px] text-red-300">
+          <p className="ui-caption ui-tone-bad">
             수신자 목록을 불러오지 못했습니다:{" "}
             {recipientsQuery.error instanceof Error
               ? recipientsQuery.error.message
@@ -65,8 +65,8 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
         </div>
       ) : recipients.length === 0 ? (
         <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-12 text-center">
-          <p className="text-[12px] text-foreground/65">수신자가 없습니다.</p>
-          <p className="text-[11.5px] text-muted-foreground/60 mt-1">
+          <p className="text-xs text-foreground/65">수신자가 없습니다.</p>
+          <p className="ui-micro text-muted-foreground/60 mt-1">
             우측 상단 [＋ 수신자 추가]로 리포트 수신자를 등록하세요.
           </p>
         </div>
@@ -98,19 +98,19 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
                   className="border-b border-border/30 last:border-b-0 hover:bg-foreground/[0.02] transition-colors"
                 >
                   <td className="px-4 py-2.5">
-                    <span className="text-[11.5px] text-foreground font-medium tracking-tight truncate block">
+                    <span className="ui-fs-xs text-foreground font-medium tracking-tight truncate block">
                       {r.name}
                     </span>
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className="text-[11.5px] font-mono text-foreground/60 truncate block">
+                    <span className="ui-fs-xs font-mono text-foreground/60 truncate block">
                       {r.email}
                     </span>
                   </td>
                   <td className="px-4 py-2.5">
                     <span
                       className={cn(
-                        "text-[11.5px]",
+                        "ui-fs-xs",
                         r.role === "임원" ? "text-primary" : "text-foreground/75",
                       )}
                     >
@@ -118,7 +118,7 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
                     </span>
                   </td>
                   <td className="px-4 py-2.5">
-                    <span className="text-[11.5px] text-foreground/65 truncate block">
+                    <span className="ui-fs-xs text-foreground/65 truncate block">
                       {(r.subscribed_templates ?? []).length > 0
                         ? (r.subscribed_templates ?? [])
                             .map((p) => PERSONA_LABEL[p] ?? p)
@@ -136,7 +136,7 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
                       />
                       <span
                         className={cn(
-                          "text-[11px]",
+                          "ui-fs-xs",
                           r.enabled ? "text-emerald-300" : "text-foreground/40",
                         )}
                       >
@@ -148,7 +148,7 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
                     <button
                       type="button"
                       onClick={() => setEditing(r)}
-                      className="text-[11.5px] text-primary hover:underline underline-offset-2"
+                      className="ui-fs-xs text-primary hover:underline underline-offset-2"
                     >
                       편집
                     </button>
@@ -180,7 +180,7 @@ export const ReportsRecipientsTab = memo(function ReportsRecipientsTab({
 
 function ColHeader({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-4 py-2 text-[11px] uppercase tracking-[0.12em] text-muted-foreground/65 font-medium text-left">
+    <th className="px-4 py-2 ui-fs-xs uppercase tracking-[0.12em] text-muted-foreground/65 font-medium text-left">
       {children}
     </th>
   );

@@ -4,11 +4,12 @@
  * adapter_endpoint_specs 의 실 HTTP 명세 (path/query/body/response) 조회 + 편집.
  * api_catalog_cache 의 method 메타와 join 되는 테이블.
  */
-const BASE_URL =
-  (import.meta.env.VITE_DATA_CONNECTOR_URL as string | undefined) ??
-  "http://127.0.0.1:8001";
+import {
+  DATA_CONNECTOR_BASE_URL,
+  dataConnectorRequest,
+} from "@desktop/api/dataConnectorClient";
 
-const ROOT = `${BASE_URL.replace(/\/$/, "")}/api/endpoint-specs`;
+const ROOT = `${DATA_CONNECTOR_BASE_URL.replace(/\/$/, "")}/api/endpoint-specs`;
 
 type HttpMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
@@ -38,29 +39,7 @@ interface EndpointSpecListResponse {
   adapter_types: string[];
 }
 
-async function request<T>(input: string, init?: RequestInit): Promise<T> {
-  const res = await fetch(input, {
-    headers: { "Content-Type": "application/json", ...(init?.headers ?? {}) },
-    ...init,
-  });
-  if (!res.ok) {
-    let detail = "";
-    try {
-      const raw = await res.text();
-      if (raw) {
-        try {
-          const j = JSON.parse(raw);
-          detail = typeof j.detail === "string" ? j.detail : JSON.stringify(j);
-        } catch {
-          detail = raw;
-        }
-      }
-    } catch {}
-    throw new Error(`HTTP ${res.status}: ${detail || res.statusText}`);
-  }
-  if (res.status === 204) return undefined as T;
-  return (await res.json()) as T;
-}
+const request = dataConnectorRequest;
 
 export function listEndpointSpecs(params: {
   adapterType?: string;

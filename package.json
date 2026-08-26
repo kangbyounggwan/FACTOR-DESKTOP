@@ -2,7 +2,7 @@
   "name": "factor-desktop",
   "productName": "FACTOR DESKTOP",
   "private": true,
-  "version": "0.0.107",
+  "version": "0.0.116",
   "type": "module",
   "main": "dist-electron/main.js",
   "description": "FACTOR MES 데스크탑 클라이언트 (Electron 셰 + anomaly-eye-monitor FE 소스 공유)",
@@ -18,7 +18,8 @@
     "dev:electron": "concurrently -k -n vite,electron -c blue,green \"npm:dev\" \"npm:_wait-electron\"",
     "preview:electron": "npm run build && npm run _build-electron && electron .",
     "build:electron": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder",
-    "release": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder --publish always"
+    "release": "npm run _auto-bump && npm run build && npm run _build-electron && electron-builder --publish always",
+    "typecheck": "tsc -b --pretty false"
   },
   "build": {
     "appId": "com.factor.desktop",

@@ -113,10 +113,10 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
           >
             <ArrowLeft className="h-3.5 w-3.5" />
           </button>
-          <span className="text-[13px] font-semibold tracking-tight text-foreground">
+          <span className="ui-fs-sm font-semibold tracking-tight text-foreground">
             발송 이력
           </span>
-          <span className="ml-auto text-[11px] text-foreground/45 font-mono tabular-nums">
+          <span className="ml-auto ui-fs-xs text-foreground/45 font-mono tabular-nums">
             전체 {runs.length}건
           </span>
         </div>
@@ -148,19 +148,19 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                     <div className="min-w-0">
                       <div
                         className={cn(
-                          "text-[12px] font-medium tracking-tight truncate",
+                          "text-xs font-medium tracking-tight truncate",
                           active ? "text-primary" : "text-foreground/85",
                         )}
                       >
                         {runDisplayName(r)}
                       </div>
-                      <div className="text-[11px] font-mono tabular-nums text-foreground/50 mt-0.5">
+                      <div className="ui-fs-xs font-mono tabular-nums text-foreground/50 mt-0.5">
                         {formatDateTime(r.created_at)}
                       </div>
                     </div>
                     <div className="flex items-center gap-1 flex-shrink-0 mt-0.5">
                       <span className={cn("h-1.5 w-1.5 rounded-full", status.dot)} />
-                      <span className={cn("text-[11px]", status.text)}>
+                      <span className={cn("ui-fs-xs", status.text)}>
                         {status.label}
                       </span>
                     </div>
@@ -169,7 +169,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
               );
             })}
             {runs.length === 0 && !runsQuery.isLoading && (
-              <p className="px-3 py-6 text-[11.5px] text-foreground/50 text-center">
+              <p className="px-3 py-6 ui-fs-xs text-foreground/50 text-center">
                 생성된 리포트가 없습니다.
               </p>
             )}
@@ -184,7 +184,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
             <ViewerSkeleton />
           ) : !run ? (
             <div className="rounded-lg border border-dashed border-border/50 px-6 py-12 text-center">
-              <p className="text-[12px] text-foreground/65">
+              <p className="text-xs text-foreground/65">
                 리포트를 찾을 수 없습니다.
               </p>
             </div>
@@ -193,14 +193,14 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
               {/* 헤더: 제목 + 메타 + 액션 */}
               <div className="flex items-start justify-between gap-4 mb-4">
                 <div className="min-w-0">
-                  <div className="text-[11px] text-muted-foreground/70 tracking-tight mb-1">
+                  <div className="ui-micro text-muted-foreground/70 tracking-tight mb-1">
                     설정 / 보고서 관리 <span className="mx-0.5">›</span>{" "}
                     <span className="text-foreground/60">{runDisplayName(run)}</span>
                   </div>
-                  <h2 className="text-[16px] font-semibold tracking-tight text-foreground truncate">
+                  <h2 className="ui-h2 truncate">
                     {runDisplayName(run)}
                   </h2>
-                  <p className="text-[11.5px] text-muted-foreground mt-1">
+                  <p className="ui-caption mt-1">
                     {formatFullDateTime(run.created_at)} ·{" "}
                     {PERSONA_LABEL[run.persona]} 보고용 ·{" "}
                     <span className={RUN_STATUS_META[run.status].text}>
@@ -212,7 +212,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                   <Button
                     size="sm"
                     variant="outline"
-                    className="h-8 px-3 text-[11.5px]"
+                    className="h-8 px-3 ui-fs-xs"
                     onClick={handlePdf}
                     disabled={!detail?.download.pdf}
                   >
@@ -221,7 +221,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                   </Button>
                   <Button
                     size="sm"
-                    className="h-8 px-3 text-[11.5px]"
+                    className="h-8 px-3 ui-fs-xs"
                     onClick={handleResend}
                     disabled={
                       generateMutation.isPending ||
@@ -243,10 +243,10 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
               <div className="rounded-xl border border-border/40 overflow-hidden bg-foreground/[0.015]">
                 {/* 다크 헤더 */}
                 <div className="bg-slate-950/80 border-b border-border/40 px-6 py-4">
-                  <div className="text-[14px] font-semibold tracking-tight text-white">
+                  <div className="text-sm font-semibold tracking-tight text-white">
                     {runDisplayName(run)}
                   </div>
-                  <div className="text-[11px] text-white/55 mt-0.5">
+                  <div className="ui-fs-xs text-white/55 mt-0.5">
                     {formatFullDateTime(run.created_at)} ·{" "}
                     {PERSONA_LABEL[run.persona]} 보고용
                   </div>
@@ -291,10 +291,10 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                   {/* 오류 */}
                   {run.error && (
                     <div className="rounded-lg border border-red-500/30 bg-red-500/[0.04] px-4 py-3">
-                      <p className="text-[11px] uppercase tracking-[0.12em] text-red-300/80 font-medium mb-1">
+                      <p className="ui-eyebrow ui-tone-bad mb-1">
                         실패 사유
                       </p>
-                      <p className="text-[11.5px] font-mono text-red-300 break-all">
+                      <p className="ui-caption ui-tone-bad font-mono break-all">
                         {run.error}
                       </p>
                     </div>
@@ -304,7 +304,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                   {detail?.report ? (
                     <div className="space-y-4">
                       {detail.report.summary && (
-                        <p className="text-[12px] leading-relaxed text-foreground/85 whitespace-pre-wrap">
+                        <p className="text-xs leading-relaxed text-foreground/85 whitespace-pre-wrap">
                           {detail.report.summary}
                         </p>
                       )}
@@ -314,19 +314,19 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                           className="rounded-lg border border-border/30 bg-foreground/[0.02] px-4 py-3"
                         >
                           <div className="flex items-center justify-between gap-2 mb-1.5">
-                            <h4 className="text-[12px] font-semibold tracking-tight text-foreground">
+                            <h4 className="text-xs font-semibold tracking-tight text-foreground">
                               {s.heading}
                             </h4>
-                            <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-foreground/[0.06] text-foreground/55 border border-border/40 flex-shrink-0">
+                            <span className="px-1.5 py-0.5 rounded ui-fs-2xs font-medium bg-foreground/[0.06] text-foreground/55 border border-border/40 flex-shrink-0">
                               {SECTION_TYPE_LABEL[s.type] ?? s.type}
                             </span>
                           </div>
                           {s.type === "text" && s.content ? (
-                            <p className="text-[11.5px] leading-relaxed text-foreground/75 whitespace-pre-wrap">
+                            <p className="ui-fs-xs leading-relaxed text-foreground/75 whitespace-pre-wrap">
                               {s.content}
                             </p>
                           ) : (
-                            <p className="text-[11px] text-muted-foreground/70">
+                            <p className="ui-micro text-muted-foreground/70">
                               {SECTION_TYPE_LABEL[s.type] ?? s.type} 데이터 —
                               전체 내용은 PDF에서 확인하세요.
                             </p>
@@ -336,7 +336,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                     </div>
                   ) : run.section_results.length > 0 ? (
                     <div>
-                      <p className="text-[11px] uppercase tracking-[0.12em] text-muted-foreground/65 font-medium mb-2">
+                      <p className="ui-fs-xs uppercase tracking-[0.12em] text-muted-foreground/65 font-medium mb-2">
                         섹션별 수집 결과
                       </p>
                       <div className="rounded-lg border border-border/30 divide-y divide-border/30 overflow-hidden">
@@ -356,12 +356,12 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                                   meta.dot,
                                 )}
                               />
-                              <span className="text-[11.5px] text-foreground/85 truncate">
+                              <span className="ui-fs-xs text-foreground/85 truncate">
                                 {spec?.heading ?? sr.key}
                               </span>
                               <span
                                 className={cn(
-                                  "ml-auto text-[11px] flex-shrink-0",
+                                  "ml-auto ui-fs-xs flex-shrink-0",
                                   meta.text,
                                 )}
                               >
@@ -377,12 +377,12 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                   {/* 본문 데이터 없음 → PDF 안내 중심 */}
                   {!detail?.report && (
                     <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-8 text-center">
-                      <p className="text-[12px] text-foreground/70">
+                      <p className="text-xs text-foreground/70">
                         차트·표를 포함한 전체 리포트 본문은 PDF에서 확인하세요.
                       </p>
                       <Button
                         size="sm"
-                        className="mt-3 h-8 px-3 text-[11.5px]"
+                        className="mt-3 h-8 px-3 ui-fs-xs"
                         onClick={handlePdf}
                         disabled={!detail?.download.pdf}
                       >
@@ -390,7 +390,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                         PDF 다운로드
                       </Button>
                       {!detail?.download.pdf && (
-                        <p className="text-[11px] text-muted-foreground/60 mt-2">
+                        <p className="ui-micro text-muted-foreground/60 mt-2">
                           {run.status === "queued" || run.status === "running"
                             ? "리포트 생성 중 — 완료되면 다운로드할 수 있습니다."
                             : "다운로드 가능한 PDF 산출물이 없습니다."}
@@ -405,7 +405,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                       {run.notes.map((n, i) => (
                         <span
                           key={`${n}-${i}`}
-                          className="px-1.5 py-0.5 rounded text-[10px] font-mono bg-foreground/[0.04] text-foreground/50 border border-border/30"
+                          className="px-1.5 py-0.5 rounded ui-fs-2xs font-mono bg-foreground/[0.04] text-foreground/50 border border-border/30"
                         >
                           {n}
                         </span>
@@ -413,7 +413,7 @@ export const ReportViewerPanel = memo(function ReportViewerPanel({
                     </div>
                   )}
 
-                  <p className="text-[10.5px] text-muted-foreground/55">
+                  <p className="ui-micro text-muted-foreground/55">
                     ※ 본 분석은 AI 기반 데이터 해석 결과로 참고용입니다.
                   </p>
                 </div>
@@ -435,10 +435,10 @@ function MetaCell({
 }) {
   return (
     <div className="rounded-lg border border-border/40 bg-foreground/[0.025] px-3.5 py-2.5">
-      <div className="text-[10.5px] text-muted-foreground/70 font-medium tracking-tight">
+      <div className="ui-micro text-muted-foreground/70 font-medium tracking-tight">
         {label}
       </div>
-      <div className="mt-1 text-[12.5px] font-medium tabular-nums text-foreground">
+      <div className="mt-1 ui-fs-sm font-medium tabular-nums text-foreground">
         {children}
       </div>
     </div>

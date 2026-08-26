@@ -62,10 +62,10 @@ export const ProfileSectionDesktop = memo(function ProfileSectionDesktop({
     <div className="space-y-8">
       {/* ── 페이지 헤더 ── typography 는 SettingsPage top header 와 일치 (17px). */}
       <header>
-        <h2 className="text-[17px] font-semibold tracking-tight text-foreground">
+        <h2 className="ui-h2">
           내 정보
         </h2>
-        <p className="text-[11.5px] text-muted-foreground mt-1 leading-relaxed">
+        <p className="ui-caption mt-1 leading-relaxed">
           프로필과 연락처 정보. 회사 · 공장 · 권한은{" "}
           <span className="text-foreground/70">관리자가 부여</span>합니다.
         </p>
@@ -94,19 +94,19 @@ export const ProfileSectionDesktop = memo(function ProfileSectionDesktop({
           {/* 본문 */}
           <div className="flex-1 min-w-0 space-y-3">
             <div className="flex items-baseline gap-3 flex-wrap">
-              <h3 className="text-[17px] font-medium text-foreground tracking-tight">
+              <h3 className="ui-h2 font-medium">
                 {displayProfile.name || "—"}
               </h3>
               <div className="flex items-center gap-1.5">
                 <span className={cn("h-1.5 w-1.5 rounded-full", ROLE_DOT[role])} />
-                <span className="text-[11.5px] text-foreground/75">
+                <span className="ui-fs-xs text-foreground/75">
                   {displayProfile.roleLabel || roleConfig[role]?.label || "열람자"}
                 </span>
               </div>
             </div>
 
             {/* meta strip */}
-            <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-[12px]">
+            <dl className="grid grid-cols-2 gap-x-6 gap-y-2 text-xs">
               <Meta label="부서" value={displayProfile.department || "미설정"} />
               <Meta
                 label="가입일"
@@ -170,7 +170,7 @@ export const ProfileSectionDesktop = memo(function ProfileSectionDesktop({
             onClick={onSave}
             disabled={isSaving || isLoading}
             size="sm"
-            className="h-9 px-4 text-[11.5px]"
+            className="h-9 px-4 ui-fs-xs"
           >
             {isSaving ? (
               <Loader2 className="h-3.5 w-3.5 mr-1.5 animate-spin" />
@@ -203,19 +203,19 @@ function Section({
   return (
     <section className="space-y-3">
       <div className="flex items-baseline gap-3 pb-2 border-b border-border/30">
-        <span className="text-[12px] font-mono tabular-nums text-foreground/35">
+        <span className="text-xs font-mono tabular-nums text-foreground/35">
           {index}
         </span>
         <div className="flex-1">
-          <div className="text-[12px] uppercase tracking-[0.16em] text-muted-foreground/65 font-medium">
+          <div className="text-xs uppercase tracking-[0.16em] text-muted-foreground/65 font-medium">
             {eyebrow}
           </div>
-          <h3 className="text-[12px] font-medium text-foreground mt-0.5 tracking-tight">
+          <h3 className="text-xs font-medium text-foreground mt-0.5 tracking-tight">
             {title}
           </h3>
         </div>
         {hint && (
-          <span className="text-[12px] text-muted-foreground/60">{hint}</span>
+          <span className="ui-caption text-muted-foreground/60">{hint}</span>
         )}
       </div>
       <div className="space-y-4 pt-1">{children}</div>
@@ -234,12 +234,12 @@ function Meta({
 }) {
   return (
     <div className="flex items-baseline gap-2 min-w-0">
-      <dt className="text-[11.5px] uppercase tracking-[0.12em] text-muted-foreground/55 font-medium w-12 flex-shrink-0">
+      <dt className="ui-fs-xs uppercase tracking-[0.12em] text-muted-foreground/55 font-medium w-12 flex-shrink-0">
         {label}
       </dt>
       <dd
         className={cn(
-          "text-[11.5px] text-foreground/85 truncate",
+          "ui-fs-xs text-foreground/85 truncate",
           mono && "font-mono tabular-nums",
         )}
       >
@@ -268,7 +268,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <label className="text-[11.5px] text-foreground/85 font-medium tracking-tight block">
+      <label className="ui-fs-xs text-foreground/85 font-medium tracking-tight block">
         {label}
       </label>
       <Input
@@ -277,13 +277,13 @@ function Field({
         placeholder={placeholder}
         onChange={(e) => onChange?.(e.target.value)}
         className={cn(
-          "h-9 text-[11.5px] bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]",
+          "h-9 ui-fs-xs bg-foreground/[0.03] border-border/50 focus-visible:bg-foreground/[0.05]",
           mono && "font-mono tabular-nums",
           disabled && "bg-foreground/[0.02] text-foreground/55",
         )}
       />
       {hint && (
-        <p className="text-[11.5px] text-muted-foreground/55">{hint}</p>
+        <p className="ui-micro text-muted-foreground/55">{hint}</p>
       )}
     </div>
   );

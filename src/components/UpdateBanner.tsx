@@ -39,7 +39,7 @@ export function UpdateBanner() {
     <div className="fixed bottom-4 right-4 z-50 bg-card border rounded-lg p-3 shadow-lg flex items-center gap-3">
       <div className="text-sm">
         <div className="font-medium">v{pending.version} 준비 완료</div>
-        <div className="text-xs text-muted-foreground">
+        <div className="ui-caption">
           재시작 시 새 버전 적용
         </div>
       </div>

@@ -86,12 +86,12 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
           {isAuthenticated ? displayName : "로그인"}
         </p>
         {!isAuthenticated && !isLoading && (
-          <p className="text-[11px] text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">
+          <p className="ui-micro text-muted-foreground/70 group-hover:text-muted-foreground transition-colors">
             게스트 모드
           </p>
         )}
         {isAuthenticated && user?.email && (
-          <p className="text-[11px] text-muted-foreground/70 group-hover:text-muted-foreground truncate transition-colors">
+          <p className="ui-micro text-muted-foreground/70 group-hover:text-muted-foreground truncate transition-colors">
             {user.email}
           </p>
         )}
@@ -105,7 +105,7 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
         {isAuthenticated ? displayName : "로그인"}
       </span>
       {!isAuthenticated && !isLoading && (
-        <Badge variant="secondary" className="text-[11px] h-5">
+        <Badge variant="secondary" className="ui-fs-xs h-5">
           게스트
         </Badge>
       )}
@@ -175,7 +175,7 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium truncate">{displayName}</p>
-                  <p className="text-xs text-muted-foreground truncate">
+                  <p className="ui-caption truncate">
                     {user?.email}
                   </p>
                 </div>

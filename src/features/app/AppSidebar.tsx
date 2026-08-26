@@ -13,6 +13,8 @@ import { useState } from "react";
 import { Plus, Trash2, Loader2, Globe } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
+import { useConfirm } from "@desktop/components/useConfirm";
 import { useAppUrls } from "./useAppUrls";
 import { useSelectedAppUrl } from "./useSelectedAppUrl";
 import { useOpenTabs } from "./useOpenTabs";
@@ -33,6 +35,8 @@ export function AppSidebar() {
   // 멀티탭 refactor 이후 webview 모드 진입은 openTab() 이 트리거 — setSelectedId 만 하면 안 들어감.
   const openTab = useOpenTabs((s) => s.openTab);
   const dropTabsByUrl = useOpenTabs((s) => s.dropByUrlEntryId);
+  const { confirm, dialog: confirmDialog } = useConfirm();
+  const { toast } = useToast();
 
   const [addOpen, setAddOpen] = useState(false);
   const [editTarget, setEditTarget] = useState<AppUrlEntry | null>(null);
@@ -65,7 +69,7 @@ export function AppSidebar() {
             setAddOpen(true);
           }}
           className={cn(
-            "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-[12px] text-left",
+            "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs text-left",
             "text-foreground/70 hover:bg-foreground/[0.06] hover:text-foreground transition-colors",
           )}
         >
@@ -89,9 +93,25 @@ export function AppSidebar() {
                   entry={u}
                   active={u.id === selectedId}
                   onClick={() => openTab(u.id)}
-                  onRemove={() => {
-                    void remove(u.id);
-                    dropTabsByUrl(u.id);
+                  onRemove={async () => {
+                    // hover 휴지통은 오클릭 위험이 가장 큰 자리 — 확인 후 삭제.
+                    const ok = await confirm({
+                      title: `'${u.name}'을(를) 즐겨찾기에서 삭제할까요?`,
+                      description: "열려 있는 탭도 함께 닫힙니다. 되돌릴 수 없습니다.",
+                      danger: true,
+                    });
+                    if (!ok) return;
+                    try {
+                      await remove(u.id);
+                      dropTabsByUrl(u.id);
+                    } catch (e) {
+                      // 이전엔 void 라 DB 실패 시 화면만 지워지고 서버엔 남았다
+                      toast({
+                        title: "삭제하지 못했습니다",
+                        description: e instanceof Error ? e.message : String(e),
+                        variant: "destructive",
+                      });
+                    }
                   }}
                 />
               ))}
@@ -106,6 +126,7 @@ export function AppSidebar() {
         editTarget={editTarget}
         onSubmit={handleAdd}
       />
+      {confirmDialog}
     </div>
   );
 }
@@ -167,10 +188,10 @@ function AppRow({
 
         {/* name + host */}
         <div className="flex-1 min-w-0">
-          <p className="text-[12.5px] font-medium truncate leading-tight">
+          <p className="ui-fs-sm font-medium truncate leading-tight">
             {entry.name}
           </p>
-          <p className="text-[10px] text-muted-foreground/80 truncate font-mono leading-tight mt-0.5">
+          <p className="ui-micro text-muted-foreground/80 truncate font-mono leading-tight mt-0.5">
             {host}
           </p>
         </div>
@@ -207,7 +228,7 @@ function AppRow({
 
 function LoadingState() {
   return (
-    <div className="flex items-center justify-center py-8 text-xs text-muted-foreground">
+    <div className="flex items-center justify-center py-8 ui-caption">
       <Loader2 className="w-3.5 h-3.5 animate-spin mr-2" />
       불러오는 중
     </div>
@@ -224,7 +245,7 @@ function EmptyState({
       <div className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-primary/10 border border-primary/20">
         <Globe className="w-4 h-4 text-primary" />
       </div>
-      <p className="text-[11px] text-muted-foreground leading-relaxed">
+      <p className="ui-micro leading-relaxed">
         자주 쓰는 서비스를
         <br />
         한 곳에 모아 두세요
@@ -267,7 +288,7 @@ function SuggestionChip({
       className={cn(
         "inline-flex items-center gap-1 px-2 py-1 rounded-full",
         "bg-card/60 border border-border/50",
-        "text-[10px] font-medium text-foreground/80",
+        "ui-fs-2xs font-medium text-foreground/80",
         "hover:bg-card hover:border-primary/40 hover:text-foreground",
         "transition-colors",
       )}

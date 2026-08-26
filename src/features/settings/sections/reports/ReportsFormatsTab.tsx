@@ -46,13 +46,13 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
   if (templatesQuery.isError) {
     return (
       <div className="rounded-lg border border-red-500/30 bg-red-500/[0.04] px-4 py-3">
-        <p className="text-[11.5px] text-red-300">
+        <p className="ui-caption ui-tone-bad">
           템플릿을 불러오지 못했습니다:{" "}
           {templatesQuery.error instanceof Error
             ? templatesQuery.error.message
             : String(templatesQuery.error)}
         </p>
-        <p className="text-[11px] text-muted-foreground/60 mt-1">
+        <p className="ui-micro text-muted-foreground/60 mt-1">
           리포트 서비스(VITE_REPORT_SERVICE_URL) 연결과 로그인 상태를 확인하세요.
         </p>
       </div>
@@ -84,11 +84,11 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
               )}
             >
               <div className="flex items-center gap-2">
-                <span className="text-[13px] font-semibold tracking-tight text-foreground">
+                <span className="ui-fs-sm font-semibold tracking-tight text-foreground">
                   {templateDisplayName(persona, tpl)}
                 </span>
                 {persona === "executive" && (
-                  <span className="px-1.5 py-0.5 rounded-full text-[10px] font-semibold bg-primary text-primary-foreground">
+                  <span className="px-1.5 py-0.5 rounded-full ui-fs-2xs font-semibold bg-primary text-primary-foreground">
                     기본
                   </span>
                 )}
@@ -105,7 +105,7 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
                       setEditPersona(persona);
                     }
                   }}
-                  className="ml-auto text-[11.5px] text-primary hover:underline underline-offset-2 cursor-pointer"
+                  className="ml-auto ui-fs-xs text-primary hover:underline underline-offset-2 cursor-pointer"
                 >
                   편집
                 </span>
@@ -115,7 +115,7 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
               <div className="flex items-center gap-1.5 flex-wrap mt-2.5">
                 <span
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[10.5px] font-medium border",
+                    "px-2 py-0.5 rounded-full ui-fs-2xs font-medium border",
                     cycle
                       ? "bg-amber-400/10 text-amber-300 border-amber-400/30"
                       : "bg-foreground/[0.04] text-foreground/45 border-border/40",
@@ -126,26 +126,26 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
                 {(tpl?.sections ?? []).slice(0, 5).map((s) => (
                   <span
                     key={s.key}
-                    className="px-2 py-0.5 rounded-full text-[10.5px] bg-foreground/[0.045] text-foreground/65 border border-border/40"
+                    className="px-2 py-0.5 rounded-full ui-fs-2xs bg-foreground/[0.045] text-foreground/65 border border-border/40"
                   >
                     {s.heading.split("—")[0].split("(")[0].trim()}
                   </span>
                 ))}
                 {(tpl?.sections ?? []).length > 5 && (
-                  <span className="text-[10.5px] text-foreground/45">
+                  <span className="ui-fs-2xs text-foreground/45">
                     +{(tpl?.sections ?? []).length - 5}
                   </span>
                 )}
               </div>
 
               <div className="mt-3 space-y-0.5">
-                <p className="text-[11.5px] text-muted-foreground">
+                <p className="ui-caption">
                   수신 그룹 ·{" "}
                   <span className="text-foreground/70">
                     {roles.length > 0 ? roles.join(", ") : "미지정"}
                   </span>
                 </p>
-                <p className="text-[11.5px] text-muted-foreground">
+                <p className="ui-caption">
                   발송 ·{" "}
                   <span className="text-foreground/70">
                     {schedule ? cronToLabel(schedule.cron) : "미설정"}
@@ -162,15 +162,15 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
 
       {/* ── 우측 미리보기 썸네일 — 섹션 구성 (실데이터 mock 없음) ── */}
       <aside className="w-[260px] flex-shrink-0">
-        <p className="text-[11.5px] text-muted-foreground mb-2">
+        <p className="ui-caption mb-2">
           미리보기 — {templateDisplayName(selected, previewTemplate)}
         </p>
         <div className="rounded-xl border border-border/40 overflow-hidden bg-foreground/[0.02]">
           <div className="bg-slate-950/80 px-4 py-3 border-b border-border/40">
-            <div className="text-[11.5px] font-semibold text-white truncate">
+            <div className="ui-fs-xs font-semibold text-white truncate">
               {templateDisplayName(selected, previewTemplate)}
             </div>
-            <div className="text-[10px] text-white/50 mt-0.5">
+            <div className="ui-fs-2xs text-white/50 mt-0.5">
               {previewTemplate?.default_formats
                 ?.map((f) => f.toUpperCase())
                 .join(" · ") ?? "PDF"}
@@ -183,11 +183,11 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
                 className="rounded-md border border-border/30 bg-foreground/[0.03] px-2.5 py-2"
               >
                 <div className="flex items-center justify-between gap-1.5">
-                  <span className="text-[10.5px] text-foreground/75 truncate">
+                  <span className="ui-fs-2xs text-foreground/75 truncate">
                     {s.heading}
                   </span>
                   {s.required && (
-                    <span className="text-[9px] text-primary/80 flex-shrink-0">
+                    <span className="ui-fs-2xs text-primary/80 flex-shrink-0">
                       필수
                     </span>
                   )}
@@ -206,7 +206,7 @@ export const ReportsFormatsTab = memo(function ReportsFormatsTab() {
               </div>
             ))}
             {(previewTemplate?.sections ?? []).length === 0 && (
-              <p className="text-[10.5px] text-foreground/45 text-center py-4">
+              <p className="ui-fs-2xs text-foreground/45 text-center py-4">
                 섹션 정보 없음
               </p>
             )}

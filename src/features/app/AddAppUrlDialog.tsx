@@ -217,7 +217,7 @@ export function AddAppUrlDialog({
                 <RefreshCw className={cn("w-3.5 h-3.5", fetching && "animate-spin")} />
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground">
+            <p className="ui-micro">
               http(s) 생략 시 https:// 자동 추가. URL 입력 후 클릭 밖으로 나가면 자동 추출.
             </p>
           </div>
@@ -243,23 +243,23 @@ export function AddAppUrlDialog({
                 <div className="text-xs font-medium truncate">
                   {name || <span className="text-muted-foreground/60">제목</span>}
                 </div>
-                <div className="text-[10px] text-muted-foreground truncate font-mono mt-0.5">
+                <div className="ui-micro truncate font-mono mt-0.5">
                   {host}
                 </div>
                 {description && (
-                  <div className="text-[10px] text-muted-foreground line-clamp-2 mt-1 leading-relaxed">
+                  <div className="ui-micro line-clamp-2 mt-1 leading-relaxed">
                     {description}
                   </div>
                 )}
               </div>
               {fetchError && (
-                <div className="flex items-center gap-1 text-[10px] text-amber-500 flex-shrink-0" title={fetchError}>
+                <div className="flex items-center gap-1 ui-fs-2xs text-amber-500 flex-shrink-0" title={fetchError}>
                   <AlertCircle className="w-3 h-3" />
                   자동추출 실패
                 </div>
               )}
               {!fetchError && (name || description || iconUrl) && (
-                <div className="flex items-center gap-1 text-[10px] text-primary flex-shrink-0">
+                <div className="flex items-center gap-1 ui-fs-2xs text-primary flex-shrink-0">
                   <Sparkles className="w-3 h-3" />
                   자동
                 </div>

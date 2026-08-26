@@ -177,25 +177,25 @@ export const ReportsHistoryTab = memo(function ReportsHistoryTab({
                     className="border-b border-border/30 last:border-b-0 hover:bg-foreground/[0.02] transition-colors cursor-pointer"
                   >
                     <td className="px-4 py-2.5 min-w-0">
-                      <div className="text-[11.5px] text-foreground font-medium tracking-tight truncate">
+                      <div className="ui-fs-xs text-foreground font-medium tracking-tight truncate">
                         {runDisplayName(run)}
                       </div>
                     </td>
-                    <td className="px-4 py-2.5 text-[11.5px] text-foreground/70">
+                    <td className="px-4 py-2.5 ui-fs-xs text-foreground/70">
                       {PERSONA_LABEL[run.persona]}
                     </td>
-                    <td className="px-4 py-2.5 text-[11.5px] font-mono tabular-nums text-foreground/60">
+                    <td className="px-4 py-2.5 ui-fs-xs font-mono tabular-nums text-foreground/60">
                       {formatDateTime(run.created_at)}
                     </td>
                     <td className="px-4 py-2.5">
                       {formats.length === 0 ? (
-                        <span className="text-[11.5px] text-foreground/35">—</span>
+                        <span className="ui-fs-xs text-foreground/35">—</span>
                       ) : (
                         <div className="flex items-center gap-1 flex-wrap">
                           {formats.map((f) => (
                             <span
                               key={f}
-                              className="px-1.5 py-0.5 rounded text-[10px] uppercase tracking-wide font-medium bg-foreground/[0.06] text-foreground/70 border border-border/40"
+                              className="px-1.5 py-0.5 rounded ui-fs-2xs uppercase tracking-wide font-medium bg-foreground/[0.06] text-foreground/70 border border-border/40"
                             >
                               {f}
                             </span>
@@ -212,14 +212,14 @@ export const ReportsHistoryTab = memo(function ReportsHistoryTab({
                             inProgress && "animate-pulse",
                           )}
                         />
-                        <span className={cn("text-[11.5px]", status.text)}>
+                        <span className={cn("ui-fs-xs", status.text)}>
                           {status.label}
                         </span>
                       </div>
                     </td>
                     <td className="px-4 py-2.5">
                       <div
-                        className="flex items-center gap-1 text-[11.5px]"
+                        className="flex items-center gap-1 ui-fs-xs"
                         onClick={(e) => e.stopPropagation()}
                       >
                         <button
@@ -271,12 +271,12 @@ function SummaryCard({
 }) {
   return (
     <div className="rounded-lg border border-border/40 bg-foreground/[0.025] px-4 py-3">
-      <div className="text-[11px] text-muted-foreground/70 font-medium tracking-tight">
+      <div className="ui-micro text-muted-foreground/70 font-medium tracking-tight">
         {label}
       </div>
       <div
         className={cn(
-          "mt-1 text-[18px] font-semibold tabular-nums leading-none tracking-tight",
+          "mt-1 ui-fs-lg font-semibold tabular-nums leading-none tracking-tight",
           tint ?? "text-foreground",
         )}
       >
@@ -288,7 +288,7 @@ function SummaryCard({
 
 function ColHeader({ children }: { children: React.ReactNode }) {
   return (
-    <th className="px-4 py-2 text-[11px] uppercase tracking-[0.12em] text-muted-foreground/65 font-medium text-left">
+    <th className="px-4 py-2 ui-fs-xs uppercase tracking-[0.12em] text-muted-foreground/65 font-medium text-left">
       {children}
     </th>
   );
@@ -315,8 +315,8 @@ function SkeletonRows() {
 function EmptyState() {
   return (
     <div className="rounded-lg border border-dashed border-border/50 bg-foreground/[0.015] px-6 py-12 text-center">
-      <p className="text-[12px] text-foreground/65">생성된 리포트가 없습니다.</p>
-      <p className="text-[11.5px] text-muted-foreground/60 mt-1">
+      <p className="text-xs text-foreground/65">생성된 리포트가 없습니다.</p>
+      <p className="ui-micro text-muted-foreground/60 mt-1">
         [포맷] 탭에서 발송 예약을 설정하면 자동으로 생성됩니다.
       </p>
     </div>
@@ -326,10 +326,10 @@ function EmptyState() {
 function ErrorBox({ message }: { message: string }) {
   return (
     <div className="rounded-lg border border-red-500/30 bg-red-500/[0.04] px-4 py-3">
-      <p className="text-[11.5px] text-red-300">
+      <p className="ui-caption ui-tone-bad">
         이력을 불러오지 못했습니다: {message}
       </p>
-      <p className="text-[11px] text-muted-foreground/60 mt-1">
+      <p className="ui-micro text-muted-foreground/60 mt-1">
         리포트 서비스(VITE_REPORT_SERVICE_URL) 연결과 로그인 상태를 확인하세요.
       </p>
     </div>
