@@ -54,7 +54,7 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
   const handleAnomaly = useCallback(() => {
     requireAuth(() => navigate("/anomaly"), {
       title: "이상탐지 사용에는 로그인이 필요합니다",
-      description: "로그인하면 가공 부하 이상탐지 플릿 현황을 볼 수 있습니다.",
+      description: "로그인하면 가공 부하 이상탐지 모니터링(통계·설비별·시각별 조회)을 볼 수 있습니다.",
     });
   }, [navigate, requireAuth]);
 

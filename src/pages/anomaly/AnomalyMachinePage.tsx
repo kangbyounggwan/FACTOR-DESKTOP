@@ -1,5 +1,5 @@
 /**
- * factor-desktop AnomalyMachinePage — 이상탐지 설비 상세 (/anomaly/:machineId).
+ * factor-desktop AnomalyMachinePage — 이상탐지 실시간 설비 상세 (/anomaly/live/:machineId).
  *
  * FE 페이지를 import 하지 않고 (R1, R6) leaf(MachineDetailContent)만 가져와
  * 데스크탑 셸 안에 composition. 디자인: Figma factor "DATUM v2" B2.
@@ -16,7 +16,7 @@ export default function AnomalyMachinePage() {
     <div className="h-full w-full min-h-0 bg-background flex flex-col overflow-hidden">
       <MachineDetailContent
         machineId={machineId ?? ""}
-        onBack={() => navigate("/anomaly")}
+        onBack={() => navigate("/anomaly/live")}
       />
     </div>
   );
