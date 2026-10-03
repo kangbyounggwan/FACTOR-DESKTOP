@@ -3,12 +3,13 @@
  *
  * leaf(MonitorMachineContent)만 composition (R1, R6). score 추이(가동 상태 띠·시간 스코프) ·
  * 사이클 파형(이상 구간·확대) · 사이클 목록. 설비 미지정 시 첫 설비로 replace.
+ * 같은 설비의 실시간 설비 상세(/anomaly/live/:machineId) 링크.
  */
 
 import { useCallback } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { MonitorMachineContent } from "@/features/anomaly";
-import { MONITOR_ROUTES, machineMonitorRoute } from "./monitorNav";
+import { MONITOR_ROUTES, liveMachineRoute, machineMonitorRoute } from "./monitorNav";
 
 export default function AnomalyMachineMonitorPage() {
   const { machineId } = useParams<{ machineId: string }>();
@@ -25,6 +26,7 @@ export default function AnomalyMachineMonitorPage() {
         machineId={decoded}
         onSelectMachine={select}
         onNavigate={(v) => navigate(MONITOR_ROUTES[v])}
+        onOpenLive={(id) => navigate(liveMachineRoute(id))}
       />
     </div>
   );

@@ -10,3 +10,7 @@ export const MONITOR_ROUTES: Record<MonitorView, string> = {
 
 export const machineMonitorRoute = (machineId: string) =>
   `/anomaly/machines/${encodeURIComponent(machineId)}`;
+
+/** 실시간 설비 상세 — 설비별(이력) 화면과 같은 model-server machine_id 를 쓴다 */
+export const liveMachineRoute = (machineId: string) =>
+  `/anomaly/live/${encodeURIComponent(machineId)}`;
