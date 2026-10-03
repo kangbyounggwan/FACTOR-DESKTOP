@@ -18,6 +18,8 @@
  *  - 카드 클릭 / 상세 액션 핸들러 (handleCatalogPick, handleDetailOpen, etc.)
  *  - chat snapshot augmentation (enhancedChat — webview 안 페이지의 rich
  *    snapshot 을 AI 메시지에 자동 첨부)
+ *  - FACTOR 자체 URL(factor.io.kr, 예: 리포트) 항목은 webview 대신 앱 라우트로 이동
+ *    (웹 leaf catalogRules.factorOwnRoutePath — 즐겨찾기 항목 자체는 보존)
  *
  * AppPage.tsx 는 본 훅을 1회 호출하고 JSX 만 분배.
  */
@@ -30,6 +32,7 @@ import {
   useState,
   type MutableRefObject,
 } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   useAppUrls,
   useSelectedAppUrl,
@@ -44,6 +47,10 @@ import type { AddAppUrlSubmit } from "@desktop/features/app/AddAppUrlDialog";
 import { useDesktopShell } from "@desktop/components/DesktopShellContext";
 import { electron } from "@desktop/lib/electron";
 import type { AppUrlEntry } from "@desktop/types/electron";
+import {
+  FACTOR_OWN_HOSTS,
+  factorOwnRoutePath,
+} from "@/features/app/catalogRules";
 
 type AppPageMode = "tabs" | "detail" | "empty" | "home";
 
@@ -101,11 +108,8 @@ function isSnapshotAllowed(url: string): boolean {
 // FACTOR 자체 도구 페이지(factor.io.kr 의 리포트 등)와 런처는 분석 대상이 아니므로
 // 우측 AI 패널을 숨긴다(리포트는 자체 기능만 사용). factor.io.kr 외 host 를 더 제외하려면
 // VITE_DESKTOP_AI_EXCLUDED_HOSTS (콤마 구분) 설정.
-const AI_OWN_HOSTS_DEFAULT = [
-  "factor.io.kr",
-  "localhost",
-  "127.0.0.1",
-];
+// FACTOR 자체 호스트 목록은 catalogRules(웹 leaf)와 단일 정의 공유 — AI 규칙은 로컬 호스트를 더한다.
+const AI_OWN_HOSTS_DEFAULT = [...FACTOR_OWN_HOSTS, "localhost", "127.0.0.1"];
 
 function getAiExcludedHosts(): string[] {
   const configured = import.meta.env.VITE_DESKTOP_AI_EXCLUDED_HOSTS;
@@ -212,6 +216,7 @@ export function useAppPageState(): UseAppPageStateReturn {
   const { urls, loading, add, remove, update } = useAppUrls();
   const { setSelectedId } = useSelectedAppUrl();
   const { setBackHandler, chat, setSidebarCollapsed } = useDesktopShell();
+  const navigate = useNavigate();
 
   // 멀티 탭 store
   const tabs = useOpenTabs((s) => s.tabs);
@@ -310,6 +315,16 @@ export function useAppPageState(): UseAppPageStateReturn {
     }
     wasInWebviewRef.current = isInWebview;
   }, [isInWebview, setSidebarCollapsed]);
+
+  // 5) FACTOR 자체 URL 탭 가드 — 사이드바(AppSidebar) 등 이 훅 밖에서 openTab 된
+  //    경우에도 webview 로 두지 않고 탭을 닫은 뒤 앱 라우트로 이동.
+  useEffect(() => {
+    if (!selected) return;
+    const route = factorOwnRoutePath(selected.url);
+    if (!route) return;
+    dropTabsByUrl(selected.id);
+    navigate(route);
+  }, [selected, dropTabsByUrl, navigate]);
 
   // ── derived ──
   const normalizedInstalledUrls = useMemo(
@@ -549,20 +564,43 @@ export function useAppPageState(): UseAppPageStateReturn {
     [installedByUrl],
   );
 
-  const handleInstalledPick = useCallback((entry: AppUrlEntry) => {
-    setViewing({ kind: "installed", entry });
-  }, []);
+  // FACTOR 자체 URL 즐겨찾기(예: https://factor.io.kr/reports)는 상세/webview 대신 앱 라우트로.
+  const handleInstalledPick = useCallback(
+    (entry: AppUrlEntry) => {
+      const route = factorOwnRoutePath(entry.url);
+      if (route) {
+        navigate(route);
+        return;
+      }
+      setViewing({ kind: "installed", entry });
+    },
+    [navigate],
+  );
 
   // ── 런처 "새 탭"에서 앱 선택 — Chrome 새 탭처럼 그 자리에서 바로 열기 ──
   const handleLauncherPickInstalled = useCallback(
     (entry: AppUrlEntry) => {
+      // FACTOR 자체 URL 은 런처 탭을 닫고 앱 라우트로 이동
+      const route = factorOwnRoutePath(entry.url);
+      if (route) {
+        if (activeTabId) closeTab(activeTabId);
+        navigate(route);
+        return;
+      }
       if (activeTabId) convertTab(activeTabId, entry.id);
     },
-    [activeTabId, convertTab],
+    [activeTabId, convertTab, closeTab, navigate],
   );
 
   const handleLauncherPickCatalog = useCallback(
     async (app: CatalogApp) => {
+      // STORE 는 FACTOR 자체 URL 을 걸러 내지만(isStoreListable) 방어적으로 한 번 더 확인
+      const route = factorOwnRoutePath(app.url);
+      if (route) {
+        if (activeTabId) closeTab(activeTabId);
+        navigate(route);
+        return;
+      }
       // 미설치 카탈로그 앱은 즐겨찾기 자동 추가 후 열기 (상세의 "지금 열기"와 동일)
       const existing = installedByUrl(app.url);
       const entry =
@@ -575,12 +613,21 @@ export function useAppPageState(): UseAppPageStateReturn {
         }));
       if (activeTabId) convertTab(activeTabId, entry.id);
     },
-    [activeTabId, convertTab, installedByUrl, add],
+    [activeTabId, convertTab, closeTab, navigate, installedByUrl, add],
   );
 
   // 상세 페이지 "지금 열기" = 새 탭 (같은 URL 있으면 활성화)
   const handleDetailOpen = useCallback(async () => {
     if (!viewing) return;
+    // FACTOR 자체 URL 은 탭(webview) 대신 앱 라우트로 이동
+    const route = factorOwnRoutePath(
+      viewing.kind === "catalog" ? viewing.app.url : viewing.entry.url,
+    );
+    if (route) {
+      setViewing(null);
+      navigate(route);
+      return;
+    }
     let targetEntryId: string;
     if (viewing.kind === "catalog") {
       const existing = installedByUrl(viewing.app.url);
@@ -600,7 +647,7 @@ export function useAppPageState(): UseAppPageStateReturn {
     }
     openTab(targetEntryId);
     setViewing(null);
-  }, [viewing, installedByUrl, add, openTab]);
+  }, [viewing, installedByUrl, add, openTab, navigate]);
 
   const handleDetailAddToFavorites = useCallback(async () => {
     if (!viewing || viewing.kind !== "catalog") return;
