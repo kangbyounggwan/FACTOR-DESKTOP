@@ -131,7 +131,7 @@ export default function AppPage() {
   const s = useAppPageState();
   const [aiPanelWidth, setAiPanelWidth] = useAiPanelWidth();
 
-  // 상세 뷰 앱의 "실행 가능(백단 이관/준비)" 여부 — 지금열기 vs 다운로드 게이트.
+  // 상세 뷰 앱의 서버 준비 여부 — "지금 열기" vs "준비 중 · 다시 확인" 게이트.
   // hook 은 조건부 호출 금지라 최상위에서(비-detail 모드면 url=null → 게이트 없음).
   const viewingUrl = s.viewing
     ? s.viewing.kind === "catalog"
@@ -290,8 +290,8 @@ export default function AppPage() {
           onRemove={s.handleDetailRemove}
           runnable={runnable}
           checkingRunnable={checking}
-          // 미준비(백단 미이관) 앱의 "다운로드" — 백엔드가 준비됐는지 재확인(이관되면 지금열기로 전환).
-          onDownload={runnable === false ? recheck : undefined}
+          // 서버 미응답 앱의 "준비 중 · 다시 확인" — probe 재실행(응답하면 "지금 열기"로 전환).
+          onRecheck={runnable === false ? recheck : undefined}
         />
         <AddAppUrlDialog
           open={s.addOpen}
@@ -366,8 +366,8 @@ export default function AppPage() {
             </div>
           </section>
 
-          {/* 설치형 플러그인 — "설치" 시 회사 워크스페이스에 활성화(plugin_installs 테넌트 스코프).
-              단일 공유 백엔드라 "백단 이관"이 아니라 회사별 활성화 개념. 설치 가능 팩 0 = 자동 숨김. */}
+          {/* 설치형 플러그인 — "설치" = 팩을 이 디바이스에 저장 + plugin_installs 기록. 온톨로지 뷰어 전용이며
+              AI 답변에는 영향 없음(llm-backend company_pack.py 가 packs/*.json 을 항상 로드). 설치 가능 팩 0 = 자동 숨김. */}
           <OntologyPackCatalog embedded />
 
           {/* 구분선 */}

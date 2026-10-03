@@ -199,7 +199,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
     />
   );
 
-  // ── APP 스토어 임베드 섹션 (설치 = 회사 워크스페이스 활성화). 설치 가능 팩 0 = 통째로 숨김 ──
+  // ── APP 스토어 임베드 섹션 (설치 = 팩을 이 디바이스에 저장, 뷰어 전용 — AI 답변 무영향). 설치 가능 팩 0 = 통째로 숨김 ──
   if (embedded) {
     if (!loading && available.length === 0) return null;
     return (
@@ -207,7 +207,7 @@ export function OntologyPackCatalog({ embedded = false }: { embedded?: boolean }
         <header className="mb-4">
           <h2 className="text-base font-semibold tracking-tight">설치형 플러그인</h2>
           <p className="ui-caption mt-0.5">
-            설치하면 회사 워크스페이스에 활성화되어 AI 질의·뷰어에 사용됩니다.
+            설치한 팩은 이 디바이스에 저장되며 온톨로지 뷰어에서 볼 수 있습니다.
           </p>
         </header>
         {errors}

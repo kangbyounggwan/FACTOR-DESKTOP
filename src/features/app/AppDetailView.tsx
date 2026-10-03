@@ -32,7 +32,7 @@ import {
   CheckCircle2,
   Globe,
   FolderOpen,
-  Download,
+  RefreshCw,
   Loader2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -53,18 +53,19 @@ interface Props {
   onEdit?: () => void;
   onRemove?: () => void;
   /**
-   * 앱의 백엔드 로직이 실행 가능(백단 이관/준비)한가.
+   * FACTOR 서버 앱의 서버가 응답하는가(main probe `app:probeReady` 판정).
    *  - true  → "지금 열기" (webview)
-   *  - false → "다운로드" (백단 이관 필요 — onDownload)
+   *  - false → "준비 중 · 다시 확인" (onRecheck — probe 재실행. 아무것도 내려받지 않음)
    *  - undefined → 게이트 없음(외부 URL 앱): 항상 "지금 열기"
    */
   runnable?: boolean;
   /** runnable 판정(백엔드 probe) 진행 중 — 버튼 잠깐 비활성. */
   checkingRunnable?: boolean;
-  /** "다운로드" 클릭 — 백단 이관 트리거. runnable===false 일 때만 노출. */
-  onDownload?: () => void;
-  /** 다운로드(이관) 진행 중. */
-  downloading?: boolean;
+  /**
+   * "준비 중 · 다시 확인" 클릭 — 서버 준비 상태 재확인(probe 재실행). runnable===false 일 때만 노출.
+   * 재확인 진행 중 표시는 checkingRunnable 이 맡는다.
+   */
+  onRecheck?: () => void;
 }
 
 export function AppDetailView({
@@ -76,8 +77,7 @@ export function AppDetailView({
   onRemove,
   runnable,
   checkingRunnable,
-  onDownload,
-  downloading,
+  onRecheck,
 }: Props) {
   const { name, url, description, iconUrl, category, tags } = useMemo(() => {
     if (source.kind === "catalog") {
@@ -150,27 +150,22 @@ export function AppDetailView({
                 )}
               </div>
 
-              {/* CTA — primary 강조. 백엔드 앱은 실행 가능(백단 이관) 시에만 "지금 열기",
-                  아니면 "다운로드". 외부 URL 앱(runnable===undefined)은 항상 "지금 열기". */}
+              {/* CTA — primary 강조. FACTOR 서버 앱은 서버가 응답할 때만 "지금 열기",
+                  아니면 "준비 중 · 다시 확인"(probe 재실행). 외부 URL 앱(runnable===undefined)은 항상 "지금 열기". */}
               <div className="flex flex-wrap items-center gap-2 pb-2">
                 {checkingRunnable ? (
                   <Button disabled className="h-11 px-7 gap-2 text-sm font-medium">
                     <Loader2 className="w-4 h-4 animate-spin" />
                     확인 중
                   </Button>
-                ) : runnable === false && onDownload ? (
+                ) : runnable === false && onRecheck ? (
                   <Button
-                    onClick={onDownload}
-                    disabled={downloading}
+                    onClick={onRecheck}
                     className="h-11 px-7 gap-2 text-sm font-medium"
-                    title="백엔드에 로직이 아직 이관되지 않았습니다 — 다운로드로 이관합니다."
+                    title="이 앱의 서버가 아직 응답하지 않습니다. 누르면 서버 준비 상태를 다시 확인합니다."
                   >
-                    {downloading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Download className="w-4 h-4" />
-                    )}
-                    다운로드
+                    <RefreshCw className="w-4 h-4" />
+                    준비 중 · 다시 확인
                   </Button>
                 ) : (
                   <Button
