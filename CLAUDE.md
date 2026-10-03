@@ -56,9 +56,11 @@ factor-desktop/
 ## 라우팅 (HashRouter)
 
 - `/chat` → ChatPage (default)
-- `/app` → AppPage
+- `/app` → AppPage — APP STORE 는 `app_catalog` 중 `is_active=true` · `item_type='webapp'` · FACTOR 자체 호스트(factor.io.kr) 제외 행만 (`@/features/app/catalogRules`, 2026-10-03)
 - `/monitoring` → MonitoringPage (ProtectedRoute)
 - `/settings` → SettingsPage (ProtectedRoute)
+- `/reports` → 데스크탑 자체 ReportsPage (ProtectedRoute) — 코어 메뉴 "리포트". APP STORE 의 '리포트 (AI 보고서)' 카드는 정리안 A(2026-10-03)로 폐지
+- `/anomaly`, `/anomaly/machines[/:machineId]`, `/anomaly/query`, `/anomaly/live[/:machineId]` → 이상탐지 5화면 (ProtectedRoute). 다섯 화면 모두 `MonitorNav` 탭(대시보드·설비별·시각별 조회·실시간 플릿), 설비별 상세 ↔ 실시간 설비 상세 상호 링크 (2026-10-03)
 - `/login`, `/signup` → 현재 FE 페이지 직접 사용 — Tier 1 의 마지막 단계에 데스크탑 자체로 전환 예정 (R1 강화)
 
 **왜 HashRouter?** Electron 의 `file://` 프로토콜에서 BrowserRouter 의 `history.replaceState` 가 URL 을 `file:///C:/chat` 으로 변형해 라우트 매칭이 깨짐 → 빈 화면. HashRouter 는 `#/chat` 라 경로 변형 없음.
