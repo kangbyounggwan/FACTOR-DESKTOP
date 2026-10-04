@@ -42,6 +42,16 @@ export interface DesktopShellContextValue {
    * AI 웹제어(ref 스냅샷 → click/type)의 대상. 패널이 닫혀 있으면 null.
    */
   webviewRef: MutableRefObject<HTMLElement | null>;
+  /**
+   * 보고서 패널 — 챗 화면 옆 보고서 시트 미리보기(ChatReportPanel) 표시 여부. (chat_panel_design E8)
+   * 상단바 FileBarChart 버튼이 토글하고 ChatPage 가 두 번째 aside 로 소비한다.
+   * `webPanelOpen` 과 **상호 배타** — 한쪽을 열면 다른 쪽은 닫힌다(한 번에 aside 1개).
+   * 자동 열림(SSE `report_sheet` → store.setFromEvent · 대화 복원 포인터 → store.setFromPointer) 은
+   * 공유 store `useSheetPanelStore.open` 을 DesktopShell 이 구독해 이 플래그로 미러한다.
+   * setReportPanelOpen(false)(패널 ✕) 는 상태만 닫는다 — 시트는 store 에 유지되어 토글로 재오픈.
+   */
+  reportPanelOpen: boolean;
+  setReportPanelOpen: (open: boolean) => void;
 }
 
 export const DesktopShellContext = createContext<DesktopShellContextValue | null>(null);

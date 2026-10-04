@@ -1,18 +1,18 @@
 /**
- * 템플릿 편집 모달 (F11) — 실체는 해당 persona 스케줄 생성/수정.
+ * 템플릿 편집 모달 (F11 → F24 스케줄 연결) — 실체는 해당 persona 스케줄 생성/수정.
  *
- * 백엔드 계약 (backend_router.ScheduleCreate/SchedulePatch): cron / persona /
- * request_template / formats 만 수정 가능. 그래서:
+ * 백엔드 계약 (backend_router.ScheduleCreate/SchedulePatch + 마이그 097 `report_schedules.sheet_template_id`):
  *   · 템플릿명 = 코드 고정(PERSONAS) — read-only
- *   · 발송 시각 = "매일 HH:MM" 프리셋 select + 커스텀 cron 텍스트
+ *   · 발송 주기 = CronScheduleBuilder(매일/매주/매월/직접)
  *   · 포맷 = pdf/html/pptx 다중선택 칩
- *   · 섹션 구성 토글 6개 = 백엔드 미지원 — 디자인대로 렌더하되 disabled +
- *     "연동 예정" 툴팁 (매출 포함)
+ *   · 시트 템플릿 = select(페르소나 기본 vs 사용자 저장 시트) → `sheet_template_id` (F24)
+ *   · 섹션 구성 토글 6종(F11) 은 제거 — 디자이너 시트 템플릿으로 대체되었음을 안내 + "디자이너 열기"
  *   · 수신 그룹 칩 = report_recipients 역할 목록 (read-only)
  */
 import { useSubmitOnEnter } from "@/hooks/useSubmitOnEnter";
 import { useEffect, useState } from "react";
-import { Loader2, Trash2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { LayoutGrid, Loader2, Trash2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -25,13 +25,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { CronScheduleBuilder } from "@/features/reports";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
@@ -40,24 +34,23 @@ import type {
   PersonaTemplate,
   ReportFormat,
   ReportSchedule,
+  ScheduleCreate,
+  SchedulePatch,
 } from "@desktop/api/reports";
 
 import { templateDisplayName } from "./meta";
+import { SheetTemplateSelect } from "./ReportsDesignerTab";
 import {
   useCreateReportSchedule,
   useDeleteReportSchedule,
   usePatchReportSchedule,
 } from "./useReports";
 
-/** 섹션 구성 토글 — 디자인(F11) 고정 6종. 전부 백엔드 미지원 → disabled. */
-const SECTION_TOGGLES: { label: string; defaultOn: boolean }[] = [
-  { label: "KPI 요약", defaultOn: true },
-  { label: "품질", defaultOn: true },
-  { label: "생산 실적", defaultOn: true },
-  { label: "예측", defaultOn: true },
-  { label: "비가동 / 원인", defaultOn: true },
-  { label: "매출 (연동 예정)", defaultOn: false },
-];
+/**
+ * 마이그 097 `report_schedules.sheet_template_id` — `api/reports.ts` 의 Schedule* 타입에
+ * 필드가 들어오기 전까지의 로컬 확장(백엔드 계약: null = 페르소나 기본 템플릿).
+ */
+type SheetLink = { sheet_template_id?: string | null };
 
 const FORMAT_OPTIONS: ReportFormat[] = ["pdf", "html", "pptx"];
 
@@ -79,12 +72,15 @@ export function TemplateDialog({
   recipientRoles,
 }: Props) {
   const { toast } = useToast();
+  const navigate = useNavigate();
   const createMutation = useCreateReportSchedule();
   const patchMutation = usePatchReportSchedule();
   const deleteMutation = useDeleteReportSchedule();
 
   const [cron, setCron] = useState("10 8 * * *");
   const [formats, setFormats] = useState<ReportFormat[]>(["pdf"]);
+  /** null = 페르소나 기본 템플릿 */
+  const [sheetTemplateId, setSheetTemplateId] = useState<string | null>(null);
 
   const isPending =
     createMutation.isPending || patchMutation.isPending || deleteMutation.isPending;
@@ -97,6 +93,7 @@ export function TemplateDialog({
       setFormats(
         schedule.formats.length > 0 ? [...schedule.formats] : ["pdf"],
       );
+      setSheetTemplateId((schedule as ReportSchedule & SheetLink).sheet_template_id ?? null);
     } else {
       setCron("10 8 * * *");
       setFormats(
@@ -104,6 +101,7 @@ export function TemplateDialog({
           (FORMAT_OPTIONS as string[]).includes(f),
         ) as ReportFormat[] | undefined) ?? ["pdf"],
       );
+      setSheetTemplateId(null);
     }
   }, [open, schedule, template]);
 
@@ -146,10 +144,19 @@ export function TemplateDialog({
         }),
     };
     if (schedule) {
-      patchMutation.mutate({ id: schedule.id, body: { cron: c, formats } }, opts);
+      const body: SchedulePatch & SheetLink = { cron: c, formats, sheet_template_id: sheetTemplateId };
+      patchMutation.mutate({ id: schedule.id, body }, opts);
     } else {
-      createMutation.mutate({ cron: c, persona, formats }, opts);
+      const body: ScheduleCreate & SheetLink = { cron: c, persona, formats, sheet_template_id: sheetTemplateId };
+      createMutation.mutate(body, opts);
     }
+  };
+
+  /** 디자이너로 — 선택된 시트가 있으면 그 시트를 바로 연다(E9 같은 sheet_id) */
+  const openDesigner = () => {
+    onOpenChange(false);
+    const q = sheetTemplateId ? "&sheet=" + encodeURIComponent(sheetTemplateId) : "";
+    navigate("/reports?tab=designer" + q);
   };
 
   const handleDeleteSchedule = () => {
@@ -182,7 +189,7 @@ export function TemplateDialog({
             </span>
           </DialogTitle>
           <DialogDescription>
-            발송 주기·포맷을 설정합니다. 섹션 구성은 템플릿 코드에 고정되어 있습니다.
+            발송 주기·포맷·시트 템플릿을 설정합니다. 레이아웃은 디자이너 시트가 결정합니다.
           </DialogDescription>
         </DialogHeader>
 
@@ -235,33 +242,39 @@ export function TemplateDialog({
             </div>
           </div>
 
-          {/* 섹션 구성 — 백엔드 미지원, disabled + 연동 예정 툴팁 */}
-          <div className="space-y-2">
-            <p className="ui-fs-xs text-primary font-medium tracking-tight">
-              섹션 구성
-            </p>
-            <div className="grid grid-cols-2 gap-x-6 gap-y-2.5">
-              {SECTION_TOGGLES.map((s) => (
-                <Tooltip key={s.label}>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center justify-between gap-2 cursor-not-allowed">
-                      <span className="ui-fs-xs text-foreground/60">
-                        {s.label}
-                      </span>
-                      <Switch
-                        checked={s.defaultOn}
-                        disabled
-                        aria-label={s.label}
-                        className="scale-90 origin-right opacity-60"
-                      />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="ui-fs-xs">
-                    연동 예정
-                  </TooltipContent>
-                </Tooltip>
-              ))}
+          {/* 시트 템플릿 (F24) — 페르소나 기본 vs 사용자 저장 시트 → sheet_template_id */}
+          <div className="space-y-1.5">
+            <Label className="ui-fs-xs text-foreground/85 font-medium tracking-tight">
+              시트 템플릿
+            </Label>
+            <SheetTemplateSelect
+              value={sheetTemplateId}
+              onChange={setSheetTemplateId}
+              personaLabel={templateDisplayName(persona, template)}
+              disabled={isPending}
+            />
+          </div>
+
+          {/* 섹션 구성 토글(F11 6종) 제거 — 디자이너 시트 템플릿으로 대체 안내 */}
+          <div className="flex items-start gap-2 rounded-lg border border-border/40 bg-foreground/[0.02] px-3 py-2.5">
+            <LayoutGrid className="w-3.5 h-3.5 mt-0.5 text-primary flex-shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="ui-fs-xs text-foreground/85">
+                섹션 구성(KPI 요약 · 품질 · 생산 실적 · 예측 · 비가동 · 매출 토글) 은{" "}
+                <span className="font-semibold">디자이너의 시트 템플릿</span>으로 대체되었습니다.
+              </p>
+              <p className="ui-micro text-muted-foreground/70 mt-0.5 leading-relaxed">
+                블록(데이터 소스 × 기간 × 집계 × 차트) 과 위치를 디자이너에서 구성해 저장한 뒤 위에서 선택하세요.
+                옛 "매출" 자리는 공장별 출하금액(EIS) 블록이 대신합니다.
+              </p>
             </div>
+            <button
+              type="button"
+              onClick={openDesigner}
+              className="ui-fs-xs text-primary hover:underline underline-offset-2 flex-shrink-0"
+            >
+              디자이너 열기
+            </button>
           </div>
 
           {/* 수신 그룹 — report_recipients 역할 목록 (read-only) */}

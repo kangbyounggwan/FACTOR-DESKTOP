@@ -4,13 +4,14 @@
  * 처음 쓰는 사람이 가장 먼저 만나는 화면 중 하나다. 이전엔 "로그인 후 표시됩니다"
  * 라는 **설명만** 있고 로그인 수단이 없어서, 사용자가 사이드바 맨 아래 auth 위젯을
  * 스스로 찾아내야 했다. 다음 행동(로그인)을 이 자리에서 바로 할 수 있게 하고,
- * 로그인 없이도 채팅은 된다는 점을 알려 첫 진입 장벽을 없앤다.
+ * 채팅도 로그인이 필요하다(llm-backend JWT 필수 — 게스트 질문은 401)는 점을 함께 알린다.
  */
 
 import { History, LogIn } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 import { Button } from "@/components/ui/button";
+import { GUEST_CHAT_NOTICE } from "@/features/auth";
 
 export function GuestEmpty() {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ export function GuestEmpty() {
         로그인
       </Button>
       <p className="ui-micro leading-relaxed">
-        로그인 없이도 채팅은 쓸 수 있어요.
+        {GUEST_CHAT_NOTICE}
       </p>
     </div>
   );

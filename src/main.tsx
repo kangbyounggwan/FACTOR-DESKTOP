@@ -5,6 +5,8 @@ import "@/index.css";
 // Section 03 — Sentry renderer init (React render 보다 먼저)
 import { setupSentryRenderer } from "@desktop/lib/sentry-renderer";
 import { ThemeProvider } from "@desktop/lib/theme-provider";
+import { LoginOptionsProvider } from "@/features/auth";
+import { DESKTOP_LOGIN_OPTIONS } from "@desktop/lib/desktopLoginOptions";
 
 setupSentryRenderer();
 
@@ -27,6 +29,9 @@ setupSentryRenderer();
 
 createRoot(document.getElementById("root")!).render(
   <ThemeProvider>
-    <App />
+    {/* 로그인 화면의 보조 경로(재설정·가입) — 웹과의 차이는 이 데이터로만(R5, design.md §6.4) */}
+    <LoginOptionsProvider value={DESKTOP_LOGIN_OPTIONS}>
+      <App />
+    </LoginOptionsProvider>
   </ThemeProvider>,
 );

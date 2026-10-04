@@ -7,15 +7,111 @@
  *
  * 응답 shape 은 report-plugin/backend_router.py · service.py · core/models.py
  * (RunRecord/record_run/ScheduleCreate/SchedulePatch) 를 미러.
+ *
+ * 시트(`/sheets`, 채팅 보고서 패널 · 디자이너) 는 공유 leaf `@/features/reports/designer/core` 의
+ * `createSheetApi` 에 데스크탑 env·세션을 꽂은 `sheetApi` 인스턴스를 쓴다 — leaf 는 env/supabase
+ * 를 직접 읽지 않는다(R7). 타입은 여기서 re-export 해 데스크탑 코드가 한 모듈만 보게 한다.
+ * 이 모듈은 셸(DesktopShell → ChatPage) 초기 번들에 들어가므로 barrel(index.ts) 이 아니라 core 만 import —
+ * 디자이너 UI(gridstack JS/CSS 등 side-effect import) 가 초기 번들에 실리지 않게 한다.
+ * 디자이너 탭(ReportsDesignerTab) 도 여기 `sheetApi`·`REPORT_KEYS` 를 쓴다 — 인스턴스·env 폴백·캐시 키 단일.
  */
 
 import { supabase } from "@/lib/supabase";
+import {
+  createSheetApi,
+  DEFAULT_REPORT_SERVICE_URL,
+  type PreviewMode,
+  type SheetApi,
+  type SheetTemplate,
+} from "@/features/reports/designer/core";
 
-const BASE_URL =
-  (import.meta.env.VITE_REPORT_SERVICE_URL as string | undefined) ??
-  "http://127.0.0.1:8010";
+/**
+ * report-service origin. env 미설정/빈 문자열이면 공유 leaf 의 기본값(127.0.0.1:8010) —
+ * 두 곳(여기·leaf) 의 기본값이 어긋나지 않게 상수를 공유한다.
+ */
+export const REPORT_SERVICE_BASE_URL: string =
+  (import.meta.env.VITE_REPORT_SERVICE_URL as string | undefined) ||
+  DEFAULT_REPORT_SERVICE_URL;
+
+const BASE_URL = REPORT_SERVICE_BASE_URL;
 
 const ROOT = `${BASE_URL.replace(/\/$/, "")}/api/reports/v1`;
+
+// ── 시트(보고서 시트 디자이너 · 채팅 보고서 패널) — 공유 leaf 타입 re-export ───────────
+
+export type {
+  SheetTemplate,
+  BlockSpec,
+  BlockPos,
+  SheetDiff,
+  SheetStatus,
+  SheetVisibility,
+  PreviewMode,
+  SheetBudget,
+  SheetPointer,
+  ReportSheetEvent,
+  ReportContext,
+  SheetOp,
+  VizType,
+  SheetApi,
+  SheetSummary,
+  SheetListParams,
+  SheetListResponse,
+  SheetCreate,
+  SheetUpdate,
+  CatalogSource,
+  SheetCatalog,
+  SheetOpsResult,
+  SheetPreview,
+  PreviewOptions,
+  SheetVersion,
+  SheetVersionsResponse,
+} from "@/features/reports/designer/core";
+export { SheetApiError, SheetConflictError, isSheetConflict } from "@/features/reports/designer/core";
+
+/** supabase 세션 access_token — 없으면 null(헤더 생략, 서버가 401 결정). throw 하지 않는다 */
+async function sheetAccessToken(): Promise<string | null> {
+  const { data } = await supabase.auth.getSession();
+  return data.session?.access_token ?? null;
+}
+
+/** report-service `/api/reports/v1/sheets` 클라이언트 — 데스크탑 단일 인스턴스 */
+export const sheetApi: SheetApi = createSheetApi({
+  baseUrl: BASE_URL,
+  getToken: sheetAccessToken,
+});
+
+/** Save only the version currently displayed, using the shared sheet transport. */
+export function saveReportSheet(id: string, version: number): Promise<SheetTemplate> {
+  if (!Number.isInteger(version) || version < 0) return Promise.reject(new Error("Invalid sheet version"));
+  return createSheetApi({
+    baseUrl: BASE_URL,
+    getToken: sheetAccessToken,
+    fetchImpl: (input, init) => {
+      const headers = new Headers(init?.headers);
+      headers.set("If-Match", String(version));
+      return fetch(input, { ...init, headers });
+    },
+  }).applySheet(id);
+}
+
+/**
+ * React Query 키 — 시트 관련. (runs/templates/schedules 키는
+ * features/settings/sections/reports/useReports.ts 의 로컬 REPORT_KEYS 가 관리 — 접두 "reports" 공유.)
+ */
+export const REPORT_KEYS = {
+  all: ["reports"] as const,
+  /** GET /sheets 목록 */
+  sheets: ["reports", "sheets"] as const,
+  /** GET /sheets/{id} — version 을 키에 넣어 버전이 바뀐 뒤 stale 템플릿이 재사용되지 않게 */
+  sheet: (id: string, version?: number | null) =>
+    ["reports", "sheet", id, version ?? "latest"] as const,
+  /** POST /sheets/{id}/preview — (id, version, mode) 별 캐시 */
+  sheetPreview: (id: string, version: number | null, mode: PreviewMode) =>
+    ["reports", "sheetPreview", id, version, mode] as const,
+  /** GET /sheets/catalog */
+  sheetCatalog: ["reports", "sheetCatalog"] as const,
+};
 
 // ── Types — backend Pydantic 모델 / report_runs row 와 1:1 ────────────────
 
@@ -115,6 +211,13 @@ export interface GenerateRequest {
   persona?: Persona;
   target?: string | null;
   formats?: ReportFormat[];
+  /** [startDate, endDate] ISO — 생성 탭이 항상 전송(미전송 시 백엔드가 '어제' 고정) */
+  period?: [string, string] | null;
+  /**
+   * 보고서 시트 템플릿 id(마이그 097 `report_runs.sheet_template_id`). 지정 시 persona 플래너 대신
+   * 시트 렌더러(같은 renderer = 미리보기) 로 PDF/PPTX 생성 — 채팅 보고서 패널 PDF 버튼이 사용.
+   */
+  sheet_template_id?: string | null;
 }
 
 interface GenerateResponse {
@@ -220,6 +323,56 @@ async function request<T>(input: string, init?: RequestInit): Promise<T> {
 }
 
 // ── API surface ─────────────────────────────────────────────────────────
+
+export interface AccountReportFormat {
+  configured: boolean;
+  reason?: "unassigned" | "unavailable";
+  sheet_id?: string;
+  version?: number;
+  name?: string;
+  default_format?: { key: "eis_executive"; name: string; version: number };
+}
+
+export interface ReportRecommendation {
+  id: string;
+  title: string;
+  excerpt: string;
+  as_of: string | null;
+  cards_count: number;
+}
+
+export interface ReportContentMission {
+  id: string;
+  topic: string;
+  label: string;
+  question: string;
+  excerpt: string;
+  scope: string;
+  source_label: string;
+  as_of: string | null;
+}
+
+export const accountReportApi = {
+  getFormat: () => request<AccountReportFormat>(`${ROOT}/sheets/account-format`),
+  setFormat: (sheetId: string | null) => request<AccountReportFormat>(`${ROOT}/sheets/account-format`, {
+    method: "PUT", body: JSON.stringify({ sheet_id: sheetId }),
+  }),
+  contentMissions: (sheetId: string, conversationId: string) => request<{ items: ReportContentMission[] }>(
+    `${ROOT}/sheets/${encodeURIComponent(sheetId)}/content-missions?conversation_id=${encodeURIComponent(conversationId)}`),
+  addContentMission: (sheetId: string, conversationId: string, missionId: string, version: number) => request<{
+    sheet: Partial<SheetTemplate>; template: SheetTemplate; warnings: string[]; diff: import("@/features/reports/designer/core").SheetDiff;
+  }>(`${ROOT}/sheets/${encodeURIComponent(sheetId)}/content-missions`, {
+    method: "POST", headers: { "If-Match": String(version) },
+    body: JSON.stringify({ conversation_id: conversationId, mission_id: missionId }),
+  }),
+  recommendations: (conversationId: string) => request<{ items: ReportRecommendation[] }>(
+    `${ROOT}/sheets/recommendations?conversation_id=${encodeURIComponent(conversationId)}`),
+  applyRecommendations: (conversationId: string, selectedIds: string[]) => request<{
+    sheet: Partial<SheetTemplate>; template: SheetTemplate; warnings: string[];
+  }>(`${ROOT}/sheets/from-recommendations`, {
+    method: "POST", body: JSON.stringify({ conversation_id: conversationId, selected_ids: selectedIds }),
+  }),
+};
 
 export function listRuns(limit = 100): Promise<{ runs: ReportRun[] }> {
   return request(`${ROOT}/runs?limit=${limit}`);

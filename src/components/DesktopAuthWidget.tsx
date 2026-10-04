@@ -11,12 +11,13 @@
  * - 로그인 → 트리거 클릭 시 **Popover**로 프로필 메뉴(설정·로그아웃) 표시
  *
  * 로그인 모달은 RequireAuthDialog를 직접 사용해 일관성 보장.
+ * 위젯 모달에서 로그인 성공 → 게스트 트리거가 프로필 버튼으로 바뀌므로 포커스를 프로필 버튼으로(design.md S13 "위젯").
  */
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, LogOut, Settings, Loader2, ChevronUp } from "lucide-react";
-import { useAuth } from "@/features/auth";
+import { ACCOUNT_LOGIN_DESCRIPTION, ACCOUNT_LOGIN_TITLE, useAuth } from "@/features/auth";
 import { Button } from "@/components/ui/button";
 import {
   Popover,
@@ -37,6 +38,16 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
   const navigate = useNavigate();
   const [profileOpen, setProfileOpen] = useState(false);
   const [loginOpen, setLoginOpen] = useState(false);
+
+  // 위젯 모달로 로그인하면 모달을 연 게스트 트리거가 사라진다(프로필 버튼으로 교체) → 래퍼가 돌아갈 곳이 없어
+  // 포커스가 <body> 로 떨어지므로, 로그인이 반영된 렌더 뒤 새 프로필 버튼으로 옮긴다.
+  const profileTriggerRef = useRef<HTMLButtonElement>(null);
+  const focusProfileAfterLoginRef = useRef(false);
+  useEffect(() => {
+    if (!focusProfileAfterLoginRef.current || !isAuthenticated || !profileTriggerRef.current) return;
+    focusProfileAfterLoginRef.current = false;
+    profileTriggerRef.current.focus();
+  });
 
   // ⚠ 과거에는 `if (!isDesktop) return null` 로 window.electron 없으면 widget 자체를
   // 숨겼는데, (1) dev preview (브라우저, electron preload 없음) 에서 위젯이 통째로
@@ -136,8 +147,11 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
         <RequireAuthDialog
           open={loginOpen}
           onOpenChange={setLoginOpen}
-          title="로그인"
-          description="대화 기록과 개인화 기능을 사용하려면 로그인하세요."
+          onSuccess={() => {
+            focusProfileAfterLoginRef.current = true;
+          }}
+          title={ACCOUNT_LOGIN_TITLE}
+          description={ACCOUNT_LOGIN_DESCRIPTION}
         />
       </div>
     );
@@ -148,7 +162,7 @@ export function DesktopAuthWidget({ inline = false }: Props = {}) {
     <div className={containerClassName}>
       <Popover open={profileOpen} onOpenChange={setProfileOpen}>
         <PopoverTrigger asChild>
-          <button type="button" className={triggerClassName}>
+          <button ref={profileTriggerRef} type="button" className={triggerClassName}>
             {triggerContent}
           </button>
         </PopoverTrigger>

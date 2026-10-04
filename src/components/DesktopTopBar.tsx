@@ -17,6 +17,7 @@ import {
   ArrowLeft,
   ArrowRight,
   Globe,
+  FileBarChart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,6 +47,13 @@ interface Props {
   onToggleWeb?: () => void;
   /** 웹 패널이 열려 있는지 (버튼 활성 표시) */
   webPanelOpen?: boolean;
+  /**
+   * 📊 보고서 패널 — 챗 옆에 보고서 시트 미리보기(ChatReportPanel) 토글. 미지정 시 버튼 숨김.
+   * (챗 화면에서만 노출 — DesktopShell 이 isOnChat 일 때만 핸들러를 넘긴다.) 웹 패널과 상호 배타.
+   */
+  onToggleReport?: () => void;
+  /** 보고서 패널이 열려 있는지 (버튼 활성 표시) */
+  reportPanelOpen?: boolean;
 }
 
 export function DesktopTopBar({
@@ -56,6 +64,8 @@ export function DesktopTopBar({
   title = "FACTOR DESKTOP",
   onToggleWeb,
   webPanelOpen,
+  onToggleReport,
+  reportPanelOpen,
 }: Props) {
   const navigate = useNavigate();
 
@@ -110,15 +120,25 @@ export function DesktopTopBar({
         {title}
       </div>
 
-      {/* 우측 액션 — 웹 연결(챗 옆 웹 렌더러 토글) */}
-      {onToggleWeb && (
+      {/* 우측 액션 — 웹 연결(챗 옆 웹 렌더러) · 보고서 패널(챗 옆 시트 미리보기). 둘은 상호 배타 토글 */}
+      {(onToggleWeb || onToggleReport) && (
         <div className="flex items-center gap-0.5 px-2">
-          <ToolbarButton
-            icon={Globe}
-            label={webPanelOpen ? "웹 패널 닫기" : "웹 연결"}
-            onClick={onToggleWeb}
-            active={webPanelOpen}
-          />
+          {onToggleWeb && (
+            <ToolbarButton
+              icon={Globe}
+              label={webPanelOpen ? "웹 패널 닫기" : "웹 연결"}
+              onClick={onToggleWeb}
+              active={webPanelOpen}
+            />
+          )}
+          {onToggleReport && (
+            <ToolbarButton
+              icon={FileBarChart}
+              label={reportPanelOpen ? "보고서 패널 닫기" : "보고서 패널"}
+              onClick={onToggleReport}
+              active={reportPanelOpen}
+            />
+          )}
         </div>
       )}
 

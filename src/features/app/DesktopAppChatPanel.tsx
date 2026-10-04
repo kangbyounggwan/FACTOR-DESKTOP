@@ -32,7 +32,10 @@ export function DesktopAppChatPanel(chat: DesktopAppChatPanelProps) {
         value={input}
         onChange={setInput}
         onSubmit={handleSubmit}
-        isLoading={isLoading}
+        isLoading={chat.isGenerating}
+        disabled={isLoading && !chat.isGenerating}
+        queue={chat.messageQueue}
+        onStop={chat.stopGeneration}
       />
     </div>
   );
@@ -75,10 +78,12 @@ function DesktopAppChatSplash({
             value={input}
             onChange={(e) => onChange(e.target.value)}
             placeholder="어떤 도움을 드릴까요?"
+            aria-label="질문 입력"
             disabled={isLoading}
             rows={3}
             onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
+              if (e.nativeEvent.isComposing || e.keyCode === 229) return;
+              if (e.key === "Enter" && !e.shiftKey && !isLoading && input.trim()) {
                 e.preventDefault();
                 onSubmit(e as unknown as React.FormEvent);
               }
@@ -91,6 +96,7 @@ function DesktopAppChatSplash({
               size="icon"
               disabled={isLoading || !input.trim()}
               className="h-8 w-8 rounded-lg"
+              aria-label="전송"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />

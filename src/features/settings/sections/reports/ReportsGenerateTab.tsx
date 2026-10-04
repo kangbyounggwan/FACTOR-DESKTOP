@@ -1,10 +1,13 @@
 /**
  * 보고서 관리 — [생성] 탭.
  *
- * AI 리포트 생성(정형 폼): 페르소나 + 기간 + 포맷 → POST /generate. 성공 시 run_id 로
+ * AI 리포트 생성(정형 폼): 페르소나 + 시트 템플릿 + 기간 + 포맷 → POST /generate. 성공 시 run_id 로
  * 뷰어(폴링)를 열어 진행 상황을 보여준다. (백엔드 계약: 202+run_id → GET /runs/{id} 폴링.)
  * PoC 는 정형 컨트롤만 — 자유 텍스트/대상 라인 지정은 후속(사용자 의견 반영). 기간을 반드시
  * 전송한다(미전송 시 백엔드가 '어제'로 고정되던 문제 해소).
+ *
+ * 시트 템플릿(디자이너 저장 시트) 을 고르면 `GenerateRequest.sheet_template_id` 로 보내 페르소나
+ * 섹션 대신 시트 레이아웃(블록 · 차트 · 위치) 으로 생성된다(마이그 097 `report_runs.sheet_template_id`).
  */
 import { memo, useMemo, useState } from "react";
 import { Loader2, Sparkles } from "lucide-react";
@@ -13,9 +16,10 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 
-import type { Persona, ReportFormat } from "@desktop/api/reports";
+import type { GenerateRequest, Persona, ReportFormat } from "@desktop/api/reports";
 
 import { PERSONA_LABEL, PERSONAS_ORDER, templateDisplayName } from "./meta";
+import { SheetTemplateSelect, useSheetList } from "./ReportsDesignerTab";
 import { useGenerateReport, useReportTemplates } from "./useReports";
 
 interface Props {
@@ -75,6 +79,14 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
   const [persona, setPersona] = useState<Persona>("executive");
   const [period, setPeriod] = useState<PeriodKey>("yesterday");
   const [formats, setFormats] = useState<ReportFormat[]>(["pdf"]);
+  /** null = 페르소나 기본 템플릿 */
+  const [sheetTemplateId, setSheetTemplateId] = useState<string | null>(null);
+
+  const sheetsQuery = useSheetList();
+  const selectedSheet = useMemo(
+    () => (sheetTemplateId ? sheetsQuery.data?.sheets.find((s) => s.id === sheetTemplateId) ?? null : null),
+    [sheetTemplateId, sheetsQuery.data],
+  );
 
   const tpl = templatesQuery.data?.[persona];
   const sections = useMemo(
@@ -92,8 +104,14 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
       toast({ title: "출력 포맷을 하나 이상 선택하세요.", variant: "destructive" });
       return;
     }
+    const body: GenerateRequest = {
+      persona,
+      period: periodRange(period),
+      formats,
+      sheet_template_id: sheetTemplateId,
+    };
     generateMutation.mutate(
-      { persona, period: periodRange(period), formats },
+      body,
       {
         onSuccess: (res) => {
           toast({
@@ -148,15 +166,44 @@ export const ReportsGenerateTab = memo(function ReportsGenerateTab({
         </div>
       </section>
 
-      {/* ── 섹션 구성 미리보기 ── */}
+      {/* ── 시트 템플릿 (디자이너 저장 시트 → sheet_template_id) ── */}
       <section className="space-y-2.5">
         <SectionLabel>
-          포함 섹션
+          시트 템플릿
           <span className="ml-1.5 text-muted-foreground/50 normal-case tracking-normal font-normal">
-            · {templateDisplayName(persona, tpl)}
+            · 레이아웃 (페르소나 기본 또는 디자이너 시트)
           </span>
         </SectionLabel>
-        {templatesQuery.isLoading ? (
+        <SheetTemplateSelect
+          value={sheetTemplateId}
+          onChange={setSheetTemplateId}
+          personaLabel={templateDisplayName(persona, tpl)}
+          disabled={generateMutation.isPending}
+          className="max-w-[460px]"
+        />
+      </section>
+
+      {/* ── 섹션 구성 미리보기 (시트 선택 시엔 시트 블록이 섹션을 대체) ── */}
+      <section className="space-y-2.5">
+        <SectionLabel>
+          {selectedSheet ? "시트 레이아웃" : "포함 섹션"}
+          <span className="ml-1.5 text-muted-foreground/50 normal-case tracking-normal font-normal">
+            · {selectedSheet ? selectedSheet.name : templateDisplayName(persona, tpl)}
+          </span>
+        </SectionLabel>
+        {selectedSheet ? (
+          <div className="flex flex-wrap items-center gap-1.5">
+            <span className="px-2.5 py-1 rounded-md ui-fs-xs bg-primary/[0.08] border border-primary/30 text-foreground/85">
+              블록 {selectedSheet.block_count ?? 0}개
+            </span>
+            <span className="px-2.5 py-1 rounded-md ui-fs-xs bg-foreground/[0.04] border border-border/40 text-foreground/75">
+              {selectedSheet.page?.orientation === "portrait" ? "A4 세로" : "A4 가로"} · v{selectedSheet.version}
+            </span>
+            <span className="ui-micro text-muted-foreground/60">
+              페르소나 섹션 대신 시트 블록으로 생성됩니다. 블록 구성은 [디자이너] 탭에서.
+            </span>
+          </div>
+        ) : templatesQuery.isLoading ? (
           <div className="ui-micro text-muted-foreground/60">불러오는 중…</div>
         ) : sections.length === 0 ? (
           <div className="ui-micro text-muted-foreground/60">섹션 정보 없음</div>

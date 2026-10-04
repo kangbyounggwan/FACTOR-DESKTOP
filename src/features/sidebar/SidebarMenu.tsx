@@ -14,6 +14,7 @@ import {
   type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { AUTH_GATE_DESCRIPTION, AUTH_REQUIRED_TITLE } from "@/features/auth";
 import { useDesktopShell } from "@desktop/components/DesktopShellContext";
 
 interface Props {
@@ -27,34 +28,35 @@ export function SidebarMenu({ onStartNew, onSearch }: Props) {
 
   // 설정 진입: 로그인 안 됐으면 DesktopShell의 RequireAuthDialog(중앙 모달)를
   // 띄우고, 로그인 성공 시 /settings로 이동. DASHBOARD 버튼과 동일 UX.
+  // 문구: 제목은 상황 공통, 설명은 메뉴별 고정 문장 — 웹과 같은 상수(design.md §4.1).
   const handleSettings = useCallback(() => {
     requireAuth(() => navigate("/settings"), {
-      title: "설정 접근에는 로그인이 필요합니다",
-      description: "이메일로 로그인하면 개인/시스템 설정을 사용할 수 있습니다.",
+      title: AUTH_REQUIRED_TITLE,
+      description: AUTH_GATE_DESCRIPTION.settings,
     });
   }, [navigate, requireAuth]);
 
   // 온톨로지 플러그인: user_id 스코프라 로그인 필요 (설정과 동일 UX).
   const handleOntology = useCallback(() => {
     requireAuth(() => navigate("/ontology"), {
-      title: "플러그인 설치에는 로그인이 필요합니다",
-      description: "로그인하면 소속 회사의 온톨로지 플러그인을 다운로드할 수 있습니다.",
+      title: AUTH_REQUIRED_TITLE,
+      description: AUTH_GATE_DESCRIPTION.ontologyPlugin,
     });
   }, [navigate, requireAuth]);
 
   // 리포트: 회사 스코프(수신자/이력)라 로그인 필요 (설정과 동일 UX).
   const handleReports = useCallback(() => {
     requireAuth(() => navigate("/reports"), {
-      title: "리포트 사용에는 로그인이 필요합니다",
-      description: "로그인하면 소속 회사의 리포트 생성·이력·수신자를 관리할 수 있습니다.",
+      title: AUTH_REQUIRED_TITLE,
+      description: AUTH_GATE_DESCRIPTION.reports,
     });
   }, [navigate, requireAuth]);
 
   // 이상탐지: 설비 데이터 스코프라 로그인 필요 (설정과 동일 UX).
   const handleAnomaly = useCallback(() => {
     requireAuth(() => navigate("/anomaly"), {
-      title: "이상탐지 사용에는 로그인이 필요합니다",
-      description: "로그인하면 가공 부하 이상탐지 모니터링(통계·설비별·시각별 조회)을 볼 수 있습니다.",
+      title: AUTH_REQUIRED_TITLE,
+      description: AUTH_GATE_DESCRIPTION.anomaly,
     });
   }, [navigate, requireAuth]);
 

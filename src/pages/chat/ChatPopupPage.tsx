@@ -5,23 +5,57 @@
  * DesktopShell 밖의 독립 라우트라 자체 titlebar 를 그린다:
  *   - 상단 바: 드래그 영역(-webkit-app-region: drag) + 투명도 슬라이더 + 닫기
  *   - 본문: useAIChat (독립 대화) + ChatMessageList + ChatInput
+ *   - 채팅 401 → 안내 카드의 "로그인" 이 이 창 안의 로그인 모달(데스크탑 RequireAuthDialog)을 연다. 셸 밖이라
+ *     DesktopShell 의 모달이 없으므로 자체로 연다. 로그인 성공 시 같은 질문 재전송 + 입력창으로 포커스.
+ *     로그인 상태였는데 401 이면 세션 만료 문구 + 마지막 이메일. 가입은 이 작은 창에서 페이지 이동 대신
+ *     발급 안내 1줄(DESKTOP_POPUP_LOGIN_OPTIONS — 분기 prop 이 아니라 데이터, R5).
  *
  * 투명도 슬라이더 → electron.chatPopup.setOpacity (메인 프로세스 win.setOpacity).
  */
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { Bot, X } from "lucide-react";
+import { LoginOptionsProvider, useAuth } from "@/features/auth";
 import { useAIChat } from "@/features/monitoring/hooks/useAIChat";
+import { useChatInputFocusAfterLogin } from "@/features/monitoring/hooks/useChatInputFocusAfterLogin";
+import {
+  CHAT_AUTH_REQUIRED_DESCRIPTION,
+  CHAT_AUTH_REQUIRED_TITLE,
+  CHAT_SESSION_EXPIRED_DESCRIPTION,
+  CHAT_SESSION_EXPIRED_TITLE,
+} from "@/features/monitoring/constants/aiChatConstants";
 import { ChatMessageList } from "@/features/monitoring/components/ai-chat/ChatMessageList";
 import { ChatInput } from "@/features/monitoring/components/ai-chat/ChatInput";
+import { RequireAuthDialog } from "@desktop/components/RequireAuthDialog";
 import { electron } from "@desktop/lib/electron";
+import { DESKTOP_POPUP_LOGIN_OPTIONS } from "@desktop/lib/desktopLoginOptions";
 
 // -webkit-app-region 은 Electron 전용 CSS 속성 — CSSProperties 에 없어 computed key 로 우회.
 const DRAG_REGION: React.CSSProperties = { ["WebkitAppRegion" as never]: "drag" };
 const NO_DRAG: React.CSSProperties = { ["WebkitAppRegion" as never]: "no-drag" };
 
 export default function ChatPopupPage() {
-  const chat = useAIChat();
+  // 채팅 401 안내 카드의 "로그인" → 로그인 모달. 성공하면 retry(같은 질문 재전송). 훅은 옵션을 ref 로 최신
+  // 참조하므로 인라인 콜백이어도 된다. 누른 시점에 로그인 상태면 세션 만료(토큰 만료·거부) 문구 + 마지막 이메일.
+  const { isAuthenticated, user } = useAuth();
+  const [authOpen, setAuthOpen] = useState(false);
+  const [authSessionExpired, setAuthSessionExpired] = useState(false);
+  const pendingRetryRef = useRef<(() => void) | null>(null);
+  const chat = useAIChat({
+    onAuthRequired: (retry) => {
+      pendingRetryRef.current = retry;
+      setAuthSessionExpired(isAuthenticated);
+      setAuthOpen(true);
+    },
+  });
+  const chatInputFocus = useChatInputFocusAfterLogin(chat.isLoading);
+  const handleAuthSuccess = () => {
+    const retry = pendingRetryRef.current;
+    pendingRetryRef.current = null;
+    if (!retry) return;
+    chatInputFocus.armAfterLogin();
+    retry();
+  };
   const [opacity, setOpacity] = useState(100);
 
   const applyOpacity = (v: number) => {
@@ -89,9 +123,26 @@ export default function ChatPopupPage() {
           value={chat.input}
           onChange={chat.setInput}
           onSubmit={handleSubmit}
-          isLoading={chat.isLoading}
+          isLoading={chat.isGenerating}
+          disabled={chat.isLoading && !chat.isGenerating}
+          queue={chat.messageQueue}
+          onStop={chat.stopGeneration}
         />
       </div>
+
+      <LoginOptionsProvider value={DESKTOP_POPUP_LOGIN_OPTIONS}>
+        <RequireAuthDialog
+          open={authOpen}
+          onOpenChange={setAuthOpen}
+          onSuccess={handleAuthSuccess}
+          title={authSessionExpired ? CHAT_SESSION_EXPIRED_TITLE : CHAT_AUTH_REQUIRED_TITLE}
+          description={
+            authSessionExpired ? CHAT_SESSION_EXPIRED_DESCRIPTION : CHAT_AUTH_REQUIRED_DESCRIPTION
+          }
+          defaultEmail={authSessionExpired ? (user?.email ?? undefined) : undefined}
+          onCloseAutoFocus={chatInputFocus.onCloseAutoFocus}
+        />
+      </LoginOptionsProvider>
     </div>
   );
 }

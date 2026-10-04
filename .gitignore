@@ -13,3 +13,8 @@ _build_log.txt
 .gstack/
 release2/
 release3/
+
+# TypeScript build metadata and generated Vite config siblings
+*.tsbuildinfo
+/vite.config.js
+/vite.config.d.ts

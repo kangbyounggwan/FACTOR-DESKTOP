@@ -39,11 +39,14 @@ const ZoneDetailPage = lazy(() => import("@desktop/pages/monitoring/ZoneDetailPa
 const SettingsPage = lazy(() => import("@desktop/pages/settings/SettingsPage"));
 // 리포트 앱 — 보고서 관리(설정에서 분리한 독립 페이지, Figma 기획 반영).
 const ReportsPage = lazy(() => import("@desktop/pages/reports/ReportsPage"));
-// 가공 부하 이상탐지 — 모니터링(통계 대시보드/설비별/시각별 조회, GridStack) + 실시간 플릿(B1/B2).
+// 가공 부하 이상탐지 — 대시보드(설비별 현황 표, L1) → 설비 세부(L2 스택 페이지) · 시각별 조회(GridStack) + 실시간 플릿(B1/B2).
 // leaf 는 FE(anomaly-eye-monitor) 공유, 페이지는 데스크탑 소유 (R1/R6).
 const AnomalyDashboardPage = lazy(() => import("@desktop/pages/anomaly/AnomalyDashboardPage"));
 const AnomalyMachineMonitorPage = lazy(() => import("@desktop/pages/anomaly/AnomalyMachineMonitorPage"));
 const AnomalyQueryPage = lazy(() => import("@desktop/pages/anomaly/AnomalyQueryPage"));
+const AnomalyHeatMachinesPage = lazy(() => import("@desktop/pages/anomaly/AnomalyHeatMachinesPage"));
+const AnomalyHeatGridPage = lazy(() => import("@desktop/pages/anomaly/AnomalyHeatGridPage"));
+const AnomalyHeatTrendPage = lazy(() => import("@desktop/pages/anomaly/AnomalyHeatTrendPage"));
 const AnomalyFleetPage = lazy(() => import("@desktop/pages/anomaly/AnomalyFleetPage"));
 const AnomalyMachinePage = lazy(() => import("@desktop/pages/anomaly/AnomalyMachinePage"));
 
@@ -182,16 +185,8 @@ const App = () => (
                   </ProtectedRoute>
                 }
               />
-              <Route
-                path="/anomaly/machines"
-                element={
-                  <ProtectedRoute>
-                    <Suspense fallback={<PageLoader />}>
-                      <AnomalyMachineMonitorPage />
-                    </Suspense>
-                  </ProtectedRoute>
-                }
-              />
+              {/* 설비 없는 설비 화면 → 대시보드(설비 고르기는 표가 맡는다 — 2026-10-04 가공 스택, design.md §1.3) */}
+              <Route path="/anomaly/machines" element={<Navigate to="/anomaly" replace />} />
               <Route
                 path="/anomaly/machines/:machineId"
                 element={
@@ -208,6 +203,38 @@ const App = () => (
                   <ProtectedRoute>
                     <Suspense fallback={<PageLoader />}>
                       <AnomalyQueryPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              {/* 열처리 이상탐지 — 공정별 추이(첫 탭 #/anomaly/heat) · 공정별 이상률(바둑판) · 설비별(설비 상세 창) (MonitorNav '가공 | 열처리' 칩).
+                  2026-10-05 옛 첫 탭(부위 상태 화면) 삭제 · 같은 주소에 공정별 추이 */}
+              <Route
+                path="/anomaly/heat"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <AnomalyHeatTrendPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/anomaly/heat/machines"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <AnomalyHeatMachinesPage />
+                    </Suspense>
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/anomaly/heat/grid"
+                element={
+                  <ProtectedRoute>
+                    <Suspense fallback={<PageLoader />}>
+                      <AnomalyHeatGridPage />
                     </Suspense>
                   </ProtectedRoute>
                 }
